@@ -15,14 +15,15 @@ El documento se compila a partir de `main.tex`, que incluye un archivo por capí
 | Archivo | Contenido |
 |---|---|
 | `main.tex` | Preámbulo, portada, resumen y palabras clave |
-| `introduccion.tex` | Introducción |
-| `definicion_del_problema.tex` | Capítulo 1 — Definición del problema |
-| `marco_conceptual.tex` | Capítulo 2 — Marco conceptual |
-| `propuesta_de_solucion.tex` | Capítulo 3 — Propuesta de solución |
-| `validacion_de_la_solucion.tex` | Capítulo 4 — Validación de la solución |
-| `conclusiones.tex` | Conclusiones |
-| `anexos.tex` | Anexos |
-| `glosario.tex` | Glosario de siglas |
+| `000_portadas.tex` | Portadas |
+| `100_glosario.tex` | Glosario de siglas |
+| `200_introduccion.tex` | Introducción |
+| `300_definicion_del_problema.tex` | Capítulo 1 — Definición del problema |
+| `400_marco_conceptual.tex` | Capítulo 2 — Marco conceptual |
+| `500_propuesta_de_solucion.tex` | Capítulo 3 — Propuesta de solución |
+| `600_validacion_de_la_solucion.tex` | Capítulo 4 — Validación de la solución |
+| `700_conclusiones.tex` | Conclusiones |
+| `800_anexos.tex` | Anexos |
 | `bibliografia.bib` | Referencias bibliográficas (BibTeX) |
 
 Este es un fork de [autopawn/tex-thesis-template](https://github.com/autopawn/tex-thesis-template), la planilla LaTeX estándar usada para memorias de título en el Departamento de Informática de la UTFSM.
