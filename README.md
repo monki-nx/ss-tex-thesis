@@ -1,20 +1,35 @@
-# tex-thesis-template
+# Asistente de accesibilidad web para personas con discapacidad visual mediante Inteligencia Artificial
 
-Planilla LaTeX para las memorias para optar al título de Ingeniero Civil en Informática de la UTFSM.
+Fuente en LaTeX de una memoria para optar al título de Ingeniero Civil en Informática de la Universidad Técnica Federico Santa María (UTFSM). Actualmente en desarrollo.
 
-# Indicaciones de formato
+## Sobre la memoria
 
-Cumplir estas reglas de formato depende de Ud.:
+Los lectores de pantalla tradicionales (como JAWS o NVDA) interpretan el DOM de una página web, pero no su contenido visual: imágenes, gráficos, captchas o la estructura espacial de un sitio quedan fuera de su alcance. Esta memoria propone y valida un prototipo que, a partir de capturas de pantalla de un sitio web, usa un modelo de visión y lenguaje (VLM) para interpretar ese contenido visual y comunicarlo por voz, como complemento a los lectores de pantalla existentes.
 
-* La extensión máxima de toda la Memoria es de 100 páginas.
-* Los Anexos son optativos y adicionales, y están incluidos en el límite de 100 páginas. También se deben enumerar por letras: Anexo A, Anexo B, etc.
-* Recuerde que el número, nombre y autor de las Figuras e ilustraciones se colocarán en la parte inferior de las mismas. En el caso de las Tablas, estos datos deben colocarse en la parte superior. En la medida de lo posible, figuras y tablas deben quedar ubicadas dentro de la página que se les referencia (no es conveniente usar imágenes cortadas). El formato para número, nombre y autor de figuras y tablas es a criterio del autor.
-* No olvide colocar notas al pie1, que sean explicativas y útiles, en su proyecto de memoria.
-* Las palabras en inglés, en otros idiomas, o modismos, deben escribirse en cursiva. Ejemplo: *keyword*, *bonjour*, *farmear*.
+La metodología de trabajo sigue cuatro etapas: una encuesta a personas con discapacidad visual para levantar y validar el problema, el desarrollo de un prototipo funcional, un benchmark para seleccionar el modelo VLM más adecuado, y una validación final con usuarios reales.
 
-# Requisitos
+## Contenido del repositorio
 
-Los siguientes paquetes se deben instalar para compilar el documento, al menos en `Fedora`:
+El documento se compila a partir de `main.tex`, que incluye un archivo por capítulo:
+
+| Archivo | Contenido |
+|---|---|
+| `main.tex` | Preámbulo, portada, resumen y palabras clave |
+| `introduccion.tex` | Introducción |
+| `definicion_del_problema.tex` | Capítulo 1 — Definición del problema |
+| `marco_conceptual.tex` | Capítulo 2 — Marco conceptual |
+| `propuesta_de_solucion.tex` | Capítulo 3 — Propuesta de solución |
+| `validacion_de_la_solucion.tex` | Capítulo 4 — Validación de la solución |
+| `conclusiones.tex` | Conclusiones |
+| `anexos.tex` | Anexos |
+| `glosario.tex` | Glosario de siglas |
+| `bibliografia.bib` | Referencias bibliográficas (BibTeX) |
+
+Este es un fork de [autopawn/tex-thesis-template](https://github.com/autopawn/tex-thesis-template), la planilla LaTeX estándar usada para memorias de título en el Departamento de Informática de la UTFSM.
+
+## Compilación
+
+Requiere `xelatex` (no `pdflatex`, por el uso de fuentes del sistema vía `fontspec`) y `bibtex`. Los siguientes paquetes se deben instalar para compilar el documento, al menos en `Fedora`:
 
 ```
 texlive
@@ -34,14 +49,16 @@ texlive-float
 texlive-koma-script
 ```
 
-Si encuentra un paquete que esté faltando, por favor [escriba una issue](https://github.com/Autopawn/tex-thesis-template/issues/new), generalmente su nombre comenzará con `texlive` y contendrá el mismo nombre del archivo `.sty` faltante mencionado en el error que salga.
+En Windows, una alternativa es instalar [MiKTeX](https://miktex.org/), que resuelve los paquetes faltantes automáticamente.
 
-Si aun así tiene problemas para compilar en otras distribuciones, puede optar por la medida extrema de instalar `texlive-*`.
+Con los requisitos instalados, se puede compilar con:
 
-# Font
+```
+make document
+```
 
-La font principal debería ser `Calibri`, pero hay que pagar por ella al menos que se esté usando Windows. En su defecto se usa la métricamente compatible `Carlito`. Si (de alguna manera) tiene instalada Calibri en su sistema, puede reemplazar todas las veces que dice `Carlito` por `Calibri` en `main.tex`.
+Que ejecuta `xelatex -> bibtex -> xelatex -> xelatex` (varias pasadas son necesarias para que numeración de páginas, tabla de contenidos y bibliografía queden correctas).
 
-## Descargar la font `Carlito`
+## Fuente tipográfica
 
-Si desea usar `Carlito` y no está instalada en su sistema, la puede descargar en del siguiente [enlace](https://fontlibrary.org/en/font/carlito), luego de descargarla, recuerde instalarla en su sistema operativo.
+La fuente principal es `Calibri`. En Windows suele venir preinstalada; en otros sistemas se puede usar la alternativa libre y métricamente compatible `Carlito` (reemplazando las referencias a `Calibri` por `Carlito` en `main.tex`), descargable desde [fontlibrary.org](https://fontlibrary.org/en/font/carlito).

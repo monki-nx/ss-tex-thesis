@@ -1,5 +1,19 @@
 \secnumbersection{MARCO CONCEPTUAL}
 
-Se debe describir la base conceptual o fundamentos en los que se basa tu memoria, es decir, todos los conceptos técnicos, metodologías, herramientas, etc. que están involucradas en la solución propuesta. En el fondo esta parte permite precisar y delimitar el problema, estableciendo definiciones para unificar conceptos y lenguaje y fijar relaciones con otros trabajos o soluciones encontradas por otros al mismo problema evitando así plagios o repetir errores ya conocidos o abordados por otros.
+\textcolor{red}{Se debe describir la base conceptual o fundamentos en los que se basa tu memoria, es decir, todos los conceptos técnicos, metodologías, herramientas, etc. que están involucradas en la solución propuesta. En el fondo esta parte permite precisar y delimitar el problema, estableciendo definiciones para unificar conceptos y lenguaje y fijar relaciones con otros trabajos o soluciones encontradas por otros al mismo problema evitando así plagios o repetir errores ya conocidos o abordados por otros.}
 
-En esta parte es importante relacionar estos conceptos con la memoria y es fundamental utilizar referencias bibliográficas (o de la web) recientes, por ejemplo \cite{gettelfinger2004will}.
+\textcolor{red}{En esta parte es importante relacionar estos conceptos con la memoria y es fundamental utilizar referencias bibliográficas (o de la web) recientes, por ejemplo \cite{gettelfinger2004will}.}
+
+\begin{itemize}
+    \item Lectores de pantalla: software de asistencia que lee el DOM; base para entender la brecha visual.
+    \item DOM: estructura lógica de la página; explica qué sí y qué no captura un lector.
+    \item VLM: modelos que interpretan imagen + texto; núcleo de la solución.
+    \item Modelos candidatos: moondream2, InternVL2-2B, InternVL3-2B, Qwen3-VL-8B; compromiso entre razonamiento y hardware (necesidad de albert).
+    \item Scroll \& Stitch: técnica de captura de página completa ensamblando capturas parciales; fundamento de la extensión.
+    \item Reconocimiento de voz (STT).
+    \item Síntesis de texto (TTS).
+    \item Inferencia en GPU: ejecución de modelos open-source; concepto de latencia y alternativas (local/cloud/API).
+    \item Rúbrica ordinal (0–3): escala de puntuación cualitativa; base del benchmark.
+    \item LLM-as-a-judge: evaluación automatizada con un LLM que aplica la rúbrica.
+    \item judge-ev: Segundo nivel de evaluación del benchmark para "ajustar" la regla con la que medimos VLMs.
+\end{itemize}

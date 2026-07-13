@@ -1,15 +1,42 @@
 \secnumbersection{PROPUESTA DE SOLUCIÓN}
 
-Se debe desarrollar la solución propuesta. Los subcapítulos por poner aquí son propios del autor. Se sugiere mencionar metodología usada. Es conveniente incorporar figuras y tablas para aclarar la solución, que deben indicar el número de la figura, su nombre y su autor o fuente (si las diseñas tú, la fuente es ``Elaboración propia''). Ver ejemplos en esta página y en la siguiente.
+\textcolor{red}{Se debe desarrollar la solución propuesta. Los subcapítulos por poner aquí son propios del autor. Se sugiere mencionar metodología usada. Es conveniente incorporar figuras y tablas para aclarar la solución, que deben indicar el número de la figura, su nombre y su autor o fuente (si las diseñas tú, la fuente es ``Elaboración propia''). Ver ejemplos en esta página y en la siguiente.}
 
-Cabe mencionar que aquí está la esencia del trabajo en lo que se refiere al aporte creativo del memorista, es el momento de demostrar que usted es un destacado profesional que creó, diseñó y/o llevó a cabo la solución propuesta.
+\textcolor{red}{Cabe mencionar que aquí está la esencia del trabajo en lo que se refiere al aporte creativo del memorista, es el momento de demostrar que usted es un destacado profesional que creó, diseñó y/o llevó a cabo la solución propuesta.}
 
-\subsection{EJEMPLO DE COMO CITAR FIGURAS E ILUSTRACIONES}
+\textcolor{red}{\subsection{EJEMPLO DE COMO CITAR FIGURAS E ILUSTRACIONES}}
 
-Se colocó una imagen que se puede referenciar también desde el texto (Ver figura \ref{fig:malla}).
+\textcolor{red}{Se colocó una imagen que se puede referenciar también desde el texto (Ver figura \ref{fig:malla}).}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.8\textwidth]{malla_ingenieria_informatica}
-\caption{\label{fig:malla} Malla Curricular Ingeniería Civil Informática.} Fuente: Departamento de Informática.
+\caption{\label{fig:malla} \textcolor{red}{Malla Curricular Ingeniería Civil Informática.}} \textcolor{red}{Fuente: Departamento de Informática.}
 \end{figure}
+
+\begin{itemize}
+    \item Arquitectura del Relator: sitio -> extensión (captura) -> maqueta (voz + prompt) -> albert (VLM) -> maqueta (TTS) -> audio.
+    \item Extensión (ss-extension): captura automática en Chrome, viewport visible y página completa (Scroll \& Stitch); output JPG o base64.
+    \item Maqueta (ss-maqueta): controlador que orquesta captura + voz + prompt, envía a albert y sintetiza la respuesta en audio.
+    \begin{itemize}
+        \item 3 iteraciones, cada una una mini-app funcional por sí sola:
+        \item textToText: envía texto al modelo y recibe respuesta en texto.
+        \item textToVoice: envía texto y recibe TTS de vuelta, integrado con lectores NVDA y JAWS.
+        \item voiceToVoice: input por voz vía STT (Web Speech API de Google) y salida por TTS del lector de pantalla.
+        \item La última iteración engloba a la anterior mediante comandos para alternar entre input por texto y por voz.
+        \item Naturaleza: prototipo funcional para validar el pipeline completo, no el producto final.
+    \end{itemize}
+    \item albert: servidor GPU institucional que ejecuta los las consultas a VLM; acceso vía jump host.
+    \item Decisión de infraestructura: albert sobre local (GPU inviable para desarrollador ni usuario), cloud (cold start 10–20 s) y APIs (costo/privacidad).
+    \item Latencia objetivo: <15 s por consulta; referencia InternVL2-2B ~1 min en T4 de Google Colab.
+    \item Benchmark (ss-benchmark): Procedimiento para seleccionar el VLM más adecuado evaluando sobre sitios reales.
+    \begin{itemize}
+        \item Corpus: 10 sitios en 4 categorías (educacional, estatal, e-commerce, foros).
+        \item Preguntas: 6 por sitio (3 generales + 3 específicas), 60 en total con rúbrica 0–3 definida por pregunta; 60 consultas por modelo.
+        \item Rúbrica 0–3: 3 exacta, 2 incompleta, 1 parcial, 0 alucinación; rigor literal y sin sesgo de verbosidad.
+        \item Pipeline: screenshots -> VLM -> JSON -> juez LLM -> métricas.
+        \item Metodología: enfoque secuencial (implementado) y combinatorio (propuesto, hasta 43.200 consultas) contra sesgo de orden.
+        \item Criterios de selección: precisión espacial, latencia, razonamiento semántico, resistencia a alucinaciones.
+    \end{itemize}
+    \item Objetivo (b): las instrucciones de navegación se materializan en el diseño de prompts del sistema y del benchmark.
+\end{itemize}

@@ -224,3 +224,13 @@ TSWLatexianTemp*
 
 ## Just for me.
 mydocs
+
+## Notas de trabajo / brainstorming personal (no forma parte del template):
+/etc/
+
+## Configuración de editor local:
+/.vscode/
+
+## Claude Code:
+CLAUDE.md
+.claude/

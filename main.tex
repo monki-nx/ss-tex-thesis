@@ -6,35 +6,47 @@
 
 % NOTE: Leer nota en el README sobre la font.
 
-\newcommand{\titulo}{Título de la memoria}
+\newcommand{\titulo}{Asistente de accesibilidad en sitios web para personas con discapacidad visual mediante el uso de Inteligencia Artificial}
 \newcommand{\ciudad}{Ciudad} % e.g. Valparaíso
 % TODO: Consultar el formato de los nombres:
-\newcommand{\nombrealumno}{Nombre del alumno}
-\newcommand{\nombreprofesor}{Nombre del profesor guía}
-\newcommand{\nombrecorreferente}{Nombre del correferente}
+\newcommand{\nombrealumno}{Ignacio Benjamín Riquelme Vidal}
+\newcommand{\nombreprofesor}{Pedro Felipe Toledo Correa}
+\newcommand{\nombrecorreferente}{Jose Luis Martí {Segundo Apellido}}
 % Mes y año del examen
-\newcommand{\mesexamen}{Diciembre}
-\newcommand{\anioexamen}{20XX}
+\newcommand{\mesexamen}{Julio}
+\newcommand{\anioexamen}{2026}
 % Dedicatoria y agradecimientos
 \newcommand{\dedicatoria}{
-Considerando lo importancia de este trabajo para los alumnos, este apartado es para que el autor entregue palabras personales para dedicar este documento. La extensión puede ser de máximo una hoja y se deben mantener este formato, tipo y tamaño de letra.
+\textcolor{red}{Considerando lo importancia de este trabajo para los alumnos, este apartado es para que el autor entregue palabras personales para dedicar este documento. La extensión puede ser de máximo una hoja y se deben mantener este formato, tipo y tamaño de letra.}
 }
 \newcommand{\agradecimientos}{
-Considerando la importancia de este trabajo para los alumnos, este apartado se podrá incluir en el caso de que el autor desee agradecer a las personas que facilitaron alguna ayuda relevante en su trabajo para la realización de este documento. La extensión puede ser de máximo una hoja y se deben mantener este formato, tipo y tamaño de letra.
+\textcolor{red}{Considerando la importancia de este trabajo para los alumnos, este apartado se podrá incluir en el caso de que el autor desee agradecer a las personas que facilitaron alguna ayuda relevante en su trabajo para la realización de este documento. La extensión puede ser de máximo una hoja y se deben mantener este formato, tipo y tamaño de letra.}
 }
 \newcommand{\resumen}{
-El resumen y las palabras clave no deben superar la mitad de la página, donde debe precisarse brevemente: 1) lo que el autor ha hecho, 2) cómo lo hizo (sólo si es importante detallarlo), 3) los resultados principales, 4) la relevancia de los resultados. El resumen es una representación abreviada, pero comprensiva de la memoria y debe informar sobre el objetivo, la metodología y los resultados del trabajo realizado.
+\textcolor{red}{El resumen y las palabras clave no deben superar la mitad de la página, donde debe precisarse brevemente: 1) lo que el autor ha hecho, 2) cómo lo hizo (sólo si es importante detallarlo), 3) los resultados principales, 4) la relevancia de los resultados. El resumen es una representación abreviada, pero comprensiva de la memoria y debe informar sobre el objetivo, la metodología y los resultados del trabajo realizado.}
+
+\begin{itemize}
+    \item Relator: prototipo de herramienta que interpreta el contenido visual de sitios web y responde por voz a personas con discapacidad visual.
+    \item Metodología de trabajo: encuesta -> prototipo -> benchmark -> validación con usuarios.
+    \item Relevancia: >2.200 millones de personas con deficiencia visual; los lectores de pantalla no interpretan lo visual.
+\end{itemize}
 }
 \newcommand{\resumeningles}{
-Corresponde a la traducción al idioma inglés del Resumen anterior. Sujeto a la misma regla de extensión del Resumen.
+\textcolor{red}{Corresponde a la traducción al idioma inglés del Resumen anterior. Sujeto a la misma regla de extensión del Resumen.}
+% TODO: traducir \resumen al inglés.
 }
 \newcommand{\palabrasclave}{
-Cinco es el máximo de palabras clave para describir los temas tratados en la memoria, ponerlas separadas por punto y comas.
+\textcolor{red}{Cinco es el máximo de palabras clave para describir los temas tratados en la memoria, ponerlas separadas por punto y comas.}
+
+accesibilidad web; discapacidad visual; VLM; lectores de pantalla; benchmarking.
 }
 \newcommand{\palabrasclaveingles}{
 Corresponde a la traducción al idioma inglés de Palabras Clave anteriores.
 }
 % @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@>
+
+% Paquete para colores de texto (\textcolor)
+\usepackage{xcolor}
 
 % Paquete para importar imágenes
 \usepackage{graphicx}
@@ -48,14 +60,14 @@ Corresponde a la traducción al idioma inglés de Palabras Clave anteriores.
 \usepackage{fontspec}
 % Los siguientes comandos fueron sugeridos por @anibalbastiass (ver issue#5)
 % para contar con Carlito en cursiva y negrita.
-\setmainfont{Carlito}[BoldFont={* Bold}]
-\setmainfont{Carlito}[ItalicFont={* Italic}]
+\setmainfont{Calibri}[BoldFont={* Bold}]
+\setmainfont{Calibri}[ItalicFont={* Italic}]
 
 % Paquete para definir cualquier tamaño de font
 \usepackage{anyfontsize}
 
 % Settear font
-\setmainfont{Carlito}
+\setmainfont{Calibri}
 
 % Tamaño de la página y márgenes
 \usepackage[letterpaper,top=2.5cm,bottom=3cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
@@ -97,6 +109,7 @@ Corresponde a la traducción al idioma inglés de Palabras Clave anteriores.
 
 % Header y footer
 \usepackage{fancyhdr}
+\setlength{\headheight}{22.03pt}
 \fancypagestyle{portada}{
     \lhead{}
     \chead{}
@@ -160,11 +173,11 @@ Corresponde a la traducción al idioma inglés de Palabras Clave anteriores.
 % Personalizar Tabla de Contenidos
 
 \usepackage{tocloft}
-\renewcommand{\cftsecfont}{\fontsize{12}{14}\selectfont\fontspec{Carlito}}
-\renewcommand{\cftsubsecfont}{\fontsize{12}{14}\selectfont\fontspec{Carlito}}
-\renewcommand{\cftsubsubsecfont}{\fontsize{12}{14}\selectfont\fontspec{Carlito}}
+\renewcommand{\cftsecfont}{\fontsize{12}{14}\selectfont\fontspec{Calibri}}
+\renewcommand{\cftsubsecfont}{\fontsize{12}{14}\selectfont\fontspec{Calibri}}
+\renewcommand{\cftsubsubsecfont}{\fontsize{12}{14}\selectfont\fontspec{Calibri}}
 
-\renewcommand\cftfigfont{\fontsize{12}{14}\selectfont\fontspec{Carlito}}
+\renewcommand\cftfigfont{\fontsize{12}{14}\selectfont\fontspec{Calibri}}
 
 % Links sin color
 \usepackage{hyperref}
