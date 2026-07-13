@@ -17,33 +17,35 @@
 
 \textcolor{red}{Recuerde poner notas al pie de página que sean explicativas \footnote{Este es un ejemplo de una nota al pie de página. Puede indicar alguna URL, definiciones, aclarar alguna información pertinente del texto, citar algunas referencias, etc..}.}
 
-\textcolor{red}{\subsection{SUBSECCIÓN DE PRUEBA}}
-
-\textcolor{red}{Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.}
-
-\textcolor{red}{\subsubsection{SUBSUBSECCIÓN DE PRUEBA}}
-
-\textcolor{red}{Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.}
-
-\textcolor{red}{\subsubsection{OTRA SUBSUBSECCIÓN DE PRUEBA}}
-
-\textcolor{red}{Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.}
+\subsection{PROBLEMÁTICA TÉCNICA}
 
 \begin{itemize}
     \item Situación actual: navegación dependiente de lectores de pantalla (JAWS, NVDA) que procesan el DOM.
     \item Límite del DOM: no interpretan imágenes/gráficos/captchas, no leen pop-ups, no comprenden estructura espacial.
+    \item Competencia: lectores actuales insuficientes, soluciones IA de descripción de imágenes no integradas ni pensadas para ciegos.
+\end{itemize}
+
+\subsection{PROBLEMÁTICA SOCIAL}
+
+\begin{itemize}
     \item Actores: personas con discapacidad visual (baja visión y ceguera total).
     \item Magnitud: >2.200 millones con deficiencia visual en el mundo.
-    \item Encuesta
-    \begin{itemize}
-        \item Instrumento: "Tecnologías para personas ciegas v1.0", Google Forms, 4 secciones, feb–mar 2026, vía organizaciones; 9 respondientes.
-        \item Perfil: condición dominante retinitis pigmentaria; niveles severo a ceguera total; manejo computacional intermedio–avanzado.
-        \item Dificultades: elementos visuales, pop-ups sin leer, campos sin etiqueta, uso obligado de ratón, captchas visuales.
-        \item Demandas: describir imágenes; navegación por voz ("llévame al precio"); lectura de notificaciones dinámicas.
-        \item Implicancia: las 3 demandas coinciden con lo que cubre el Relator; valida el problema.
-    \end{itemize}
     \item Consecuencia de no resolver: exclusión educativa, laboral y social: Se me ocurre buscar trabajos específicos que no se pueden hacer y con mi propuesta sí.
-    \item Competencia: lectores actuales insuficientes, soluciones IA de descripción de imágenes no integradas ni pensadas para ciegos.
+\end{itemize}
+
+\subsection{ENCUESTA (TRABAJO REALIZADO)}
+
+\begin{itemize}
+    \item Instrumento: "Tecnologías para personas ciegas v1.0", Google Forms, 4 secciones, feb–mar 2026, vía organizaciones; 9 respondientes.
+    \item Perfil: condición dominante retinitis pigmentaria; niveles severo a ceguera total; manejo computacional intermedio–avanzado.
+    \item Dificultades: elementos visuales, pop-ups sin leer, campos sin etiqueta, uso obligado de ratón, captchas visuales.
+    \item Demandas: describir imágenes; navegación por voz ("llévame al precio"); lectura de notificaciones dinámicas.
+    \item Implicancia: las 3 demandas coinciden con lo que cubre el Relator; valida el problema.
+\end{itemize}
+
+\subsection{OBJETIVOS Y ALCANCES}
+
+\begin{itemize}
     \item Objetivo general: sistema IA que interpreta lo visual de sitios web desde capturas usando VLM, para mejorar accesibilidad.
     \item Objetivos específicos: (a) prototipo funcional; (b) instrucciones de navegación al modelo; (c) empaquetado accesible; (d) validación con usuarios.
 \end{itemize}

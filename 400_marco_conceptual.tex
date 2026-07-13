@@ -4,15 +4,37 @@
 
 \textcolor{red}{En esta parte es importante relacionar estos conceptos con la memoria y es fundamental utilizar referencias bibliográficas (o de la web) recientes, por ejemplo \cite{gettelfinger2004will}.}
 
+\subsection{LECTORES DE PANTALLA Y EL DOM}
+
 \begin{itemize}
     \item Lectores de pantalla: software de asistencia que lee el DOM; base para entender la brecha visual.
     \item DOM: estructura lógica de la página; explica qué sí y qué no captura un lector.
+\end{itemize}
+
+\subsection{IA MULTIMODAL: MODELOS DE LENGUAJE VISUAL (VLM)}
+
+\begin{itemize}
     \item VLM: modelos que interpretan imagen + texto; núcleo de la solución.
-    \item Modelos candidatos: moondream2, InternVL2-2B, InternVL3-2B, Qwen3-VL-8B; compromiso entre razonamiento y hardware (necesidad de albert).
+    \item Inferencia en GPU: ejecución de modelos open-source; concepto de latencia y alternativas (local/cloud/API).
+\end{itemize}
+
+\subsection{EXTENSIONES DE NAVEGADOR COMO CAPA INTERMEDIA}
+
+\begin{itemize}
+    \item Extensión de navegador (plugin): software instalado en el navegador que actúa como capa intermedia entre el sitio web y el usuario, interceptando o complementando su interacción con la página.
     \item Scroll \& Stitch: técnica de captura de página completa ensamblando capturas parciales; fundamento de la extensión.
+\end{itemize}
+
+\subsection{RECONOCIMIENTO Y SÍNTESIS DE VOZ (STT Y TTS)}
+
+\begin{itemize}
     \item Reconocimiento de voz (STT).
     \item Síntesis de texto (TTS).
-    \item Inferencia en GPU: ejecución de modelos open-source; concepto de latencia y alternativas (local/cloud/API).
+\end{itemize}
+
+\subsection{EVALUACIÓN AUTOMATIZADA DE VLMs}
+
+\begin{itemize}
     \item Rúbrica ordinal (0–3): escala de puntuación cualitativa; base del benchmark.
     \item LLM-as-a-judge: evaluación automatizada con un LLM que aplica la rúbrica.
     \item judge-ev: Segundo nivel de evaluación del benchmark para "ajustar" la regla con la que medimos VLMs.

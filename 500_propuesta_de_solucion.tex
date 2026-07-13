@@ -4,7 +4,7 @@
 
 \textcolor{red}{Cabe mencionar que aquí está la esencia del trabajo en lo que se refiere al aporte creativo del memorista, es el momento de demostrar que usted es un destacado profesional que creó, diseñó y/o llevó a cabo la solución propuesta.}
 
-\textcolor{red}{\subsection{EJEMPLO DE COMO CITAR FIGURAS E ILUSTRACIONES}}
+\textcolor{red}{\secnumberlesssubsection{EJEMPLO DE COMO CITAR FIGURAS E ILUSTRACIONES}}
 
 \textcolor{red}{Se colocó una imagen que se puede referenciar también desde el texto (Ver figura \ref{fig:malla}).}
 
@@ -14,9 +14,21 @@
 \caption{\label{fig:malla} \textcolor{red}{Malla Curricular Ingeniería Civil Informática.}} \textcolor{red}{Fuente: Departamento de Informática.}
 \end{figure}
 
+\subsection{ARQUITECTURA GENERAL DEL RELATOR}
+
 \begin{itemize}
     \item Arquitectura del Relator: sitio -> extensión (captura) -> maqueta (voz + prompt) -> albert (VLM) -> maqueta (TTS) -> audio.
+\end{itemize}
+
+\subsection{EXTENSIÓN DE CAPTURA (ss-extension)}
+
+\begin{itemize}
     \item Extensión (ss-extension): captura automática en Chrome, viewport visible y página completa (Scroll \& Stitch); output JPG o base64.
+\end{itemize}
+
+\subsection{MAQUETA / CONTROLADOR (ss-maqueta)}
+
+\begin{itemize}
     \item Maqueta (ss-maqueta): controlador que orquesta captura + voz + prompt, envía a albert y sintetiza la respuesta en audio.
     \begin{itemize}
         \item 3 iteraciones, cada una una mini-app funcional por sí sola:
@@ -26,9 +38,22 @@
         \item La última iteración engloba a la anterior mediante comandos para alternar entre input por texto y por voz.
         \item Naturaleza: prototipo funcional para validar el pipeline completo, no el producto final.
     \end{itemize}
+    \item Objetivo (b): las instrucciones de navegación se materializan en el diseño de prompts del sistema y del benchmark (ver \ref{sec:benchmark}).
+\end{itemize}
+
+\subsection{INFRAESTRUCTURA Y SERVIDOR ALBERT}
+
+\begin{itemize}
     \item albert: servidor GPU institucional que ejecuta los las consultas a VLM; acceso vía jump host.
     \item Decisión de infraestructura: albert sobre local (GPU inviable para desarrollador ni usuario), cloud (cold start 10–20 s) y APIs (costo/privacidad).
     \item Latencia objetivo: <15 s por consulta; referencia InternVL2-2B ~1 min en T4 de Google Colab.
+\end{itemize}
+
+\subsection{BENCHMARK DE MODELOS VLM (ss-benchmark)}
+\label{sec:benchmark}
+
+\begin{itemize}
+    \item Modelos candidatos: moondream2, InternVL2-2B, InternVL3-2B, Qwen3-VL-8B; compromiso entre razonamiento y hardware (necesidad de albert).
     \item Benchmark (ss-benchmark): Procedimiento para seleccionar el VLM más adecuado evaluando sobre sitios reales.
     \begin{itemize}
         \item Corpus: 10 sitios en 4 categorías (educacional, estatal, e-commerce, foros).
@@ -38,5 +63,4 @@
         \item Metodología: enfoque secuencial (implementado) y combinatorio (propuesto, hasta 43.200 consultas) contra sesgo de orden.
         \item Criterios de selección: precisión espacial, latencia, razonamiento semántico, resistencia a alucinaciones.
     \end{itemize}
-    \item Objetivo (b): las instrucciones de navegación se materializan en el diseño de prompts del sistema y del benchmark.
 \end{itemize}
