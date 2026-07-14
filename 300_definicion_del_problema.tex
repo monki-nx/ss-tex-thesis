@@ -1,8 +1,8 @@
 \secnumbersection{DEFINICIÓN DEL PROBLEMA}
 
-\textcolor{red}{Se debe definir el problema, es importante no confundir definir el problema con describir la solución. Por ejemplo: ``diseñar una arquitectura e implementar una plataforma ...'' es una solución, no un problema.}
+\textcolor{pink}{Se debe definir el problema, es importante no confundir definir el problema con describir la solución. Por ejemplo: ``diseñar una arquitectura e implementar una plataforma ...'' es una solución, no un problema.}
 
-\textcolor{red}{Algunos elementos que podrían ir en este capítulo son (no es necesario que vayan todos):
+\textcolor{pink}{Algunos elementos que podrían ir en este capítulo son (no es necesario que vayan todos):
 \begin{itemize}
     \item Breve descripción del contexto donde se realizará la memoria (organización, línea dentro de la Informática en la que se basa, etc.)
     \item ¿Qué y cómo se realiza actualmente la situación que mejorarás con tu memoria?
@@ -13,39 +13,70 @@
     \item Precisar los objetivos y alcances de la memoria (o solución al problema).
 \end{itemize}}
 
-\textcolor{red}{En este capítulo, de ser necesario puede usar referencias bibliográficas (velar porque sean recientes), una cita de ejemplo \cite{schwab2002cure} y otras más \cite{georget1994study,beaumont1990patient}.}
+\textcolor{pink}{En este capítulo, de ser necesario puede usar referencias bibliográficas (velar porque sean recientes), una cita de ejemplo \cite{schwab2002cure} y otras más \cite{georget1994study,beaumont1990patient}.}
 
-\textcolor{red}{Recuerde poner notas al pie de página que sean explicativas \footnote{Este es un ejemplo de una nota al pie de página. Puede indicar alguna URL, definiciones, aclarar alguna información pertinente del texto, citar algunas referencias, etc..}.}
-
-\subsection{PROBLEMÁTICA TÉCNICA}
-
-\begin{itemize}
-    \item Situación actual: navegación dependiente de lectores de pantalla (JAWS, NVDA) que procesan el DOM.
-    \item Límite del DOM: no interpretan imágenes/gráficos/captchas, no leen pop-ups, no comprenden estructura espacial.
-    \item Competencia: lectores actuales insuficientes, soluciones IA de descripción de imágenes no integradas ni pensadas para ciegos.
-\end{itemize}
+\textcolor{pink}{Recuerde poner notas al pie de página que sean explicativas \footnote{Este es un ejemplo de una nota al pie de página. Puede indicar alguna URL, definiciones, aclarar alguna información pertinente del texto, citar algunas referencias, etc..}.}
 
 \subsection{PROBLEMÁTICA SOCIAL}
 
-\begin{itemize}
-    \item Actores: personas con discapacidad visual (baja visión y ceguera total).
-    \item Magnitud: >2.200 millones con deficiencia visual en el mundo.
-    \item Consecuencia de no resolver: exclusión educativa, laboral y social: Se me ocurre buscar trabajos específicos que no se pueden hacer y con mi propuesta sí.
-\end{itemize}
+Las personas con discapacidad visual (engloba baja visión como ceguera total) enfrentan barreras persistentes al interactuar con entornos digitales. A nivel global, se estima que más de 2.200 millones de personas viven con algún grado de deficiencia visual, lo que dimensiona un problema de escala mundial y no un caso aislado.
 
-\subsection{ENCUESTA (TRABAJO REALIZADO)}
+\textcolor{red}{FUENTE RECIENTE PENDIENTE: respaldar la cifra de >2.200 millones y el panorama global con fuentes actuales.}
 
-\begin{itemize}
-    \item Instrumento: "Tecnologías para personas ciegas v1.0", Google Forms, 4 secciones, feb–mar 2026, vía organizaciones; 9 respondientes.
-    \item Perfil: condición dominante retinitis pigmentaria; niveles severo a ceguera total; manejo computacional intermedio–avanzado.
-    \item Dificultades: elementos visuales, pop-ups sin leer, campos sin etiqueta, uso obligado de ratón, captchas visuales.
-    \item Demandas: describir imágenes; navegación por voz ("llévame al precio"); lectura de notificaciones dinámicas.
-    \item Implicancia: las 3 demandas coinciden con lo que cubre el Relator; valida el problema.
-\end{itemize}
+La consecuencia de no resolver estas barreras es la exclusión en dimensiones educativa, laboral y social. La imposibilidad de acceder de forma autónoma a contenidos y trámites en línea limita el acceso a la información, a servicios y a oportunidades de empleo.
+
+\textcolor{red}{IDEA DE TABLA/EJEMPLOS: listado de tareas o actividades concretas que hoy no pueden realizarse de forma autónoma y que la propuesta habilitaría. Pendiente de recopilar ejemplos específicos.}
+
+\subsubsection{¿Por qué realizar una encuesta?}
+
+El punto de partida de este trabajo fue en base a un supuesto: que esta problemática social afectaba de manera particular a las personas ciegas al navegar la web. Sin embargo, al revisar el estado del arte no se encontraron estudios específicos que caracterizaran con suficiente detalle esa necesidad en este grupo, sobre todo porque al ser los lectores de pantalla una solución suficientemente robusta para la mayoría de tareas no se ha seguido investigando esta problemática en profundidad. Por ello, la problemática social se expandió hacia el contexto concreto de las personas con discapacidad visual y se diseñó y aplicó una encuesta propia, con el fin de validar empíricamente la existencia y la naturaleza de la necesidad antes de proponer una solución.
+
+\subsubsection{La encuesta (trabajo realizado)}
+
+Se elaboró y distribuyó el instrumento ``Encuesta sobre tecnologías para personas ciegas'' mediante Google Forms. La encuesta se estructuró en 4 secciones y se aplicó entre febrero y marzo de 2026 \textcolor{red}{(necesario dar tanto detalle?)}, distribuida a través de organizaciones vinculadas a la discapacidad visual. Se obtuvieron 9 respondientes.
+
+El perfil de los respondientes muestra como condición dominante la retinitis pigmentaria, con niveles de discapacidad que van desde severo hasta ceguera total, y un manejo computacional autoreportado entre intermedio y avanzado.
+
+Respecto de las dificultades reportadas al navegar la web con lectores de pantalla, las más frecuentes fueron: elementos estrictamente visuales que no pueden interpretarse (imágenes, gráficos), pop-ups o notificaciones que no se leen, campos de formulario sin etiqueta, la obligación de usar el ratón para ciertas interacciones y los captchas visuales.
+
+En cuanto a las funcionalidades más demandadas, se destacan tres: describir e interpretar imágenes, la navegación por voz hacia un objetivo concreto y la lectura de notificaciones o etiquetas dinámicas.
+
+La implicancia principal es directa: las tres funcionalidades más demandadas coinciden con las capacidades que apunta a cubrir el Relator. Este resultado valida el problema y respalda el enfoque de la solución propuesta.
+
+\textcolor{red}{TABLA: ficha técnica de la encuesta (nombre, plataforma, secciones, periodo, canal de distribución, N=9).}
+
+\textcolor{red}{GRÁFICOS: distribución del perfil de respondientes (condición, nivel de discapacidad, nivel computacional) y frecuencia de dificultades y demandas reportadas. generar a partir de las respuestas del formulario.}
+
+\subsection{PROBLEMÁTICA TÉCNICA}
+
+Actualmente, las personas con discapacidad visual navegan la web apoyándose en lectores de pantalla (como JAWS o NVDA), programas que recorren e interpretan el DOM —la estructura lógica de la página— y lo transmiten al usuario mediante voz sintetizada o dispositivos braille.
+
+El límite de este enfoque está en su dependencia del DOM. Los lectores de pantalla no interpretan información estrictamente visual: no describen imágenes, gráficos ni captchas, no leen de forma confiable pop-ups o notificaciones que quedan fuera del flujo principal del DOM, y no comprenden la estructura espacial de la interfaz (qué elemento está dónde y con qué propósito). El usuario recibe así una representación incompleta de la página.
+
+Respecto de la competencia y soluciones existentes, las alternativas actuales resultan insuficientes. Los lectores de pantalla, por diseño, no cubren la interpretación visual; y las soluciones basadas en IA para descripción de imágenes no están integradas al flujo de navegación ni fueron pensadas específicamente para personas ciegas, por lo que no resuelven el problema de forma completa.
+
+\textcolor{red}{TABLA: comparación de soluciones existentes (lectores de pantalla, herramientas de descripción de imágenes por IA etc) frente a las capacidades requeridas, para justificar la brecha que cubre la propuesta.}
+
+\textcolor{red}{FUENTE PENDIENTE: referencias recientes sobre lectores de pantalla, accesibilidad web (p. ej. WCAG) y soluciones de IA para descripción de imágenes.}
 
 \subsection{OBJETIVOS Y ALCANCES}
 
+\textbf{Objetivo general.} Desarrollar un sistema basado en inteligencia artificial capaz de analizar e interpretar la información visual de sitios web a partir de capturas de pantalla, utilizando modelos de lenguaje visual (VLM), con el fin de mejorar la accesibilidad de las personas con discapacidad visual.
+
+\textbf{Objetivos específicos.}
+
 \begin{itemize}
-    \item Objetivo general: sistema IA que interpreta lo visual de sitios web desde capturas usando VLM, para mejorar accesibilidad.
-    \item Objetivos específicos: (a) prototipo funcional; (b) instrucciones de navegación al modelo; (c) empaquetado accesible; (d) validación con usuarios.
+    \item[(a)] Implementar un prototipo funcional del asistente (Relator) capaz de interpretar información visual y entregar descripciones auditivas.
+    \item[(b)] Definir instrucciones de navegación que orienten al modelo en la interpretación de los elementos web.
+    \item[(c)] Empaquetar e implementar la solución en un entorno accesible y adaptable.
+    \item[(d)] Validar la solución mediante pruebas con usuarios reales con discapacidad visual.
 \end{itemize}
+
+\textbf{Alcances.} \\Se espera que la aplicación funcione sobre navegadores basados en Chromium (Google Chrome, Microsoft Edge, Opera, entre otros) cubriendo la mayoría de los casos de uso. \textcolor{red}{(Incluir cifras de uso de browsers)} El idioma de interacción contemplado es el español, aunque se espera que el modelo VLM seleccionado soporte de forma nativa otros idiomas \textcolor{red}{(Esto se confirmará en Capitulo 3. Propuesta de Solución)}. La validación final se realiza mediante pruebas de usabilidad con usuarios reales con discapacidad visual, centradas en la descripción e interpretación de imágenes y en la lectura de notificaciones o etiquetas dinámicas.
+
+\textcolor{red}{LÍMITES DE VALIDACIÓN PENDIENTE: precisar número y perfil de los usuarios de la validación final, criterios de selección, sitios/tareas evaluadas, y qué queda fuera de esta validación (p. ej. evaluación en condiciones de uso prolongado o en el mundo real, comparación estadística formal contra lectores de pantalla, cobertura exhaustiva de todos los tipos de sitio).}
+
+% Notas de estado (para el autor):
+% - Fuentes recientes: pendiente añadir bibliografía actual en 1.1 (magnitud y consecuencias sociales) y en 1.2 (lectores de pantalla, WCAG, IA de descripción de imágenes). Ya identificado como pendiente del capítulo.
+% - La problemática social se expandió deliberadamente hacia el contexto específico de las personas ciegas, y la encuesta se creó para validar un supuesto que carecía de estudios específicos previos. Ese hilo quedó explícito en 1.1.
+% - Placeholders de tablas y gráficos marcados con \textcolor{red}{...} para completar con datos de la encuesta y del estado del arte.
