@@ -17,26 +17,26 @@
 \subsection{ARQUITECTURA GENERAL DEL RELATOR}
 
 \begin{itemize}
-    \item Arquitectura del Relator: sitio -> extensión (captura) -> maqueta (voz + prompt) -> albert (VLM) -> maqueta (TTS) -> audio.
+    \item Arquitectura del Relator: sitio -> extensión (captura) -> prototipo (voz + prompt) -> albert (VLM) -> prototipo (TTS) -> audio.
 \end{itemize}
 
-\subsection{EXTENSIÓN DE CAPTURA (ss-extension)}
+\subsection{EXTENSIÓN DE CAPTURA}
 
 \begin{itemize}
-    \item Extensión (ss-extension): captura automática en Chrome, viewport visible y página completa (Scroll \& Stitch); output JPG o base64.
+    \item La extensión: captura automática en Chrome, viewport visible y página completa (Scroll \& Stitch); output JPG o base64.
 \end{itemize}
 
-\subsection{MAQUETA / CONTROLADOR (ss-maqueta)}
+\subsection{PROTOTIPO / CONTROLADOR}
 
 \begin{itemize}
-    \item Maqueta (ss-maqueta): controlador que orquesta captura + voz + prompt, envía a albert y sintetiza la respuesta en audio.
+    \item El prototipo: controlador que orquesta captura + voz + prompt, envía a albert y sintetiza la respuesta en audio.
     \begin{itemize}
         \item 3 iteraciones, cada una una mini-app funcional por sí sola:
         \item textToText: envía texto al modelo y recibe respuesta en texto.
         \item textToVoice: envía texto y recibe TTS de vuelta, integrado con lectores NVDA y JAWS.
         \item voiceToVoice: input por voz vía STT (Web Speech API de Google) y salida por TTS del lector de pantalla.
         \item La última iteración engloba a la anterior mediante comandos para alternar entre input por texto y por voz.
-        \item Naturaleza: prototipo funcional para validar el pipeline completo, no el producto final.
+        \item Naturaleza: implementación funcional para validar el pipeline completo, no el producto final.
     \end{itemize}
     \item Objetivo (b): las instrucciones de navegación se materializan en el diseño de prompts del sistema y del benchmark (ver \ref{sec:benchmark}).
 \end{itemize}
@@ -49,12 +49,12 @@
     \item Latencia objetivo: <15 s por consulta; referencia InternVL2-2B ~1 min en T4 de Google Colab.
 \end{itemize}
 
-\subsection{BENCHMARK DE MODELOS VLM (ss-benchmark)}
+\subsection{BENCHMARK DE MODELOS VLM}
 \label{sec:benchmark}
 
 \begin{itemize}
     \item Modelos candidatos: moondream2, InternVL2-2B, InternVL3-2B, Qwen3-VL-8B; compromiso entre razonamiento y hardware (necesidad de albert).
-    \item Benchmark (ss-benchmark): Procedimiento para seleccionar el VLM más adecuado evaluando sobre sitios reales.
+    \item El sistema de benchmark: procedimiento para seleccionar el VLM más adecuado evaluando sobre sitios reales.
     \begin{itemize}
         \item Corpus: 10 sitios en 4 categorías (educacional, estatal, e-commerce, foros).
         \item Preguntas: 6 por sitio (3 generales + 3 específicas), 60 en total con rúbrica 0–3 definida por pregunta; 60 consultas por modelo.

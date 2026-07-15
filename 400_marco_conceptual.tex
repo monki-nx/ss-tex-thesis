@@ -11,13 +11,6 @@
     \item DOM: estructura lógica de la página; explica qué sí y qué no captura un lector.
 \end{itemize}
 
-\subsection{IA MULTIMODAL: MODELOS DE LENGUAJE VISUAL (VLM)}
-
-\begin{itemize}
-    \item VLM: modelos que interpretan imagen + texto; núcleo de la solución.
-    \item Inferencia en GPU: ejecución de modelos open-source; concepto de latencia y alternativas (local/cloud/API).
-\end{itemize}
-
 \subsection{EXTENSIONES DE NAVEGADOR COMO CAPA INTERMEDIA}
 
 \begin{itemize}
@@ -32,10 +25,18 @@
     \item Síntesis de texto (TTS).
 \end{itemize}
 
+\subsection{IA MULTIMODAL: MODELOS DE LENGUAJE VISUAL (VLM)}
+
+\begin{itemize}
+    \item VLM: modelos que interpretan imagen + texto; núcleo de la solución.
+    \item Inferencia en GPU: ejecución de modelos open-source; concepto de latencia y alternativas (local/cloud/API).
+\end{itemize}
+
 \subsection{EVALUACIÓN AUTOMATIZADA DE VLMs}
 
 \begin{itemize}
     \item Rúbrica ordinal (0–3): escala de puntuación cualitativa; base del benchmark.
     \item LLM-as-a-judge: evaluación automatizada con un LLM que aplica la rúbrica.
     \item judge-ev: Segundo nivel de evaluación del benchmark para "ajustar" la regla con la que medimos VLMs.
+    \item Sistemas estandarizados de evaluación de VLMs: existen métricas generales para evaluar salidas de modelos de lenguaje/visión frente a una referencia (se proponen BLEURT o BERTScore) como marco comparativo estándar, complementario a la rúbrica propia del benchmark.
 \end{itemize}
