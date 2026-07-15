@@ -6,37 +6,100 @@
 
 \subsection{LECTORES DE PANTALLA Y EL DOM}
 
-\begin{itemize}
-    \item Lectores de pantalla: software de asistencia que lee el DOM; base para entender la brecha visual.
-    \item DOM: estructura lógica de la página; explica qué sí y qué no captura un lector.
-\end{itemize}
+Hoy, las personas con discapacidad visual navegan la web apoyándose en lectores de pantalla. Los más difundidos son JAWS, NVDA, Windows Narrator, VoiceOver y TalkBack. Estas herramientas no ``ven'' la página como un usuario vidente: leen el DOM del sitio.
+
+El DOM (Document Object Model) es la representación estructurada del documento web: una jerarquía de nodos (elementos, atributos, texto) que el navegador construye a partir del código HTML y sobre la que se puede consultar y operar. En términos simples, es el ``árbol'' que describe de qué está hecha la página a nivel de código.
+
+\textcolor{red}{fuente pendiente: definición de DOM (p. ej. especificación W3C/WHATWG) y referencias recientes sobre lectores de pantalla y accesibilidad web.}
+
+El lector de pantalla analiza esa estructura a nivel de código y permite al usuario recorrer \textbf{secuencialmente} los elementos interactuables de la página —cuadros de texto, menús desplegables, enlaces, botones—, uno tras otro. Este recorrido secuencial es la forma básica de navegación: se avanza elemento por elemento en el orden en que están en el DOM.
+
+Además de recorrer los elementos, los lectores ofrecen ayudas de navegación que no existen sin ellos. Una de las más útiles es el listado de enlaces: el lector puede presentar todos los enlaces de la página en una lista y llevar al usuario directamente al que necesite, algo que no está disponible para quien no usa lector de pantalla.
+
+Todo esto permite navegar sin mayores problemas \textbf{cuando el usuario sabe exactamente qué necesita hacer} y conoce la página. El límite aparece frente a sitios nuevos: si el usuario no conoce una página, necesita recorrerla y estudiarla varias veces antes de tener seguridad sobre cómo navegarla.
+
+\textcolor{red}{ESPACIO PARA TABLA: lectores de pantalla más usados (JAWS, NVDA, Narrator, VoiceOver, TalkBack) y su plataforma/sistema operativo asociado.}
 
 \subsection{EXTENSIONES DE NAVEGADOR COMO CAPA INTERMEDIA}
 
-\begin{itemize}
-    \item Extensión de navegador (plugin): software instalado en el navegador que actúa como capa intermedia entre el sitio web y el usuario, interceptando o complementando su interacción con la página.
-    \item Scroll \& Stitch: técnica de captura de página completa ensamblando capturas parciales; fundamento de la extensión.
-\end{itemize}
+Antes de describir la solución conviene precisar qué es una extensión de navegador. Una extensión no es una aplicación robusta y completa por sí sola, pero tampoco es una simple funcionalidad interna de un lector de pantalla: funciona de forma independiente de este. Es una \textbf{capa intermedia} que se apoya en el navegador para agilizar la entrega de información al usuario.
+
+Su naturaleza es de dependencia parcial: la extensión necesita que exista un sitio web y un lector de pantalla para tener sentido, pero tanto el sitio como el lector funcionan igual sin ella. Es decir, la extensión se suma al flujo existente sin reemplazar ninguna de sus partes.
+
+\textcolor{red}{fuente pendiente: definición de extensión de navegador y su modelo de ejecución (p. ej. documentación de extensiones de Chrome/WebExtensions).}
+
+Sobre esa base se desarrolló la extensión de este trabajo (sin entrar todavía en detalle técnico, que corresponde al Capítulo 3). La extensión permite capturar el contenido de la página en dos modos: la porción visible en pantalla, o el contenido completo del sitio mediante una técnica de scroll \& stitch. Para el modo de página completa se aplicó un scroll \& stitch ``inteligente'': congela los elementos dinámicos de la página y recorre el sitio completo tomando capturas parciales que luego ensambla en una única imagen del sitio.
+
+\textcolor{red}{idea de figura: esquema del scroll \& stitch (recorrido + ensamblado de capturas parciales en una imagen completa).}
 
 \subsection{RECONOCIMIENTO Y SÍNTESIS DE VOZ (STT Y TTS)}
 
-\begin{itemize}
-    \item Reconocimiento de voz (STT).
-    \item Síntesis de texto (TTS).
-\end{itemize}
+Para la entrada y la salida de datos del sistema se emplean, respectivamente, el reconocimiento de voz y la síntesis de texto.
+
+El reconocimiento de voz (speech to text, STT) consiste en transcribir la voz del usuario a texto plano en tiempo real. Su objetivo es optimizar la captura de datos eliminando la barrera de la escritura manual, especialmente relevante para el usuario objetivo.
+
+La síntesis de texto (text to speech, TTS) es el proceso inverso: toma una cadena de texto plano y la reproduce de la forma más parecida posible a la voz humana. Trabaja a nivel de los fonemas de cada sílaba y los une para formar palabras entendibles a primera escucha.
+
+Para este trabajo, la salida por voz se apoya en la capacidad de TTS del propio lector de pantalla de cada usuario. De este modo se asegura que la respuesta se entregue con la misma voz que la persona ya usa en su computador, respetando el timbre y la velocidad de lectura que cada usuario tiene configurados de forma personal.
+
+\textcolor{red}{fuente pendiente: referencias sobre STT y TTS (fundamentos y estado actual).}
 
 \subsection{IA MULTIMODAL: MODELOS DE LENGUAJE VISUAL (VLM)}
 
-\begin{itemize}
-    \item VLM: modelos que interpretan imagen + texto; núcleo de la solución.
-    \item Inferencia en GPU: ejecución de modelos open-source; concepto de latencia y alternativas (local/cloud/API).
-\end{itemize}
+Esta subsección introduce, en términos generales, la IA generativa, la IA multimodal y los modelos de lenguaje visual (VLM) que utiliza el trabajo.
+
+\subsubsection{IA generativa}
+
+La IA generativa es un tipo de inteligencia artificial capaz de producir contenido nuevo —texto, imágenes u otros— a partir de patrones aprendidos de grandes volúmenes de datos, en lugar de limitarse a clasificar o predecir sobre datos existentes.
+
+\textcolor{red}{fuente pendiente: definición aceptable y reciente de IA generativa.}
+
+\subsubsection{IA multimodal}
+
+A partir de ahí se llega a la IA multimodal: modelos que no se limitan a recibir y entregar texto, sino que pueden recibir y/o entregar contenido multimedia (imágenes, video, etc.). Dentro de esta familia, el trabajo utiliza modelos de tipo VLM (vision language model, modelo de lenguaje visual), especializados en procesar contenido visual. Aunque el enfoque se puede extrapolar a video —que no es más que múltiples imágenes en secuencia—, aquí se usan únicamente imágenes estáticas. En concreto, se emplean modelos que reciben imágenes como único input y entregan respuestas de texto; no generan nuevas imágenes.
+
+\textcolor{red}{fuente pendiente: referencias sobre VLM / modelos multimodales usados.}
+
+\subsubsection{Inferencia en GPU}
+
+Levantar y ejecutar un modelo de IA (inferencia) es un desafío a nivel de cómputo. Un equipo de escritorio promedio no puede hacerlo, o al menos no en tiempos aceptables. Frente a esto existen dos caminos habituales, ambos con inconvenientes: los servicios de IA en línea corren sobre datacenters de gran escala y cobran por consulta; además, procesan los datos del usuario en infraestructura de terceros, sin garantías claras sobre su tratamiento.
+
+Por estos motivos —costo y seguridad de los datos— se optó por conseguir un equipo institucional para levantar los modelos de IA localmente, ejecutando la inferencia en su GPU. Esto optimiza costos y mantiene el control sobre los datos de los usuarios.
+
+En este contexto aparece el concepto de latencia: el tiempo de espera entre que se envía una consulta y se recibe la respuesta. La latencia es un factor crítico para la experiencia de uso y se retoma más adelante.
+
+\textcolor{red}{tabla: comparación de alternativas de inferencia (local en equipo de escritorio / servicio en línea por consulta / equipo institucional con GPU) según costo, latencia y privacidad.}
 
 \subsection{EVALUACIÓN AUTOMATIZADA DE VLMs}
 
-\begin{itemize}
-    \item Rúbrica ordinal (0–3): escala de puntuación cualitativa; base del benchmark.
-    \item LLM-as-a-judge: evaluación automatizada con un LLM que aplica la rúbrica.
-    \item judge-ev: Segundo nivel de evaluación del benchmark para "ajustar" la regla con la que medimos VLMs.
-    \item Sistemas estandarizados de evaluación de VLMs: existen métricas generales para evaluar salidas de modelos de lenguaje/visión frente a una referencia (se proponen BLEURT o BERTScore) como marco comparativo estándar, complementario a la rúbrica propia del benchmark.
-\end{itemize}
+Existe una gran oferta de modelos VLM open source, y distintos modelos entregan resultados diferentes para las mismas consultas. Por eso se propone automatizar su evaluación.
+
+En principio se podría tomar un VLM, hacerle N preguntas y evaluar esas N respuestas. Pero para que el resultado sea confiable se necesita un N grande, y además se quiere probar varios modelos, con lo que la evaluación manual se vuelve una tarea repetitiva e inviable a mano.
+
+\subsubsection{Rúbrica cualitativa}
+
+Para asignar puntajes se establece el concepto de rúbrica, en este caso con una escala del 0 al 3. Es una escala de puntuación cualitativa: una respuesta de nivel 0 es directamente falsa o una alucinación, mientras que una de nivel 3 es lo más cercano a lo que respondería un ser humano. Estas rúbricas deben crearse a mano de forma obligatoria.
+
+\subsubsection{LLM-as-judge}
+
+Para evaluar las respuestas de un VLM se utiliza el paradigma ``LLM-as-a-judge'': un modelo LLM común (no multimodal) lee la respuesta del VLM, la compara con la rúbrica y le asigna el puntaje de forma cuantitativa, verificando si están presentes o ausentes los elementos específicos que la rúbrica exige para cada nivel.
+
+\subsubsection{Judge evaluation}
+
+Para confirmar que ese LLM evaluador funciona bien se aplica el concepto de ``judge evaluation'': un humano califica las respuestas de un VLM y luego se contrasta cuánto se acercan las notas del LLM a las del humano. Es una segunda capa de evaluación, destinada a comprobar que la ``regla'' con la que se mide al VLM está bien graduada.
+
+Con la judge evaluation se cierra el ciclo: el humano evalúa al LLM, el LLM evalúa al VLM, y así se valida al VLM a partir del input humano.
+
+Respecto de los sistemas estandarizados de evaluación de VLMs, ya existen herramientas y métricas destinadas a esta tarea. Un ejemplo es VLMEvalKit (open-compass): un toolkit open source de evaluación de modelos multimodales que unifica la evaluación de una gran cantidad de modelos sobre decenas de benchmarks con configuración mínima, automatizando la preparación de datos, la inferencia y el cálculo de métricas (e incluso usando un LLM como extractor de respuestas cuando la comparación exacta falla). Sin embargo, ninguna de estas herramientas está diseñada específicamente para la lectura de sitios web en el contexto de la discapacidad visual, que es el foco de este trabajo.
+
+\textcolor{red}{fuente pendiente: citar VLMEvalKit (open-compass) — repositorio y paper arXiv 2407.11691. Considerar también mención a métricas generales tipo BLEURT o BERTScore como marco comparativo.}
+
+\textcolor{red}{tabla/figura: esquema del pipeline de evaluación (VLM -> respuesta -> LLM-as-a-judge con rúbrica -> puntaje; y capa de judge evaluation con ground truth humano).}
+
+% Notas de estado (para el autor), de etc/BORRAD.md:
+% - Faltan fuentes: definición de DOM, referencias sobre lectores de pantalla/accesibilidad, documentación del modelo de extensiones de navegador,
+%   STT/TTS, IA generativa, VLM/modelos multimodales, y VLMEvalKit (open-compass, repo + arXiv 2407.11691).
+% - El detalle técnico de la extensión (formatos, implementación) se deja para el Capítulo 3; aquí solo se introduce el concepto.
+% - Placeholders para tabla de lectores, figura del scroll & stitch, tabla de alternativas de inferencia, y esquema del pipeline de evaluación
+%   quedaron como \textcolor{red}{...}.
+% - Todo el Cap. 2 (2.1 a 2.5) está en prosa; falta completar los pendientes en rojo y agregar tablas/figuras.
