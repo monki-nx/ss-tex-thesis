@@ -1,5 +1,6 @@
 ## Compiled pdf file:
 *.pdf
+!/releases/*.pdf
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
