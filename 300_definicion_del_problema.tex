@@ -19,49 +19,57 @@
 
 \subsection{PROBLEMÁTICA SOCIAL}
 
-Las personas con discapacidad visual (engloba baja visión como ceguera total) enfrentan barreras persistentes al interactuar con entornos digitales. A nivel global, se estima que más de 2.200 millones de personas viven con algún grado de deficiencia visual, lo que dimensiona un problema de escala mundial y no un caso aislado.
+Las personas con discapacidad visual enfrentan barreras persistentes al interactuar con entornos digitales. La Organización Mundial de la Salud reporta que al menos 2.200 millones de personas en el mundo tienen algún grado de deficiencia visual \cite{who2026blindness}, pero esa cifra agrupa mayoritariamente casos leves y corregibles con lentes. Al filtrar por los niveles de discapacidad relevantes para esta memoria —baja visión, discapacidad visual severa y ceguera total—, las estimaciones del Global Burden of Disease para el año 2020 son de 43,3 millones de personas ciegas y 295 millones con discapacidad visual moderada a severa, es decir, un orden de 338 millones de personas a nivel mundial \cite{bourne2021trends}.
 
-\textcolor{red}{FUENTE RECIENTE PENDIENTE: respaldar la cifra de >2.200 millones y el panorama global con fuentes actuales.}
+Sin embargo, la magnitud de esta cifra no es lo relevante, sino la pertinencia ética de integrar a un grupo de usuarios históricamente segregado del entorno tecnológico general, en la medida en que se ve en la obligación de depender de herramientas diseñadas exclusivamente ``para ciegos'' en lugar de acceder al mismo contenido que el resto de los usuarios. Evitar segregar o estigmatizar a un grupo de usuarios mediante soluciones separadas ha sido, de hecho, uno de los principios formales del diseño universal —el principio de uso equitativo— en los últimos 30 años \cite{centerforuniversaldesign1997}.
 
-La consecuencia de no resolver estas barreras es la exclusión en dimensiones educativa, laboral y social. La imposibilidad de acceder de forma autónoma a contenidos y trámites en línea limita el acceso a la información, a servicios y a oportunidades de empleo.
+La consecuencia de no resolver estas barreras es la exclusión en las dimensiones social, laboral y educativa. La imposibilidad de acceder de forma autónoma a contenido en línea limita:
 
-\textcolor{red}{IDEA DE TABLA/EJEMPLOS: listado de tareas o actividades concretas que hoy no pueden realizarse de forma autónoma y que la propuesta habilitaría. Pendiente de recopilar ejemplos específicos.}
+\begin{itemize}
+    \item \textbf{Social:} la participación social cotidiana.
+    \item \textbf{Laboral:} el desempeño y las oportunidades laborales.
+    \item \textbf{Educativo:} el acceso a instancias educativas, que involucran a un grupo más acotado.
+\end{itemize}
 
-\subsubsection{¿Por qué realizar una encuesta?}
+A modo de ejemplo, hoy no es posible enterarse por cuenta propia de qué muestra una fotografía que comparte un familiar o un amigo, ni completar sin ayuda una compra o un trámite en línea cuando de por medio se exige una verificación visual \cite{webaim2024screenreadersurvey10}. Tampoco es posible darse cuenta a tiempo de un aviso que aparece de forma inesperada en la pantalla, lo que puede significar perder una oportunidad o un plazo importante. En el trabajo, muchas veces es necesario pedirle a un compañero que describa una cifra o una imagen antes de poder tomar una decisión, y postular a un empleo puede volverse una barrera en sí misma cuando el proceso exige una verificación que solo puede completarse viendo la pantalla. Algo similar ocurre en lo educativo, donde acceder a un material de estudio compartido como imagen deja a la persona a la espera de que alguien más se lo describa antes de poder seguir aprendiendo al mismo ritmo que el resto.
 
-El punto de partida de este trabajo fue en base a un supuesto: que esta problemática social afectaba de manera particular a las personas ciegas al navegar la web. Sin embargo, al revisar el estado del arte no se encontraron estudios específicos que caracterizaran con suficiente detalle esa necesidad en este grupo, sobre todo porque al ser los lectores de pantalla una solución suficientemente robusta para la mayoría de tareas no se ha seguido investigando esta problemática en profundidad. Por ello, la problemática social se acotó hacia el contexto específico de personas con discapacidad visual que usan lector de pantalla pero aún presenta problemas para comprender los sitios web en su totalidad, se diseñó y aplicó una encuesta propia con el fin de validar empíricamente la existencia y la naturaleza de la necesidad antes de proponer una solución.
+\textcolor{red}{fuente pendiente: confirmar y referenciar estudio(s) específicos sobre el impacto práctico de estas barreras en el ámbito laboral y educativo.}
+
+\subsubsection{Búsqueda de antecedentes locales}
+
+El punto de partida se basó en que esta problemática social afecta de manera particular a las personas ciegas al navegar la web. Sin embargo, al revisar el estado del arte no se encontraron estudios específicos que caracterizaran con suficiente detalle esa necesidad en este grupo, sobre todo porque ya existen soluciones tecnológicas que resuelven parte de esto, como por ejemplo los lectores de pantalla \footnote{Programas que traducen el contenido de una página web a voz sintetizada o a un dispositivo braille; se profundiza en su funcionamiento en el Capítulo 2.}. Por ello, la problemática social se acotó hacia el contexto específico de personas con discapacidad visual que usan lector de pantalla pero aún presentan dificultades para utilizar la plenitud de la información que ofrece un sitio web al momento completar una tarea, y se diseñó y aplicó una encuesta propia con el fin de validar empíricamente la existencia y la naturaleza de la necesidad antes de proponer una solución.
 
 \subsubsection{La encuesta (trabajo realizado)}
 
-Se elaboró y distribuyó el instrumento ``Encuesta sobre tecnologías para personas ciegas'' mediante Google Forms. La encuesta se estructuró en 4 secciones y se aplicó entre febrero y marzo de 2026 \textcolor{red}{(necesario dar tanto detalle?)}, distribuida a través de organizaciones vinculadas a la discapacidad visual. Se obtuvieron 9 respondientes.
+Se elaboró y distribuyó el instrumento ``Encuesta sobre tecnologías para personas ciegas'' mediante Google Forms, enviado por correo electrónico a miembros de la Fundación FUNDALURP (fundación de perros guía para la rehabilitación de personas en situación de discapacidad visual). La encuesta se aplicó entre febrero y marzo de 2026 y se obtuvieron 9 respondientes. El detalle completo del instrumento —su estructura, tipos de pregunta y cómo se relacionan con la problemática— se presenta en el Anexo \ref{anexo:encuesta}.
 
-El perfil de los respondientes muestra como condición dominante la retinitis pigmentaria, con niveles de discapacidad que van desde severo hasta ceguera total, y un manejo computacional autoreportado entre intermedio y avanzado.
+El perfil de los respondientes muestra como condición dominante la retinitis pigmentaria, con niveles de discapacidad que van desde severo hasta ceguera total, y un manejo computacional autoreportado mayoritariamente entre básico e intermedio.
 
-Respecto de las dificultades reportadas al navegar la web con lectores de pantalla, las más frecuentes fueron: elementos estrictamente visuales que no pueden interpretarse (imágenes, gráficos), pop-ups o notificaciones que no se leen, campos de formulario sin etiqueta, la obligación de usar el ratón para ciertas interacciones y los captchas visuales.
+Respecto de las dificultades reportadas al navegar la web con lectores de pantalla, las más frecuentes, en orden, fueron: elementos estrictamente visuales que no pueden interpretarse (imágenes, gráficos); pop-ups o notificaciones que no se leen; campos de escritura sin etiqueta; la obligación de usar el ratón para ciertas interacciones; y los captchas visuales. \textcolor{red}{pendiente: agregar conteo o porcentaje exacto de respondientes que reportó cada dificultad.}
 
-En cuanto a las funcionalidades más demandadas, se destacan tres: describir e interpretar imágenes, la navegación por voz hacia un objetivo concreto y la lectura de notificaciones o etiquetas dinámicas.
+En cuanto a las funcionalidades más demandadas, se destacan tres, en orden de frecuencia: describir e interpretar imágenes; la navegación por voz hacia un objetivo concreto; y la lectura de notificaciones o etiquetas dinámicas. \textcolor{red}{pendiente: agregar el conteo o porcentaje exacto de respondientes que solicitó cada funcionalidad.}
 
-La implicancia principal es directa: las tres funcionalidades más demandadas coinciden con las capacidades que apunta a cubrir el Relator. Este resultado valida el problema y respalda el enfoque de la solución propuesta.
-
-\textcolor{red}{TABLA: ficha técnica de la encuesta (nombre, plataforma, secciones, periodo, canal de distribución, N=9).}
-
-\textcolor{red}{GRÁFICOS: distribución del perfil de respondientes (condición, nivel de discapacidad, nivel computacional) y frecuencia de dificultades y demandas reportadas. generar a partir de las respuestas del formulario.}
+\textcolor{red}{gráficos: distribución del perfil de respondientes (condición, nivel de discapacidad, nivel computacional) y frecuencia de dificultades y demandas reportadas.}
 
 \subsection{PROBLEMÁTICA TÉCNICA}
 
-Actualmente, las personas con discapacidad visual navegan la web apoyándose en lectores de pantalla (como JAWS o NVDA), programas que recorren e interpretan el DOM —la estructura lógica de la página— y lo transmiten al usuario mediante voz sintetizada o dispositivos braille.
+Actualmente, las personas con discapacidad visual navegan la web apoyándose en lectores de pantalla, programas como JAWS, NVDA o VoiceOver que traducen el contenido de una página a voz sintetizada o a un dispositivo braille. El DOM (Document Object Model) es la estructura de nodos que el navegador construye a partir del código HTML de la página; a partir de ella, el navegador deriva un árbol de accesibilidad —una representación paralela que expone únicamente los roles, nombres accesibles, estados y relaciones relevantes para una tecnología asistiva— y lo pone a disposición a través de la API de accesibilidad del sistema operativo \cite{mdn2024accessibilitytree}. Es esa API la que el lector de pantalla consulta para construir lo que finalmente comunica al usuario. También existe la posibilidad de que el usuario navegue por una página utilizando únicamente el teclado, lo cual es posible gracias al atributo \texttt{tabindex} y al orden del DOM. El recorrido secuencial mediante la tecla Tab lo controla el propio navegador para la navegación por teclado, en el orden del DOM o según el atributo \texttt{tabindex}, y no es exclusivo de los lectores de pantalla ni de los usuarios con discapacidad visual.
 
-El límite de este enfoque está en su dependencia del DOM. Los lectores de pantalla no interpretan información estrictamente visual: no describen imágenes, gráficos ni captchas, no leen de forma confiable pop-ups o notificaciones que quedan fuera del flujo principal del DOM, y no comprenden la estructura espacial de la interfaz (qué elemento está dónde y con qué propósito). El usuario recibe así una representación incompleta de la página.
+Buena parte de la información que un lector de pantalla puede comunicar depende de las etiquetas ARIA (Accessible Rich Internet Applications): un conjunto de atributos que se agregan a los elementos del DOM para declarar roles, estados y relaciones que no tienen una etiqueta HTML nativa que los describa \cite{mdn2024aria}. Por ejemplo, una notificación emergente puede marcarse como una región viva (\texttt{aria-live}) para que el lector la anuncie apenas aparece. Cuando un sitio no declara estas etiquetas, el lector de pantalla no tiene forma de identificar ese contenido dinámico, aunque técnicamente sí forme parte del DOM.
+
+El límite de este enfoque está, entonces, en que depende por completo de que la página declare la semántica correcta —HTML nativo y ARIA— para cada elemento. Los lectores de pantalla no interpretan información estrictamente visual: no describen imágenes, gráficos ni captchas, y solo leen de forma confiable las notificaciones o pop-ups que fueron etiquetados correctamente por quien construyó el sitio. Tampoco comprenden la estructura espacial de la interfaz (qué elemento está dónde y con qué propósito) más allá del orden en que fueron declarados. El usuario recibe así una representación incompleta de la página, que depende de decisiones de accesibilidad ajenas a su control.
 
 Respecto de la competencia y soluciones existentes, las alternativas actuales resultan insuficientes. Los lectores de pantalla, por diseño, no cubren la interpretación visual; y las soluciones basadas en IA para descripción de imágenes no están integradas al flujo de navegación ni fueron pensadas específicamente para personas ciegas, por lo que no resuelven el problema de forma completa.
 
-\textcolor{red}{TABLA: comparación de soluciones existentes (lectores de pantalla, herramientas de descripción de imágenes por IA etc) frente a las capacidades requeridas, para justificar la brecha que cubre la propuesta.}
+\textcolor{red}{tabla: comparación de soluciones existentes (lectores de pantalla, herramientas de descripción de imágenes por IA etc) frente a las capacidades requeridas, para justificar la brecha que cubre la propuesta.}
 
-\textcolor{red}{FUENTE PENDIENTE: referencias recientes sobre lectores de pantalla, accesibilidad web (p. ej. WCAG) y soluciones de IA para descripción de imágenes.}
+\textcolor{red}{fuente pendiente: referencias recientes sobre lectores de pantalla, accesibilidad web (p. ej. WCAG) y soluciones de IA para descripción de imágenes.}
 
 \subsection{OBJETIVOS Y ALCANCES}
 
-\textbf{Objetivo general.} Desarrollar un sistema basado en inteligencia artificial capaz de analizar e interpretar la información visual de sitios web a partir de capturas de pantalla, utilizando modelos de lenguaje visual (VLM), con el fin de mejorar la accesibilidad de las personas con discapacidad visual.
+Considerando la relevancia de que las personas con discapacidad visual puedan acceder de forma equitativa a las tecnologías de la información, se plantean los siguientes objetivos para el desarrollo del asistente de accesibilidad web que en este trabajo se denomina Relator.
+
+\textbf{Objetivo general.} Desarrollar el Relator, un sistema basado en inteligencia artificial capaz de analizar e interpretar la información visual de sitios web a partir de capturas de pantalla, utilizando modelos de lenguaje visual (VLM), que se integre y coexista con el lector de pantalla del usuario, con el fin de mejorar la accesibilidad de las personas con discapacidad visual.
 
 \textbf{Objetivos específicos.}
 
@@ -72,11 +80,4 @@ Respecto de la competencia y soluciones existentes, las alternativas actuales re
     \item[(d)] Validar la solución mediante pruebas con usuarios reales con discapacidad visual.
 \end{itemize}
 
-\textbf{Alcances.} \\Se espera que la aplicación funcione sobre navegadores basados en Chromium (Google Chrome, Microsoft Edge, Opera, entre otros) cubriendo la mayoría de los casos de uso. \textcolor{red}{(Incluir cifras de uso de browsers)} El idioma de interacción contemplado es el español, aunque se espera que el modelo VLM seleccionado soporte de forma nativa otros idiomas \textcolor{red}{(Esto se confirmará en Capitulo 3. Propuesta de Solución)}. La validación final se realiza mediante pruebas de usabilidad con usuarios reales con discapacidad visual, centradas en la descripción e interpretación de imágenes y en la lectura de notificaciones o etiquetas dinámicas.
-
-\textcolor{red}{LÍMITES DE VALIDACIÓN PENDIENTE: precisar número y perfil de los usuarios de la validación final, criterios de selección, sitios/tareas evaluadas, y qué queda fuera de esta validación (p. ej. evaluación en condiciones de uso prolongado o en el mundo real, comparación estadística formal contra lectores de pantalla, cobertura exhaustiva de todos los tipos de sitio).}
-
-% Notas de estado (para el autor):
-% - Fuentes recientes: pendiente añadir bibliografía actual en 1.1 (magnitud y consecuencias sociales) y en 1.2 (lectores de pantalla, WCAG, IA de descripción de imágenes). Ya identificado como pendiente del capítulo.
-% - La problemática social se expandió deliberadamente hacia el contexto específico de las personas ciegas, y la encuesta se creó para validar un supuesto que carecía de estudios específicos previos. Ese hilo quedó explícito en 1.1.
-% - Placeholders de tablas y gráficos marcados con \textcolor{red}{...} para completar con datos de la encuesta y del estado del arte.
+\textbf{Alcances.} \\Se espera que la aplicación funcione sobre navegadores basados en Chromium (Google Chrome, Microsoft Edge, Opera, entre otros) cubriendo la mayoría de los casos de uso. \textcolor{red}{(Incluir cifras de uso de navegadores)} El idioma de interacción contemplado es el español, aunque se espera que el modelo VLM seleccionado soporte de forma nativa otros idiomas \textcolor{red}{(Esto se confirmará en Capitulo 3. Propuesta de Solución)}.

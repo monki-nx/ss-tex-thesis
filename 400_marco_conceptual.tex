@@ -6,65 +6,53 @@
 
 \subsection{LECTORES DE PANTALLA Y EL DOM}
 
-Hoy, las personas con discapacidad visual navegan la web apoyándose en lectores de pantalla. Los más difundidos son JAWS, NVDA, Windows Narrator, VoiceOver y TalkBack. Estas herramientas no ``ven'' la página como un usuario vidente: leen el DOM del sitio.
+Un lector de pantalla es un software de tecnología asistiva que convierte el contenido de una interfaz digital —texto, controles, imágenes con texto alternativo— en voz sintetizada o en salida braille, permitiendo a una persona con discapacidad visual acceder a esa información sin necesidad de verla \cite{w3ctoolstechniques}. Los más difundidos son JAWS, NVDA, Windows Narrator, VoiceOver y TalkBack.
 
-El DOM (Document Object Model) es la representación estructurada del documento web: una jerarquía de nodos (elementos, atributos, texto) que el navegador construye a partir del código HTML y sobre la que se puede consultar y operar. En términos simples, es el ``árbol'' que describe de qué está hecha la página a nivel de código.
+El DOM (Document Object Model) es la representación estructurada del documento web: una jerarquía de nodos (elementos, atributos, texto) que el navegador construye a partir del código HTML de la página y sobre la que se puede consultar y operar mediante programación \cite{whatwgdom}. El navegador deriva del DOM un árbol de accesibilidad, una representación paralela y más acotada que expone únicamente los roles, nombres, estados y relaciones relevantes para una tecnología asistiva, a través de la API de accesibilidad del sistema operativo (por ejemplo, UI Automation en Windows o AXAPI en macOS). Es esa API la que el lector de pantalla consulta para construir lo que finalmente comunica al usuario.
 
-\textcolor{red}{fuente pendiente: definición de DOM (p. ej. especificación W3C/WHATWG) y referencias recientes sobre lectores de pantalla y accesibilidad web.}
+Gran parte de esa semántica no está garantizada por el HTML nativo. El W3C define para ello dos estándares complementarios: las Pautas de Accesibilidad para el Contenido Web (WCAG), que establecen los criterios que debe cumplir un sitio para considerarse accesible \cite{wcag22}, y WAI-ARIA, un conjunto de atributos (roles, estados y propiedades \texttt{aria-*}) que permite declarar la semántica de elementos que no la tienen de forma nativa —por ejemplo, marcar una notificación emergente como una región viva (\texttt{aria-live}) para que se anuncie apenas aparece— \cite{waiaria2023}. El atributo \texttt{alt} de HTML, por su parte, es el mecanismo nativo para asociar un texto alternativo a una imagen; sin él, una imagen no tiene ninguna representación textual que el lector de pantalla pueda comunicar \cite{w3caltimages}.
 
-El lector de pantalla analiza esa estructura a nivel de código y permite al usuario recorrer \textbf{secuencialmente} los elementos interactuables de la página —cuadros de texto, menús desplegables, enlaces, botones—, uno tras otro. Este recorrido secuencial es la forma básica de navegación: se avanza elemento por elemento en el orden en que están en el DOM.
+El lector de pantalla permite al usuario recorrer \textbf{secuencialmente} los elementos interactuables de la página —cuadros de texto, menús desplegables, enlaces, botones—, uno tras otro, en el orden en que fueron declarados. Además de ese recorrido, ofrece ayudas de navegación que no existen sin él: una de las más usadas es el listado de enlaces, que presenta todos los enlaces de la página en una lista y permite saltar directamente al que se necesite.
 
-Además de recorrer los elementos, los lectores ofrecen ayudas de navegación que no existen sin ellos. Una de las más útiles es el listado de enlaces: el lector puede presentar todos los enlaces de la página en una lista y llevar al usuario directamente al que necesite, algo que no está disponible para quien no usa lector de pantalla.
+La eficacia de este recorrido secuencial depende de la familiaridad previa del usuario con la estructura de la página: sobre un sitio ya explorado, permite ubicar rápidamente los elementos buscados; frente a un sitio nuevo, requiere recorrerlo y estudiarlo varias veces antes de poder anticipar su estructura.
 
-Todo esto permite navegar sin mayores problemas \textbf{cuando el usuario sabe exactamente qué necesita hacer} y conoce la página. El límite aparece frente a sitios nuevos: si el usuario no conoce una página, necesita recorrerla y estudiarla varias veces antes de tener seguridad sobre cómo navegarla.
-
-\textcolor{red}{ESPACIO PARA TABLA: lectores de pantalla más usados (JAWS, NVDA, Narrator, VoiceOver, TalkBack) y su plataforma/sistema operativo asociado.}
+\textcolor{red}{tabla: lectores de pantalla más usados (JAWS, NVDA, Narrator, VoiceOver, TalkBack) y su plataforma/sistema operativo asociado.}
 
 \subsection{EXTENSIONES DE NAVEGADOR COMO CAPA INTERMEDIA}
 
-Antes de describir la solución conviene precisar qué es una extensión de navegador. Una extensión no es una aplicación robusta y completa por sí sola, pero tampoco es una simple funcionalidad interna de un lector de pantalla: funciona de forma independiente de este. Es una \textbf{capa intermedia} que se apoya en el navegador para agilizar la entrega de información al usuario.
+Una extensión es un módulo de software que un usuario instala sobre su navegador para modificar o ampliar su comportamiento —por ejemplo, para bloquear anuncios, gestionar contraseñas o capturar información de una página—, sin ser una aplicación independiente ni una función nativa del propio navegador \cite{mdnwebextensions}.
+
+Google Chrome fue el primer navegador en incorporar un sistema de extensiones basado enteramente en HTML, CSS y JavaScript, habilitado en su canal de desarrollo en 2009 y lanzado de forma pública junto a Chrome 4.0 en enero de 2010 \cite{chromeextensionshistory}. A partir de esa base, Mozilla adoptó en 2015 una API compatible para Firefox, bautizada WebExtensions, que buscaba convertirse en un estándar común entre navegadores. Aunque el intento de estandarización formal a través de un grupo de trabajo del W3C no llegó a concretarse, la popularidad de Chrome llevó a que el resto de los navegadores basados en Chromium (Edge, Opera) y, en menor medida, Firefox, convergieran hacia una API muy similar \cite{mdnwebextensions}. Pese a esa convergencia, las extensiones siguen siendo específicas de cada navegador: el código y el empaquetado de una extensión para Chrome no son directamente instalables en Firefox ni viceversa, aún cuando ambas compartan la mayoría de las llamadas de su API.
+
+A nivel de capacidades, una extensión se ejecuta bajo un modelo de permisos explícitos declarados en un archivo de manifiesto: solo puede acceder a las páginas, pestañas o funciones del navegador (por ejemplo, la captura de pantalla de la pestaña activa) para las que fue autorizada, y se organiza mediante scripts de contenido —que se ejecutan en el contexto de la página visitada— y un script de fondo, que coordina la lógica de la extensión y sus comunicaciones con servicios externos. Ese modelo de permisos delimita tanto lo que la extensión puede automatizar dentro del navegador como lo que queda fuera de su alcance sin intervención directa del usuario o del sistema operativo.
 
 Su naturaleza es de dependencia parcial: la extensión necesita que exista un sitio web y un lector de pantalla para tener sentido, pero tanto el sitio como el lector funcionan igual sin ella. Es decir, la extensión se suma al flujo existente sin reemplazar ninguna de sus partes.
 
-\textcolor{red}{fuente pendiente: definición de extensión de navegador y su modelo de ejecución (p. ej. documentación de extensiones de Chrome/WebExtensions).}
-
-Sobre esa base se desarrolló la extensión de este trabajo (sin entrar todavía en detalle técnico, que corresponde al Capítulo 3). La extensión permite capturar el contenido de la página en dos modos: la porción visible en pantalla, o el contenido completo del sitio mediante una técnica de scroll \& stitch. Para el modo de página completa se aplicó un scroll \& stitch ``inteligente'': congela los elementos dinámicos de la página y recorre el sitio completo tomando capturas parciales que luego ensambla en una única imagen del sitio.
-
-\textcolor{red}{idea de figura: esquema del scroll \& stitch (recorrido + ensamblado de capturas parciales en una imagen completa).}
-
 \subsection{RECONOCIMIENTO Y SÍNTESIS DE VOZ (STT Y TTS)}
 
-Para la entrada y la salida de datos del sistema se emplean, respectivamente, el reconocimiento de voz y la síntesis de texto.
+Para la entrada y la salida de datos del sistema se emplean, respectivamente, el reconocimiento y la síntesis de voz.
 
-El reconocimiento de voz (speech to text, STT) consiste en transcribir la voz del usuario a texto plano en tiempo real. Su objetivo es optimizar la captura de datos eliminando la barrera de la escritura manual, especialmente relevante para el usuario objetivo.
+El reconocimiento automático del habla (automatic speech recognition, ASR; también conocido como speech to text, STT) es el proceso mediante el cual un sistema decodifica una señal de audio con voz humana y la transcribe a texto, típicamente combinando un modelo acústico —que traduce la señal a una secuencia probable de fonemas— y un modelo de lenguaje —que determina, a partir de esos fonemas, las palabras más probables— \cite{ibmasr}.
 
-La síntesis de texto (text to speech, TTS) es el proceso inverso: toma una cadena de texto plano y la reproduce de la forma más parecida posible a la voz humana. Trabaja a nivel de los fonemas de cada sílaba y los une para formar palabras entendibles a primera escucha.
-
-Para este trabajo, la salida por voz se apoya en la capacidad de TTS del propio lector de pantalla de cada usuario. De este modo se asegura que la respuesta se entregue con la misma voz que la persona ya usa en su computador, respetando el timbre y la velocidad de lectura que cada usuario tiene configurados de forma personal.
-
-\textcolor{red}{fuente pendiente: referencias sobre STT y TTS (fundamentos y estado actual).}
+La síntesis de voz (text to speech, TTS) es el proceso inverso: toma una entrada textual y la convierte en audio hablado. Esa entrada no siempre es texto plano: estándares como SSML (Speech Synthesis Markup Language), del W3C, permiten anotar el texto con marcadores de énfasis, acento, velocidad o pausas, para un control más fino de cómo se pronuncia \cite{w3cssml}. A nivel de técnica, la síntesis de voz se ha resuelto históricamente de más de una forma: por concatenación de fragmentos de voz pregrabada, por síntesis paramétrica a partir de un modelo estadístico de la voz, y, más recientemente, mediante modelos neuronales generativos que producen la forma de onda directamente a partir de datos de entrenamiento \cite{tan2021neuraltts}. Lectores de pantalla como JAWS o NVDA no necesariamente implementan su propio motor de síntesis: en general, delegan la conversión final de texto a voz a un motor TTS del sistema operativo o a una voz de terceros instalada por el usuario, y lo que le corresponde al lector de pantalla es determinar qué texto de la interfaz enviar a ese motor.
 
 \subsection{IA MULTIMODAL: MODELOS DE LENGUAJE VISUAL (VLM)}
 
-Esta subsección introduce, en términos generales, la IA generativa, la IA multimodal y los modelos de lenguaje visual (VLM) que utiliza el trabajo.
+Esta subsección introduce, en términos generales, la IA generativa, la IA multimodal y los modelos de lenguaje visual (VLM).
 
 \subsubsection{IA generativa}
 
-La IA generativa es un tipo de inteligencia artificial capaz de producir contenido nuevo —texto, imágenes u otros— a partir de patrones aprendidos de grandes volúmenes de datos, en lugar de limitarse a clasificar o predecir sobre datos existentes.
+La IA generativa es un tipo de inteligencia artificial capaz de producir contenido nuevo —texto, imágenes u otro tipo de dato— a partir de patrones aprendidos de grandes volúmenes de datos, en lugar de limitarse a clasificar o predecir una etiqueta sobre datos ya existentes \cite{ibmgenpredictive}.
 
-\textcolor{red}{fuente pendiente: definición aceptable y reciente de IA generativa.}
+En el caso particular de los modelos de lenguaje, esa generación se implementa técnicamente como una predicción. Un modelo autoregresivo, como los que se basan en la arquitectura Transformer, no produce una respuesta completa de una sola vez: predice, token a token, cuál es la unidad de texto más probable dado todo lo que ha recibido y generado hasta ese momento, y repite ese proceso hasta completar la respuesta \cite{vaswani2017attention}. Es decir, ``generar'' contenido y ``predecir la palabra siguiente'' no son dos capacidades distintas, sino una relación de mecanismo a resultado: el modelo predice de forma iterativa, token a token, y esa cadena de predicciones es percibida por quien lo usa como la generación de una respuesta nueva.
 
 \subsubsection{IA multimodal}
 
-A partir de ahí se llega a la IA multimodal: modelos que no se limitan a recibir y entregar texto, sino que pueden recibir y/o entregar contenido multimedia (imágenes, video, etc.). Dentro de esta familia, el trabajo utiliza modelos de tipo VLM (vision language model, modelo de lenguaje visual), especializados en procesar contenido visual. Aunque el enfoque se puede extrapolar a video —que no es más que múltiples imágenes en secuencia—, aquí se usan únicamente imágenes estáticas. En concreto, se emplean modelos que reciben imágenes como único input y entregan respuestas de texto; no generan nuevas imágenes.
-
-\textcolor{red}{fuente pendiente: referencias sobre VLM / modelos multimodales usados.}
+La IA multimodal corresponde a modelos capaces de procesar y/o producir información de más de un tipo de dato —texto, imágenes, audio o video— de forma conjunta, en lugar de limitarse a un único tipo de entrada o salida \cite{wu2023multimodalsurvey}. Dentro de esa familia se encuentran los modelos de lenguaje visual (VLM, vision language model), especializados en la interacción entre texto e imágenes: reciben como entrada una combinación de imagen(es) y texto, y devuelven una salida en texto, apoyándose en una representación interna que alinea los conceptos visuales de la imagen con los conceptos del lenguaje \cite{wu2023multimodalsurvey}.
 
 \subsubsection{Inferencia en GPU}
 
-Levantar y ejecutar un modelo de IA (inferencia) es un desafío a nivel de cómputo. Un equipo de escritorio promedio no puede hacerlo, o al menos no en tiempos aceptables. Frente a esto existen dos caminos habituales, ambos con inconvenientes: los servicios de IA en línea corren sobre datacenters de gran escala y cobran por consulta; además, procesan los datos del usuario en infraestructura de terceros, sin garantías claras sobre su tratamiento.
-
-Por estos motivos —costo y seguridad de los datos— se optó por conseguir un equipo institucional para levantar los modelos de IA localmente, ejecutando la inferencia en su GPU. Esto optimiza costos y mantiene el control sobre los datos de los usuarios.
+La inferencia es el acto de usar un modelo de IA ya entrenado para obtener una salida a partir de una entrada nueva, a diferencia del entrenamiento, la etapa en la que el modelo ajusta sus parámetros internos a partir de datos de ejemplo \cite{cloudflareinference}. Ejecutar esa inferencia sobre un modelo de gran tamaño es, en sí mismo, un desafío computacional: un equipo de escritorio promedio no puede hacerlo, o al menos no en tiempos aceptables. Frente a esto existen dos caminos habituales, ambos con inconvenientes: los servicios de IA en línea corren sobre datacenters de gran escala y cobran por consulta; además, procesan los datos del usuario en infraestructura de terceros, sin garantías claras sobre su tratamiento.
 
 En este contexto aparece el concepto de latencia: el tiempo de espera entre que se envía una consulta y se recibe la respuesta. La latencia es un factor crítico para la experiencia de uso y se retoma más adelante.
 
@@ -95,11 +83,3 @@ Respecto de los sistemas estandarizados de evaluación de VLMs, ya existen herra
 \textcolor{red}{fuente pendiente: citar VLMEvalKit (open-compass) — repositorio y paper arXiv 2407.11691. Considerar también mención a métricas generales tipo BLEURT o BERTScore como marco comparativo.}
 
 \textcolor{red}{tabla/figura: esquema del pipeline de evaluación (VLM -> respuesta -> LLM-as-a-judge con rúbrica -> puntaje; y capa de judge evaluation con ground truth humano).}
-
-% Notas de estado (para el autor), de etc/BORRAD.md:
-% - Faltan fuentes: definición de DOM, referencias sobre lectores de pantalla/accesibilidad, documentación del modelo de extensiones de navegador,
-%   STT/TTS, IA generativa, VLM/modelos multimodales, y VLMEvalKit (open-compass, repo + arXiv 2407.11691).
-% - El detalle técnico de la extensión (formatos, implementación) se deja para el Capítulo 3; aquí solo se introduce el concepto.
-% - Placeholders para tabla de lectores, figura del scroll & stitch, tabla de alternativas de inferencia, y esquema del pipeline de evaluación
-%   quedaron como \textcolor{red}{...}.
-% - Todo el Cap. 2 (2.1 a 2.5) está en prosa; falta completar los pendientes en rojo y agregar tablas/figuras.
