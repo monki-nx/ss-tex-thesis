@@ -14,41 +14,47 @@
 \caption{\label{fig:malla} \textcolor{pink}{Malla Curricular Ingeniería Civil Informática.}} \textcolor{pink}{Fuente: Departamento de Informática.}
 \end{figure}
 
-\subsection{ARQUITECTURA GENERAL DEL RELATOR}
+En base a los antecedentes presentados en los capítulos anteriores, se plantea desarrollar un programa que, al presionar un atajo de teclado, le pregunte al usuario qué necesita saber de la pantalla, y que el computador le responda. Ese comando lo recibe una extensión de navegador, que envía una captura de la pantalla junto con la pregunta a un servidor de inferencia; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario. Las secciones siguientes describen, en ese orden, la arquitectura general del sistema, la extensión de navegador, el backend que procesa las consultas, la infraestructura sobre la que corre el modelo, y el proceso de selección del modelo VLM utilizado.
 
-La arquitectura propuesta para el sistema se compone de una extensión de navegador y una capa controladora que coordinan la captura, el envío al modelo y la entrega de la respuesta.
+\subsection{ARQUITECTURA GENERAL DEL RELATOR DE PANTALLA}
 
-La extensión de navegador se encarga de capturar la pantalla ante el input del usuario. Esa captura pasa a una capa controladora, que toma el identificador del usuario (o de la pestaña de navegador activa), la captura y la pregunta, y las envía al servidor de inferencia con GPU.
+La arquitectura propuesta para el sistema se compone de una extensión de navegador y un backend que coordinan la captura, el envío al modelo y la entrega de la respuesta.
 
-Una vez procesada, la información vuelve al controlador, que identifica a quién pertenece según el ID y devuelve el texto de respuesta al usuario correspondiente. Finalmente, ese texto es transformado a audio por el lector de pantalla del usuario. Cabe precisar que el paso de texto a voz (TTS) queda fuera del flujo de la arquitectura, ya que lo realiza el propio lector de pantalla.
+La extensión de navegador se encarga de capturar la pantalla ante el input del usuario. Esa captura pasa al backend, que toma el identificador del usuario (o de la pestaña de navegador activa), la captura y la pregunta, y las envía al servidor de inferencia con GPU.
 
-En resumen, el flujo es: sitio -> extensión (captura) -> controlador (ID + captura + pregunta) -> servidor de inferencia con GPU (VLM) -> controlador (enruta según ID) -> texto de respuesta -> lector de pantalla (TTS, externo al sistema).
+Una vez procesada, la información vuelve al backend, que identifica a quién pertenece según el ID y devuelve el texto de respuesta al usuario correspondiente. Finalmente, ese texto es transformado a audio por el lector de pantalla del usuario. Cabe precisar que el paso de texto a voz (TTS) queda fuera del flujo de la arquitectura, ya que lo realiza el propio lector de pantalla.
 
-\textcolor{red}{figura: diagrama de la arquitectura general del Relator, mostrando extensión, controlador, servidor de inferencia y la salida por el lector de pantalla. Fuente: Elaboración propia.}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth,trim=43 405 79 54,clip]{arquitectura_general}
+\caption{\label{fig:arquitectura} Arquitectura general del relator de pantalla.} Fuente: Elaboración propia.
+\end{figure}
 
-\subsection{EXTENSIÓN DE CAPTURA}
+En resumen, el flujo es: sitio -> extensión (captura + entrada/salida de voz) -> backend (ID + captura + pregunta) -> servidor de inferencia con GPU (VLM) -> backend (enruta según ID) -> texto de respuesta -> lector de pantalla (TTS, externo al sistema).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth,trim=147 314 154 41,clip]{flujo_datos}
+\caption{\label{fig:flujo} Flujo de la información del relator de pantalla.} Fuente: Elaboración propia.
+\end{figure}
+
+\subsection{EXTENSIÓN DE NAVEGADOR}
 
 Se desarrolló una extensión diseñada para navegadores basados en Chromium, que captura el viewport visible o la página completa mediante atajos de teclado configurables por el usuario.
 
 Para la captura de página completa se aplica una lógica de scroll \& stitch: se congelan los elementos dinámicos del sitio y se aplican desplazamientos (scrolls) que permiten recorrer secuencialmente el estado actual de la página, tomando una captura en cada instante y uniéndolas luego en una sola imagen. Esto entrega la perspectiva completa y actual del sitio, según lo que requiera la consulta del usuario.
 
-El output de las imágenes puede entregarse directamente en un formato de imagen (por ejemplo .jpg o .png) o convertirse a base64 para enviarlo más fácilmente por HTTP al controlador.
+El output de las imágenes puede entregarse directamente en un formato de imagen (por ejemplo .jpg o .png) o convertirse a base64 para enviarlo más fácilmente por HTTP al backend.
 
 \textcolor{red}{figura: esquema del scroll \& stitch (congelado de elementos dinámicos, recorrido por scroll, capturas parciales y ensamblado en una imagen). Fuente: Elaboración propia.}
 
 % Nota: el concepto de scroll & stitch ya se introduce en el Cap. 2 (2.2). Aquí se describe su aplicación concreta; se evita repetir la definición.
 
-\subsection{PROTOTIPO / CONTROLADOR}
-
-El prototipo del sistema consiste en un controlador que replica la arquitectura propuesta anteriormente. Integra la captura de pantalla, la voz y el prompt, y maneja los mensajes de ida y vuelta al servidor de inferencia con GPU. También se encarga del reconocimiento de voz (STT) para las consultas del usuario.
-
-Su naturaleza es la de una implementación funcional para validar el pipeline completo, no el producto final.
-
-El desarrollo del prototipo se planteó en tres iteraciones, cada una funcional por sí sola:
+Además de capturar la pantalla, la extensión es responsable de la modalidad de interacción con el usuario, es decir, de si la consulta se hace por texto o por voz. Esta responsabilidad es exclusiva de la extensión: es irrelevante para el backend si la pregunta llegó escrita o hablada, dado que en ambos casos recibe únicamente texto. El desarrollo de esta capa de interacción se planteó en tres iteraciones, cada una funcional por sí sola:
 
 \subsubsection{textToText (TTT)}
 
-Se envía texto plano, escrito manualmente en un cuadro de input mostrado por la extensión, al modelo, y se recibe la respuesta también en texto, mostrada en un pop-up para la lectura del usuario. Esta iteración es válida solo para pruebas de desarrollador (con visión completa).
+Se envía texto plano, escrito manualmente en un cuadro de input mostrado por la extensión, al backend, y se recibe la respuesta también en texto, mostrada en un pop-up para la lectura del usuario. Esta iteración es válida solo para pruebas de desarrollador (con visión completa).
 
 \subsubsection{textToVoice (TTV)}
 
@@ -64,6 +70,12 @@ Las iteraciones TTV y VTV pueden convivir en el mismo software empaquetado para 
 
 \textcolor{red}{figura/tabla: comparación de las tres iteraciones (input, output, público de prueba) o capturas de la interfaz (cuadro de input y pop-up de respuesta). Fuente: Elaboración propia.}
 
+\subsection{BACKEND DEL SISTEMA}
+
+El backend es el servidor que recibe las consultas provenientes de la extensión y coordina su procesamiento: recibe siempre una imagen (la captura) junto con texto (la pregunta), y devuelve texto (la respuesta). Es, en ese sentido, la capa de procesamiento de IA del sistema: mientras la extensión resuelve todo lo relativo a la interacción con el usuario (front), el backend se limita a procesar la consulta y devolver una respuesta (back), sin distinguir si la modalidad de entrada del usuario fue texto o voz.
+
+Su naturaleza es la de una implementación funcional para validar el pipeline completo, no el producto final.
+
 \subsection{INFRAESTRUCTURA Y SERVIDOR ALBERT}
 
 La infraestructura de ejecución del proyecto contempla dos partes: los equipos de los usuarios y el servidor de inferencia con GPU.
@@ -74,12 +86,9 @@ Para la inferencia se utilizó ``albert'', una máquina del laboratorio de data 
 
 \subsubsection{Decisión de infraestructura}
 
-Retomando lo planteado en el Capítulo 2 (subsección de inferencia en GPU), aquí se detalla la decisión de usar albert. Antes de optar por este servidor se probaron otras dos alternativas para ejecutar un modelo VLM acotado:
+Al determinar la arquitectura de inferencia existían tres formas de resolverla: usar una API o una IA ya empaquetada de un tercero, levantar un servidor propio remoto (en la nube), o utilizar un servidor propio local. Se optó por un servidor propio, ya que permite controlar tanto el modelo utilizado como la infraestructura sobre la que corre, sin depender de las condiciones de un tercero ni de los costos por consulta de un servicio en línea.
 
-\begin{itemize}
-    \item El equipo de desarrollo local, usando la CPU (Ryzen 5 2600), ya que su GPU no cuenta con CUDA cores compatibles con los modelos evaluados.
-    \item Los servidores de Google Colab, con el entorno de GPU NVIDIA T4 (16 GB de VRAM).
-\end{itemize}
+Antes de llegar a un servidor local dedicado se probaron otras dos alternativas para ejecutar un modelo VLM acotado. Primero, el equipo de desarrollo local, usando la CPU (Ryzen 5 2600), ya que su GPU no cuenta con CUDA cores compatibles con los modelos evaluados: los tiempos de respuesta no fueron aceptables. Se probó luego con un equipo más potente pero sin GPU dedicada, con resultados igual de insuficientes, lo que llevó a concluir que una GPU era obligatoria para este trabajo. Como alternativa a comprar o mantener hardware propio, se evaluaron los servidores de Google Colab, con el entorno de GPU NVIDIA T4 (16 GB de VRAM); si bien el desempeño mejoró notoriamente, escalar esa opción a un uso sostenido implica costos y una gestión de infraestructura poco prácticos para este trabajo. Finalmente se optó por ``albert'', una máquina del laboratorio de data science \textcolor{red}{(por confirmar)} que cuenta con una tarjeta gráfica NVIDIA A40 con 48 GB de VRAM, capaz de correr modelos VLM de alto nivel, y a la que se accede vía jump host desde los equipos de desarrollo mediante conexión SSH, proceso que puede automatizarse a través de un túnel SSH.
 
 Para una misma prueba, los tiempos fueron: aproximadamente 30 minutos en la CPU Ryzen, 1 minuto en la T4 de Google Colab y tan solo 15 segundos en la A40 de albert.
 
@@ -87,7 +96,7 @@ Esos 15 segundos coinciden con el límite de tiempo deseado para la interacción
 
 \textcolor{red}{fuente pendiente: respaldar el umbral de ~15 s de atención/latencia con una referencia; confirmar especificaciones exactas de albert y del equipo de desarrollo.}
 
-\textcolor{red}{tabla: comparación de entornos de inferencia (Equipo local — CPU Ryzen 5 2600 / Google Colab — GPU T4 16 GB / albert — GPU A40 48 GB) con el tiempo por consulta (~30 min / ~1 min / ~15 s). Fuente: Elaboración propia.}
+% [[TABLA: comparación de entornos de inferencia (Equipo local -- CPU Ryzen 5 2600 / Google Colab -- GPU T4 16 GB / albert -- GPU A40 48 GB) con el tiempo por consulta (~30 min / ~1 min / ~15 s). Fuente: Elaboración propia.]]
 
 \subsection{BENCHMARK DE MODELOS VLM}
 \label{sec:benchmark}
@@ -110,7 +119,8 @@ Para cada categoría se escribieron 3 preguntas generales, y para cada sitio 3 p
 \subsubsection{Rúbrica de evaluación}
 
 Se escribieron rúbricas con puntajes del 0 al 3 según qué tanto se acerca la respuesta a la de un ser humano con visión completa: 0 alucinación o falsedad, 1 parcial, 2 correcta pero incompleta, 3 exacta. La rúbrica se rige por los datos literales (se debe extraer el contenido exacto de los textos; si se cambia una palabra, aunque signifique lo mismo, se considera incorrecto) y por la no verbosidad (no se mejora el puntaje de una respuesta solo por ser extensa).
-\textcolor{red}{(tabla: rúbrica de evaluación, mostrando puntajes 0-3 y criterios de cada puntaje. Fuente: Elaboración propia.)}
+
+% [[TABLA: rúbrica de evaluación, mostrando puntajes 0-3 y criterios de cada puntaje. Fuente: Elaboración propia.]]
 
 \subsubsection{Modelos evaluados}
 
@@ -126,13 +136,12 @@ Para elegir el juez se usaron métricas como el porcentaje de exact match (que e
 
 Se realizó un proceso de mejora continua de prompts para aumentar el exact match y reducir los errores del juez, iterando \textcolor{red}{20} veces hasta alcanzar el tope técnico de Gemma3. Los criterios considerados para el desarrollo del prompt de evaluación fueron: precisión espacial, razonamiento semántico y resistencia a alucinaciones.
 
-\textcolor{red}{tabla: métricas de los jueces candidatos (exact match \%, MAE, RMSE) por modelo LLM evaluado. Fuente: Elaboración propia.}
+% [[TABLA: métricas de los jueces candidatos (exact match \%, MAE, RMSE) por modelo LLM evaluado. Fuente: Elaboración propia.]]
 
-\textcolor{red}{tabla: evolución del proceso de mejora de prompts (iteración vs. exact match / error) hasta el tope de Gemma3. Fuente: Elaboración propia.}
+% [[TABLA: evolución del proceso de mejora de prompts (iteración vs. exact match / error) hasta el tope de Gemma3. Fuente: Elaboración propia.]]
 
 \subsubsection{Resultado de la selección}
 
-Elegido Gemma3 como juez, se corrió nuevamente el benchmark con él y se acotó la búsqueda hasta 10 modelos posibles. Dado que no se logró un exact match de 80\% o superior, se concluye que el instrumento de benchmark no es lo bastante confiable para elegir UN único mejor modelo, pero sí se acerca lo suficiente para seleccionar VARIOS de los mejores. De ese conjunto se eligió finalmente Qwen3-VL-8B.
+Elegido Gemma3 como juez, se corrió nuevamente el benchmark con él sobre el universo completo de modelos candidatos. Dado que no se logró un exact match de 80\% o superior, se concluye que el instrumento de benchmark automatizado no es lo bastante confiable para elegir de forma autónoma UN único mejor modelo. Sin embargo, sí resulta útil para lo que en la práctica es su aporte principal: acotar el universo de modelos posibles —a modo ilustrativo, de un orden de 1.000 modelos VLM disponibles a un conjunto acotado de unos 100— antes de pasar a un análisis manual. Ese filtrado reduce drásticamente el trabajo de revisión manual, que de otra forma sería inviable sobre el universo completo; lo que se hace a mano sobre ese conjunto acotado es, en esencia, lo mismo que hace el juez LLM de forma automatizada, con la diferencia de que en ese instrumento —el criterio humano— sí se puede confiar. Sobre el conjunto de 10 modelos preseleccionados de esta forma se eligió finalmente Qwen3-VL-8B.
 
-
-% Recordatorio para el autor: verificar en sus datos el juez (Gemma3-12B), el exact match (72,5%), el número de iteraciones (20) y la nomenclatura MAE/MSAE antes de retirar el color rojo.
+% Recordatorio para el autor: verificar en sus datos el juez (Gemma3-12B), el exact match (72,5%), el número de iteraciones (20), la nomenclatura MAE/MSAE, y las cifras ilustrativas de preselección (1.000 -> 100 -> 10) antes de retirar el color rojo.
