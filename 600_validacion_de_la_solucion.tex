@@ -1,34 +1,8 @@
 \secnumbersection{VALIDACIÓN DE LA SOLUCIÓN}
 
-\textcolor{pink}{Se debe validar la solución propuesta. Esto significa probar o demostrar que la solución propuesta es válida para el entorno donde fue planteada.}
-
-\textcolor{pink}{Tradicionalmente es una etapa crítica, pues debe comprobarse por algún medio que vuestra propuesta es básicamente válida. En el caso de un desarrollo de software es la construcción y sus pruebas; en el caso de propuestas de modelos, guías o metodologías podrían ser desde la aplicación a un caso real hasta encuestas o entrevistas con especialistas; en el caso de mejoras de procesos u optimizaciones, podría ser comparar la situación actual (previa a la memoria) con la situación final (cuando la memoria está ya implementada) en base a un conjunto cuantitativo de indicadores o criterios.}
-
-\textcolor{pink}{\subsection{EJEMPLO DE COMO CITAR TABLAS}}
-
-\textcolor{pink}{Se colocó una tabla que se puede referenciar también desde el texto (Ver tabla \ref{table:coloquios}).}
-
-\begin{table}[h]
-    \centering
-    \caption{\label{table:coloquios} \textcolor{pink}{Coloquios del Ciclo de Charlas Informática.}} \textcolor{pink}{Fuente: Elaboración Propia.}
-    \begin{tabular}{|p{7cm}|p{7cm}|}
-        \hline
-        \textcolor{pink}{Título Coloquio} & \textcolor{pink}{Presentador, País} \\
-        \hline
-        \textcolor{pink}{``Sensible, invisible, sometimes tolerant, heterogeneous, decentralized and interoperable... and we still need to assure its quality...'''} & \textcolor{pink}{Guilherme Horta Travassos, Brasil.}\\
-        \hline
-        \textcolor{pink}{``Dispersed Multiphase Flow Modeling: From Environmental to Industrial Applications'''} & \textcolor{pink}{Orlando Ayala, EE.UU.}\\
-        \hline
-        \textcolor{pink}{``Líneas de Producto Software Dinámicas para Sistemas atentos el Contexto'''} & \textcolor{pink}{Rafael Capilla, España.}\\
-        \hline
-        \textcolor{pink}{...} & \textcolor{pink}{...} \\
-        \hline
-    \end{tabular}
-\end{table}
-
 \subsection{ENFOQUE DE LA VALIDACIÓN}
 
-La validación de este trabajo combina dos ejes complementarios. El primero consiste en un conjunto de métricas técnicas, calculadas directamente por el autor sobre el sistema construido: la exactitud del reconocimiento de voz (STT), la latencia del backend, la latencia de captura de pantalla y la pertinencia de las respuestas entregadas por el modelo. El segundo consiste en pruebas con usuarios reales con discapacidad visual, relatadas como entrevistas: se presenta el sistema al usuario, este intenta un conjunto de tareas reales de interpretación de imágenes en sitios web integradas a su flujo de trabajo habitual con su lector de pantalla, y valora cada interacción.
+La validación de este trabajo combina dos ejes complementarios. El primero consiste en un conjunto de métricas técnicas, calculadas directamente por el autor sobre el sistema construido: la exactitud del reconocimiento de voz (STT), la latencia del \textit{backend}, la latencia de captura de pantalla y la pertinencia de las respuestas entregadas por el modelo. El segundo consiste en pruebas con usuarios reales con discapacidad visual, relatadas como entrevistas: se presenta el sistema al usuario, este intenta un conjunto de tareas reales de interpretación de imágenes en sitios web integradas a su flujo de trabajo habitual con su lector de pantalla, y valora cada interacción.
 
 Dado que el número de usuarios disponibles para las pruebas es reducido (3 personas) y su selección no siguió una metodología de muestreo estadístico, las entrevistas no se presentan como un procedimiento estadístico ni sus resultados se usan para declarar la solución ``validada'' o ``no validada'' en términos porcentuales. Su objetivo es más acotado: mostrar, mediante casos concretos, si el sistema funciona o no en la práctica y de qué forma, complementando así el eje de métricas técnicas con la perspectiva de uso real.
 
@@ -38,19 +12,19 @@ Estas métricas se calculan directamente por el autor sobre el funcionamiento de
 
 \subsubsection{Exactitud del reconocimiento de voz (STT)}
 
-Se mide sobre un conjunto de N palabras habladas por el usuario durante las pruebas en modalidad de voz (VTV, ver Capítulo 3), contabilizando cuántas de ellas fueron transcritas incorrectamente por el motor de STT utilizado por la extensión.
+Se mide sobre un conjunto de N palabras habladas por el usuario durante las pruebas en que la pregunta se formuló por voz (ver Capítulo 3), contabilizando cuántas de ellas fueron transcritas incorrectamente por el motor de STT utilizado por la extensión.
 
 \textcolor{red}{pendiente: definir N, ejecutar la medición y reportar la tasa de error resultante (palabras erróneas / N).}
 
-\subsubsection{Latencia del backend}
+\subsubsection{Latencia del \textit{backend}}
 
-Se mide el tiempo transcurrido entre que la extensión envía una consulta (captura de pantalla y pregunta) al backend, y el momento en que este devuelve la respuesta en texto.
+Se mide el tiempo transcurrido entre que la extensión envía una consulta (captura de pantalla y pregunta) al \textit{backend}, y el momento en que este devuelve la respuesta en texto.
 
 \textcolor{red}{pendiente: ejecutar la medición sobre un conjunto de consultas y reportar el tiempo promedio y su dispersión.}
 
 \subsubsection{Latencia de captura}
 
-Se compara el tiempo que toma la extensión en capturar el viewport visible de la pantalla frente al tiempo que toma capturar la página completa mediante el mecanismo de scroll \& stitch (ver Capítulo 3).
+Se compara el tiempo que toma la extensión en capturar el \textit{viewport} visible de la pantalla frente al tiempo que toma capturar la página completa mediante el mecanismo de \textit{scroll \& stitch} (ver Capítulo 3).
 
 \textcolor{red}{pendiente: ejecutar la medición y reportar ambos tiempos.}
 
@@ -66,7 +40,7 @@ Se evalúa qué tan pertinente resulta la respuesta entregada por el sistema res
 
 Se estableció un número objetivo de entre 3 y 5 usuarios. Se exigió que todos presentaran discapacidad visual severa o ceguera total, que fueran usuarios habituales de lectores de pantalla y que tuvieran un nivel de manejo computacional intermedio o avanzado.
 
-Como entorno de pruebas se utilizó un subconjunto del corpus del benchmark (ver \ref{sec:benchmark}): al menos 2 sitios de categorías distintas y al menos 2 tareas por cada sitio. Además, se exigió utilizar al menos una vez la modalidad por voz (VTV).
+Como entorno de pruebas se utilizó un subconjunto de los sitios evaluados en el \textit{benchmark} (ver \ref{sec:benchmark}): al menos 2 sitios de categorías distintas y al menos 2 tareas por cada sitio. Además, se exigió formular la pregunta por voz al menos una vez.
 
 El detalle de las tareas por sesión se presenta en una tabla en el anexo. \textcolor{red}{REFERENCIA PENDIENTE: insertar \ref{...} a la tabla del anexo correspondiente.}
 
@@ -80,27 +54,27 @@ La validación se realizó finalmente con 3 participantes, dentro del rango obje
 
 \subsubsection{Sesiones}
 
-Sobre estos 3 participantes se realizaron 4 sesiones en total, ya que P2 realizó dos sesiones. De ellas, 3 se hicieron en modalidad texto (TTV) y 1 en modalidad voz (VTV).
+Sobre estos 3 participantes se realizaron 4 sesiones en total, ya que P2 realizó dos sesiones. De ellas, en 3 la pregunta se formuló por escrito y en 1 por voz.
 
 % [[TABLA: detalle de sesiones (participante, modalidad, sitios y tareas evaluadas).]]
 
 \subsubsection{Caso 1: primer usuario (P1)}
 
-La primera sesión se realizó con P1 (nivel de manejo computacional medio), en modalidad texto (TTV).
+La primera sesión se realizó con P1 (nivel de manejo computacional medio), con la pregunta formulada por escrito.
 
 \textcolor{red}{PENDIENTE: narrar en formato de entrevista la sesión de P1 -- tareas concretas intentadas, cómo respondió el relator de pantalla en cada una, y el puntaje de satisfacción (1-5) que P1 asignó a cada tarea. Al ser la primera sesión ejecutada, sirve como caso ilustrativo de referencia sobre la impresión inicial del sistema frente a un usuario real.}
 
 \subsubsection{Casos 2 a 4: P2 (dos sesiones) y P3}
 
-\textcolor{red}{PENDIENTE: narrar en el mismo formato de entrevista (tareas intentadas, respuesta del sistema, puntaje de satisfacción por tarea) las sesiones de P2 -- su primera sesión en modalidad texto (TTV) y su segunda, la única de las 4 realizada en modalidad voz (VTV) -- y de P3.}
+\textcolor{red}{PENDIENTE: narrar en el mismo formato de entrevista (tareas intentadas, respuesta del sistema, puntaje de satisfacción por tarea) las sesiones de P2 -- su primera sesión con la pregunta formulada por escrito y su segunda, la única de las 4 con la pregunta formulada por voz -- y de P3.}
 
 A modo de resumen de las 19 tareas intentadas a lo largo de las 4 sesiones, las puntuaciones de satisfacción se concentraron mayoritariamente en el rango medio-alto (3 a 5), aunque también hubo tareas con puntajes bajos, coherentes con los modos de falla identificados a continuación.
 
 \subsection{ANÁLISIS DE PATRONES}
 
-A partir de la revisión de los registros de las sesiones se identificaron patrones en el desempeño del sistema. Por categoría de sitio, el mejor desempeño se observó en sitios de e-commerce y redes sociales, mientras que el peor desempeño se dio en sitios educacionales, particularmente en portales de gestión interna que requieren autenticación. Por tipo de tarea, el sistema tuvo buen desempeño en tareas descriptivas o de extracción de información --por ejemplo, ``qué es'', ``qué hay'' o ``describe''--, y un desempeño deficiente en tareas procedimentales o de navegación --por ejemplo, ``cómo hago'', ``dónde voy'' o solicitudes de pasos a seguir--.
+A partir de la revisión de los registros de las sesiones se identificaron patrones en el desempeño del sistema. Por categoría de sitio, el mejor desempeño se observó en sitios de \textit{e-commerce} y redes sociales, mientras que el peor desempeño se dio en sitios educacionales, particularmente en portales de gestión interna que requieren autenticación. Por tipo de tarea, el sistema tuvo buen desempeño en tareas descriptivas o de extracción de información --por ejemplo, ``qué es'', ``qué hay'' o ``describe''--, y un desempeño deficiente en tareas procedimentales o de navegación --por ejemplo, ``cómo hago'', ``dónde voy'' o solicitudes de pasos a seguir--.
 
-Entre los modos de falla identificados se cuentan: un sesgo de perspectiva vidente en las respuestas del modelo, alucinaciones cuando el elemento consultado no está visible en la captura, descripciones superficiales, y fallas del mecanismo de scroll \& stitch (ver Capítulo 3, sección de extensión de navegador) al capturar ventanas emergentes (no pop-ups, sino ventanas independientes usualmente para una sola función, como por ejemplo pagos online o visualizar documentos).
+Entre los modos de falla identificados se cuentan: un sesgo de perspectiva vidente en las respuestas del modelo, alucinaciones cuando el elemento consultado no está visible en la captura, descripciones superficiales, y fallas del mecanismo de \textit{scroll \& stitch} (ver Capítulo 3, sección de extensión de navegador) al capturar ventanas emergentes (no \textit{pop-ups}, sino ventanas independientes usualmente para una sola función, como por ejemplo pagos \textit{online} o visualizar documentos).
 
 En la modalidad de voz se observó un comportamiento particular: se reportó una satisfacción más alta en la misma tarea ejecutada por texto incluso cuando esta no se completaba. Esto sugiere que la experiencia de interacción por voz tiene un valor intrínseco, independiente del éxito de la tarea.
 
@@ -112,11 +86,11 @@ Los participantes aportaron las siguientes sugerencias de mejora durante las ses
     \item Contar con una versión móvil y compatible con aplicaciones, no solo con navegadores de escritorio.
     \item Que el chat mantuviera memoria de la conversación, para poder seguir preguntando sobre un mismo elemento sin repetir contexto.
     \item Poder acceder o navegar directamente a un enlace ya identificado por el sistema.
-    \item Mejorar el feedback del sistema de entrada por voz, para que el usuario sepa si lo que dice se está capturando correctamente.
+    \item Mejorar el \textit{feedback} del sistema de entrada por voz, para que el usuario sepa si lo que dice se está capturando correctamente.
 \end{itemize}
 
 \subsection{CONCLUSIÓN DE LA VALIDACIÓN}
 
-Esta validación no busca declarar la solución ``aprobada'' en base a un umbral estadístico, sino reunir evidencia, desde dos ángulos complementarios, de si el relator de pantalla funciona en la práctica. \textcolor{red}{PENDIENTE: una vez completadas las métricas técnicas (exactitud de STT, latencia del backend, latencia de captura y pertinencia de las respuestas), sintetizar aquí sus resultados.} Por el lado de las entrevistas, los casos relatados muestran un sistema que responde razonablemente bien en tareas descriptivas y de extracción de información, particularmente en sitios de e-commerce y redes sociales, y que tiene un desempeño más débil en tareas procedimentales y en sitios que requieren autenticación.
+Esta validación no busca declarar la solución ``aprobada'' en base a un umbral estadístico, sino reunir evidencia, desde dos ángulos complementarios, de si el relator de pantalla funciona en la práctica. \textcolor{red}{PENDIENTE: una vez completadas las métricas técnicas (exactitud de STT, latencia del \textit{backend}, latencia de captura y pertinencia de las respuestas), sintetizar aquí sus resultados.} Por el lado de las entrevistas, los casos relatados muestran un sistema que responde razonablemente bien en tareas descriptivas y de extracción de información, particularmente en sitios de \textit{e-commerce} y redes sociales, y que tiene un desempeño más débil en tareas procedimentales y en sitios que requieren autenticación.
 
 Los modos de falla identificados en la sección de análisis de patrones y las sugerencias reportadas por los propios participantes se abordan como trabajo futuro.
