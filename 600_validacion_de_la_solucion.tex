@@ -2,9 +2,7 @@
 
 \subsection{ENFOQUE DE LA VALIDACIÓN}
 
-La validación de este trabajo combina dos ejes complementarios. El primero consiste en un conjunto de métricas técnicas, calculadas directamente por el autor sobre el sistema construido: la exactitud del reconocimiento de voz (STT), la latencia del \textit{backend}, la latencia de captura de pantalla y la pertinencia de las respuestas entregadas por el modelo. El segundo consiste en pruebas con usuarios reales con discapacidad visual, relatadas como entrevistas: se presenta el sistema al usuario, este intenta un conjunto de tareas reales de interpretación de imágenes en sitios web integradas a su flujo de trabajo habitual con su lector de pantalla, y valora cada interacción.
-
-Dado que el número de usuarios disponibles para las pruebas es reducido (3 personas) y su selección no siguió una metodología de muestreo estadístico, las entrevistas no se presentan como un procedimiento estadístico ni sus resultados se usan para declarar la solución ``validada'' o ``no validada'' en términos porcentuales. Su objetivo es más acotado: mostrar, mediante casos concretos, si el sistema funciona o no en la práctica y de qué forma, complementando así el eje de métricas técnicas con la perspectiva de uso real.
+La validación de este trabajo combina dos ejes complementarios. El primero consiste en un conjunto de métricas técnicas, calculadas directamente por el autor sobre el sistema construido: la exactitud del reconocimiento de voz (STT), la latencia del \textit{backend}, la latencia de captura de pantalla y la pertinencia de las respuestas entregadas por el modelo. El segundo consiste en pruebas con usuarios reales con discapacidad visual: se presenta el sistema al usuario, este intenta un conjunto de tareas reales de interpretación de imágenes en sitios web integradas a su flujo de trabajo habitual con su lector de pantalla, y valora cada interacción.
 
 \subsection{MÉTRICAS TÉCNICAS}
 
@@ -24,7 +22,7 @@ Se mide el tiempo transcurrido entre que la extensión envía una consulta (capt
 
 \subsubsection{Latencia de captura}
 
-Se compara el tiempo que toma la extensión en capturar el \textit{viewport} visible de la pantalla frente al tiempo que toma capturar la página completa mediante el mecanismo de \textit{scroll \& stitch} (ver Capítulo 3).
+Se observa los tiempos que toma la extensión en capturar el \textit{viewport} visible de la pantalla y al tiempo que toma capturar la página completa mediante el mecanismo de \textit{scroll \& stitch} para multiples pruebas con diferentes paginas de diferentes tamaños (ver Capítulo 3).
 
 \textcolor{red}{pendiente: ejecutar la medición y reportar ambos tiempos.}
 
@@ -36,47 +34,70 @@ Se evalúa qué tan pertinente resulta la respuesta entregada por el sistema res
 
 \subsection{PRUEBAS CON USUARIOS: ENTREVISTAS}
 
-\subsubsection{Diseño}
+\subsubsection{Entorno de pruebas}
 
-Se estableció un número objetivo de entre 3 y 5 usuarios. Se exigió que todos presentaran discapacidad visual severa o ceguera total, que fueran usuarios habituales de lectores de pantalla y que tuvieran un nivel de manejo computacional intermedio o avanzado.
-
-Como entorno de pruebas se utilizó un subconjunto de los sitios evaluados en el \textit{benchmark} (ver \ref{sec:benchmark}): al menos 2 sitios de categorías distintas y al menos 2 tareas por cada sitio. Además, se exigió formular la pregunta por voz al menos una vez.
+ Se utilizó una combinación de sitios del conjunto de prueba del \textit{benchmark} (ver \ref{sec:benchmark}) y sitios de uso cotidiano de los propios participantes -en particular, portales de instituciones educativas con los que ya interactuaban en su rutina-, cubriendo al menos 2 categorías distintas por participante. Además, se exigió formular la pregunta por voz al menos una vez a lo largo de las sesiones.
 
 El detalle de las tareas por sesión se presenta en una tabla en el anexo. \textcolor{red}{REFERENCIA PENDIENTE: insertar \ref{...} a la tabla del anexo correspondiente.}
 
 \subsubsection{Instrumento: puntaje de satisfacción}
 
-Al terminar cada tarea se le pregunta al usuario su nivel de satisfacción con la respuesta obtenida, en un número entero entre 1 y 5, denominado puntaje de satisfacción (PS): 1 corresponde a insatisfacción total (el relator de pantalla alucinó información o su respuesta fue de nula ayuda para completar la tarea), 3 a satisfacción parcial (el relator de pantalla cumplió con lo mínimo solicitado, pero hay espacio de mejora) y 5 a satisfacción total (la respuesta fue la esperada y ayudó a completar la tarea sin problemas). Este puntaje se reporta como parte del relato de cada entrevista, sin agregarlo en un promedio o porcentaje global.
+Al terminar cada tarea se le pregunta al usuario su nivel de satisfacción con la respuesta obtenida, en un número entero entre 1 y 5, denominado puntaje de satisfacción (PS): 1 corresponde a insatisfacción total (el relator de pantalla alucinó información o su respuesta fue de nula ayuda para completar la tarea), 3 a satisfacción parcial (el relator de pantalla cumplió con lo mínimo solicitado, pero hay espacio de mejora) y 5 a satisfacción total (la respuesta fue la esperada y ayudó a completar la tarea sin problemas).
 
 \subsubsection{Participantes}
 
-La validación se realizó finalmente con 3 participantes, dentro del rango objetivo definido. Los tres presentan ceguera total y usan JAWS como lector de pantalla. Se diferencian entre sí en las condiciones asociadas a su discapacidad visual y en su nivel de manejo computacional (uno con nivel medio y dos con nivel avanzado).
+La validación se realizó con 3 participantes, identificados como Usuario 0, Usuario 1 y Usuario 2. Los tres presentan ceguera total y usan JAWS como lector de pantalla. El Usuario 0 tiene un nivel de manejo computacional intermedio; los usuarios 1 y 2, un nivel avanzado. El Usuario 1 presenta retinitis pigmentaria de origen adquirido, y el Usuario 2, glaucoma bilateral congénito con ceguera de origen adquirido; la condición específica del Usuario 0 no quedó registrada.
 
 \subsubsection{Sesiones}
 
-Sobre estos 3 participantes se realizaron 4 sesiones en total, ya que P2 realizó dos sesiones. De ellas, en 3 la pregunta se formuló por escrito y en 1 por voz.
+Sobre estos 3 participantes se realizaron 4 sesiones en total, ya que el Usuario 2 realizó dos sesiones. De ellas, en 3 la pregunta se formuló por escrito y en 1 por voz. El Usuario 0 participó en una sesión escrita de 30 minutos; el Usuario 1, en una sesión escrita de 1 hora; y el Usuario 2, en una sesión escrita de 15 minutos, seguida de una sesión por voz, también de 15 minutos.
 
-% [[TABLA: detalle de sesiones (participante, modalidad, sitios y tareas evaluadas).]]
+\textcolor{red}{[tabla: detalle de sesiones (participante, modalidad, sitios y tareas evaluadas).]}
 
-\subsubsection{Caso 1: primer usuario (P1)}
+\subsubsection{Usuario 0}
 
-La primera sesión se realizó con P1 (nivel de manejo computacional medio), con la pregunta formulada por escrito.
+La sesión de este participante fue la primera ejecutada, con la pregunta formulada por escrito.
 
-\textcolor{red}{PENDIENTE: narrar en formato de entrevista la sesión de P1 -- tareas concretas intentadas, cómo respondió el relator de pantalla en cada una, y el puntaje de satisfacción (1-5) que P1 asignó a cada tarea. Al ser la primera sesión ejecutada, sirve como caso ilustrativo de referencia sobre la impresión inicial del sistema frente a un usuario real.}
+\begin{itemize}
+    \item En el sitio de la USM (categoría educacional), preguntó de qué se trataba la página; el sistema identificó correctamente que era el sitio de la Universidad Técnica Federico Santa María, un dato que el usuario no conocía de antemano -- tarea completada, PS 5.
+    \item En el mismo sitio, preguntó qué enlaces tenía disponibles; el sistema listó los botones de la barra de navegación principal, lo que le permitió anticipar el contenido antes de recorrer la página -- tarea completada, PS 3.
+    \item En Falabella (categoría \textit{e-commerce}), preguntó qué productos había en oferta; el sistema listó las publicaciones principales en oferta, identificando producto, precio y porcentaje de descuento, sin que el usuario tuviera que navegar para obtener el dato exacto -- tarea completada, PS 5.
+    \item En el mismo sitio, preguntó puntualmente si había zapatillas en descuento; el sistema identificó correctamente una oferta vigente de zapatillas -- tarea completada, PS 5.
+\end{itemize}
 
-\subsubsection{Casos 2 a 4: P2 (dos sesiones) y P3}
+Las cuatro tareas de esta sesión se completaron, con los puntajes de satisfacción más altos registrados entre las cuatro sesiones.
 
-\textcolor{red}{PENDIENTE: narrar en el mismo formato de entrevista (tareas intentadas, respuesta del sistema, puntaje de satisfacción por tarea) las sesiones de P2 -- su primera sesión con la pregunta formulada por escrito y su segunda, la única de las 4 con la pregunta formulada por voz -- y de P3.}
+\subsubsection{Usuario 1}
 
-A modo de resumen de las 19 tareas intentadas a lo largo de las 4 sesiones, las puntuaciones de satisfacción se concentraron mayoritariamente en el rango medio-alto (3 a 5), aunque también hubo tareas con puntajes bajos, coherentes con los modos de falla identificados a continuación.
+Sesión única, con la pregunta formulada por escrito.
 
-\subsection{ANÁLISIS DE PATRONES}
+\begin{itemize}
+    \item En YouTube (categoría redes sociales), pidió una descripción de las imágenes del video que estaba viendo; el sistema describió el contenido del video, incluyendo la apariencia física del presentador -información que el usuario no podría haber obtenido de otra forma-- tarea completada, PS 5.
+    \item En el mismo sitio, preguntó si la página tenía imágenes con descripción y, en una pregunta posterior, pidió el detalle de esas imágenes; en ambos casos el sistema confirmó su existencia y nombró los videos asociados, pero sin aportar información adicional a la que ya entregaba el lector de pantalla -- tareas parciales, PS 3 en ambas.
+    \item En el portal docente de una institución educativa, preguntó cómo entrar a un sistema interno de gestión académica y, en dos preguntas de seguimiento, dónde estaba ese acceso y cómo activarlo; al no estar el elemento visible en la captura, el sistema respondió en términos generales o interpretó por error el nombre del sistema como una instrucción -- tareas no completadas, PS 2 y PS 1 respectivamente.
+    \item En el mismo portal, pidió los pasos para ingresar evaluaciones; el sistema afirmó que esa sección no existía, pese a estar disponible en la página -- tarea no completada, PS 1.
+    \item Ya dentro de la sección de gestión académica, pidió una descripción general de la página; el sistema entregó una descripción superficial de la estructura, insuficiente para orientar la navegación -- tarea no completada, PS 2.
+    \item En esa misma sección, pidió la lista completa de estudiantes; el sistema leyó correctamente el único nombre visible en pantalla en ese momento, pero no logró capturar la lista completa por una falla del mecanismo de \textit{scroll \& stitch} sobre una ventana emergente -- tarea parcial, PS 3.
+\end{itemize}
 
-A partir de la revisión de los registros de las sesiones se identificaron patrones en el desempeño del sistema. Por categoría de sitio, el mejor desempeño se observó en sitios de \textit{e-commerce} y redes sociales, mientras que el peor desempeño se dio en sitios educacionales, particularmente en portales de gestión interna que requieren autenticación. Por tipo de tarea, el sistema tuvo buen desempeño en tareas descriptivas o de extracción de información --por ejemplo, ``qué es'', ``qué hay'' o ``describe''--, y un desempeño deficiente en tareas procedimentales o de navegación --por ejemplo, ``cómo hago'', ``dónde voy'' o solicitudes de pasos a seguir--.
+De las nueve tareas de esta sesión, las relacionadas con el portal docente concentraron las respuestas más deficientes, mientras que las tareas sobre YouTube tuvieron mejor desempeño.
 
-Entre los modos de falla identificados se cuentan: un sesgo de perspectiva vidente en las respuestas del modelo, alucinaciones cuando el elemento consultado no está visible en la captura, descripciones superficiales, y fallas del mecanismo de \textit{scroll \& stitch} (ver Capítulo 3, sección de extensión de navegador) al capturar ventanas emergentes (no \textit{pop-ups}, sino ventanas independientes usualmente para una sola función, como por ejemplo pagos \textit{online} o visualizar documentos).
+\subsubsection{Usuario 2}
 
-En la modalidad de voz se observó un comportamiento particular: se reportó una satisfacción más alta en la misma tarea ejecutada por texto incluso cuando esta no se completaba. Esto sugiere que la experiencia de interacción por voz tiene un valor intrínseco, independiente del éxito de la tarea.
+Dos sesiones: la primera con la pregunta formulada por escrito, y la segunda -la única de las cuatro realizada así- por voz.
+
+\begin{itemize}
+    \item En la sección de gestión académica de un portal educativo, pidió instrucciones para ver la lista de estudiantes; el sistema entregó indicaciones superficiales de navegación, por debajo de lo que el usuario esperaba -- tarea no completada, PS 1.
+    \item En el mismo sitio, pidió directamente que se le mostrara la lista de estudiantes; el sistema volvió a leer solo el nombre visible en ese momento, sin acceder a la lista completa por la misma falla de \textit{scroll \& stitch} sobre la ventana emergente -- tarea parcial, PS 3.
+    \item En el portal de otra institución educativa, preguntó qué había en la pantalla; el sistema describió la estructura de la página de forma superficial, omitiendo interacciones relevantes para un usuario ciego -- tarea parcial, PS 2.
+    \item En el sitio del Servicio de Impuestos Internos (categoría estatal), preguntó dónde emitir una boleta; el sistema identificó correctamente el botón correspondiente, pero omitió el flujo de interacción necesario para completarlo -- tarea parcial, PS 3.
+    \item En el mismo sitio, preguntó qué había en la pantalla; el sistema volvió a entregar una descripción superficial que omitía interacciones clave -- tarea no completada, PS 2.
+    \item Ya en la sesión de voz, sobre el mismo sitio, preguntó cómo emitir una boleta; el sistema entregó indicaciones superficiales de navegación, pero el usuario destacó que la interacción por voz aceleró el flujo de trabajo pese a no completar la tarea -- PS 4.
+\end{itemize}
+
+La sesión de voz mostró un caso particular: pese a no completarse la tarea, el usuario le asignó un puntaje de satisfacción más alto que a tareas equivalentes resueltas por texto -hallazgo que se retoma en el análisis de patrones.
+
+A modo de resumen de las 19 tareas intentadas a lo largo de las 4 sesiones, la mayoría fue evaluada como completada o al menos parcialmente lograda, por sobre las tareas no completadas. Ese único hecho se interpreta como una impresión general positiva de las entrevistas, sin que esto implique un análisis estadístico de los resultados.
 
 \subsection{RETROALIMENTACIÓN DE LOS USUARIOS}
 
