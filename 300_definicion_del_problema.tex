@@ -44,33 +44,32 @@ Respecto de las dificultades reportadas al utilizar un lector de pantalla para n
     \centering
     \begin{tikzpicture}
         \begin{axis}[
-            ybar,
+            xbar,
             width=13cm,
-            height=7.5cm,
-            ymin=0, ymax=7,
-            ylabel={Frecuencia (n=7)},
-            symbolic x coords={
-                Elementos visuales,
-                Pop-ups sin aria-label,
-                Orden de lectura ilógico,
-                Captchas visuales,
-                Campos sin etiqueta,
+            height=7cm,
+            xmin=0, xmax=7,
+            xlabel={Frecuencia (n=7)},
+            symbolic y coords={
+                Instrucciones visuales,
                 Imágenes sin alt,
-                Instrucciones visuales
+                Campos sin etiqueta,
+                Captchas visuales,
+                Orden de lectura ilógico,
+                Pop-ups sin aria-label,
+                Elementos visuales
             },
-            xtick=data,
-            xticklabel style={rotate=45, anchor=east, font=\footnotesize},
+            ytick=data,
             nodes near coords,
             bar width=18pt,
         ]
             \addplot coordinates {
-                (Elementos visuales,5)
-                (Pop-ups sin aria-label,5)
-                (Orden de lectura ilógico,5)
-                (Captchas visuales,5)
-                (Campos sin etiqueta,4)
-                (Imágenes sin alt,4)
-                (Instrucciones visuales,4)
+                (4,Instrucciones visuales)
+                (4,Imágenes sin alt)
+                (4,Campos sin etiqueta)
+                (5,Captchas visuales)
+                (5,Orden de lectura ilógico)
+                (5,Pop-ups sin aria-label)
+                (5,Elementos visuales)
             };
         \end{axis}
     \end{tikzpicture}
@@ -83,18 +82,17 @@ En cuanto a las funcionalidades identificadas como las más necesitadas, se dest
     \centering
     \begin{tikzpicture}
         \begin{axis}[
-            ybar,
-            width=10cm,
-            height=6cm,
-            ymin=0, ymax=7,
-            ylabel={Frecuencia (n=7)},
-            symbolic x coords={Describir e interpretar imágenes,Navegación por voz a un objetivo,Resumen del contenido},
-            xtick=data,
-            xticklabel style={rotate=45, anchor=east, font=\footnotesize},
+            xbar,
+            width=11cm,
+            height=5cm,
+            xmin=0, xmax=7,
+            xlabel={Frecuencia (n=7)},
+            symbolic y coords={Resumen del contenido,Navegación por voz a un objetivo,Describir e interpretar imágenes},
+            ytick=data,
             nodes near coords,
             bar width=25pt,
         ]
-            \addplot coordinates {(Describir e interpretar imágenes,6) (Navegación por voz a un objetivo,6) (Resumen del contenido,4)};
+            \addplot coordinates {(4,Resumen del contenido) (6,Navegación por voz a un objetivo) (6,Describir e interpretar imágenes)};
         \end{axis}
     \end{tikzpicture}
     \caption{\label{fig:funcionalidades} Funcionalidades identificadas como más necesitadas por los encuestados (n=7). Fuente: Elaboración propia.}

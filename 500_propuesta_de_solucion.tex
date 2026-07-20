@@ -6,7 +6,7 @@ Las secciones siguientes describen, en ese orden, la arquitectura general del si
 
 \subsection{ARQUITECTURA GENERAL DEL RELATOR DE PANTALLA}
 
-La arquitectura implementada se compone de una extensión de navegador y un \textit{backend} que coordinan la captura de la pantalla, el envío de la consulta al modelo, y la entrega de la respuesta. Esa respuesta, sin embargo, no llega al usuario mediante un mecanismo de audio propio del sistema: se apoya en la misma vía por la que el lector de pantalla ya comunica cualquier otro contenido de una página, es decir, en el DOM y en el árbol de accesibilidad que el navegador expone a través de la API de accesibilidad del sistema operativo.
+La arquitectura implementada se compone de una extensión de navegador y un \textit{backend} que coordinan la captura de la pantalla, el envío de la consulta al modelo, y la entrega de la respuesta. Esa respuesta se apoya en la misma vía por la que el lector de pantalla ya comunica cualquier otro contenido de una página, es decir, en el DOM y en el árbol de accesibilidad que el navegador expone a través de la API de accesibilidad del sistema operativo.
 
 El flujo inicia en la extensión de navegador, instalada en el navegador del propio usuario. Al presionar el atajo de teclado configurado, la extensión captura la pantalla —el \textit{viewport} visible o la página completa, según el atajo ejecutado— y recoge la pregunta del usuario, ya sea escrita o dictada por voz. Con ambos datos arma una solicitud HTTP hacia el \textit{backend}.
 
@@ -16,7 +16,7 @@ El servidor de inferencia aloja el modelo VLM y es el único punto del sistema d
 
 Esa respuesta vuelve entonces al \textit{backend}, que la reenvía a la extensión como un JSON con el estado de la solicitud y el texto de respuesta (\texttt{response\_text}).
 
-Al recibir ese texto, la extensión no lo transforma directamente a audio ni implementa ningún mecanismo de voz propio: lo inserta en el DOM de la página como una región viva (\texttt{aria-live}), tal como lo haría cualquier notificación dinámica del propio sitio.
+Al recibir ese texto la extensión lo inserta en el DOM de la página como una región viva (\texttt{aria-live}), tal como lo haría cualquier notificación dinámica del propio sitio.
 
 Ese cambio en el DOM es recogido por el navegador, que deriva de él un árbol de accesibilidad actualizado y lo expone a través de la API de accesibilidad del sistema operativo.
 
@@ -28,7 +28,7 @@ Finalmente, es el propio lector de pantalla del usuario —externo al sistema, s
 \caption{\label{fig:arquitectura} Arquitectura general del relator de pantalla.} Fuente: Elaboración propia.
 \end{figure}
 
-El flujo completo, desde que se formula la pregunta hasta que se obtiene la respuesta, queda entonces de la siguiente forma:
+El flujo completo, desde que se inicia la solicitud hasta que se obtiene la respuesta, queda entonces de la siguiente forma:
 
 \begin{enumerate}
     \item El usuario presiona el atajo de teclado y formula su pregunta —por texto o por voz— a la extensión de navegador.
@@ -51,11 +51,11 @@ Para la captura de página completa se aplica una lógica de \textit{scroll \& s
 
 \subsubsection{Formato de salida de la imagen}
 
-El output de las imágenes es convertido a formato de cadena de texto /textit{(base64)} para enviarlo más fácilmente por HTTP al \textit{backend}. En cualquiera de los dos casos, el \textit{backend} la recibe como parte de una solicitud \texttt{multipart/form-data} enviada mediante \texttt{HTTP POST}, junto con la pregunta, el identificador de sesión y la llave de autenticación (ver Figura \ref{fig:arquitectura}).
+El output de las imágenes es convertido a formato de cadena de texto /textit{(base64)} para enviarlo por HTTP al \textit{backend}. Por tanto, el \textit{backend} la recibe como parte de una solicitud \texttt{multipart/form-data} enviada mediante \texttt{HTTP POST}, junto con la pregunta, el identificador de sesión y la llave de autenticación (ver Figura \ref{fig:arquitectura}).
 
 \subsection{INTERACCIÓN CON EL USUARIO}
 
-Además de capturar la pantalla, la extensión es responsable de la modalidad de interacción con el usuario, es decir, de si la consulta se hace por texto o por voz. Esta responsabilidad es exclusiva de la extensión: es irrelevante para el \textit{backend} si la pregunta llegó escrita o hablada, dado que en ambos casos recibe únicamente texto.
+Además de capturar la pantalla, la extensión es responsable de la modalidad de interacción con el usuario, es decir, de si la consulta se hace por texto o por voz. Esta responsabilidad es exclusiva de la extensión: es irrelevante para el \textit{backend} si el origen de la pregunta es escrita o hablada, dado que en ambos casos recibe únicamente texto.
 
 \subsubsection{Interacción sin síntesis de voz}
 
@@ -67,7 +67,7 @@ En su forma completa, la extensión incorpora reconocimiento de voz para la preg
 
 \subsection{\textit{BACKEND} DEL SISTEMA}
 
-El \textit{backend} está implementado en Python con FastAPI y se ejecuta en el equipo del usuario. Su responsabilidad se limita a orquestar la comunicación entre la extensión y el servidor de inferencia, sin ejecutar cómputo de IA por sí mismo.
+El \textit{backend} está implementado en Python con FastAPI y se ejecuta en el equipo del usuario. Su responsabilidad se limita a orquestar la comunicación entre la extensión y el servidor de inferencia.
 
 Esta separación en dos componentes —en lugar de que la extensión llame directamente al servidor de inferencia— responde ante todo a una razón de seguridad: la llave de autenticación (\texttt{api\_key}) que da acceso a dicho servidor se mantiene únicamente en el \textit{backend}, un entorno que el navegador no puede inspeccionar. Si esa llave se incluyera en el código de la extensión, cualquier persona con acceso al navegador podría extraerla y utilizarla sin autorización, dado que el código de una extensión es, en la práctica, público para quien la instala.
 
@@ -83,15 +83,15 @@ Para la inferencia se utilizó ``\textit{albert}'', una máquina del laboratorio
 
 \subsubsection{Decisión de infraestructura}
 
-Al determinar la arquitectura de inferencia existían tres formas de resolverla: usar una API o una IA ya empaquetada de un tercero, levantar un servidor de terceros (en la nube), o utilizar un servidor institucional. Se optó por un servidor institucional, ya que permite controlar tanto el modelo utilizado como la infraestructura sobre la que corre, sin depender de las condiciones de un tercero ni de los costos por consulta de un servicio en línea.
+Al determinar la arquitectura de inferencia se analizaron tres formas de resolverla: usar una API o una IA ya empaquetada de un tercero, levantar un servidor en terceros (en la nube), o utilizar un servidor institucional. Se optó por un servidor institucional, ya que permite controlar tanto el modelo utilizado como la infraestructura sobre la que corre, sin depender de las condiciones de un tercero ni de los costos por consulta de un servicio en línea.
 
-Antes de llegar al servidor local dedicado, se evaluaron progresivamente otras tres alternativas para ejecutar un modelo VLM acotado. Las cuatro pruebas se ejecutaron sobre la misma consulta ya validada anteriormente como factible para el modelo de prueba, repetida 5 veces sobre cada entorno, para promediar el tiempo de respuesta (ver Tabla \ref{table:entornosinferencia}).
+Antes de llegar al servidor local dedicado, se evaluaron progresivamente otras tres alternativas para ejecutar un modelo VLM acotado. Las cuatro pruebas en total --local, nube, nube y institucional-- se ejecutaron sobre la misma consulta ya validada anteriormente como factible para el modelo de prueba, repetida 5 veces sobre cada entorno, para promediar el tiempo de respuesta (ver Tabla \ref{table:entornosinferencia}).
 
 El tiempo de respuesta deseado para estas pruebas se fijó en no más de 10 segundos por consulta: ese es, según la literatura de interacción humano-computador, el límite bajo el cual un usuario se mantiene atento al diálogo con el sistema sin distraerse con otra tarea, en particular cuando percibe que la información solicitada es valiosa \cite{nielsen1993responsetimes}. Este es el concepto de latencia (tiempo de espera por consulta) introducido en el Capítulo 2, aplicado aquí como requisito operativo concreto del sistema.
 
-La primera prueba se realizó en el equipo de desarrollo local, apoyándose únicamente en su CPU, ya que esta no contaba con una GPU compatible con los modelos evaluados. El promedio resultante fue de 34 minutos por consulta, un tiempo muy por sobre lo utilizable para una interacción en tiempo real.
+La primera prueba se realizó en el equipo de desarrollo local, apoyándose únicamente en su CPU, ya que esta no contaba con una GPU compatible con los modelos evaluados. El promedio resultante fue de 34 minutos por consulta, un tiempo muy por sobre lo aceptable para una interacción en tiempo real.
 
-Para descartar que ese resultado se debiera a limitaciones propias del equipo de desarrollo, se repitió la misma prueba en una instancia en la nube con una CPU más potente. El promedio bajó a 12 minutos por consulta: una mejora respecto del equipo local, pero aún claramente insuficiente.
+A fin de disminuir el tiempo de respuesta se se repitió la misma prueba en una instancia en la nube con una CPU más potente. El promedio de tiempo empleado por consulta bajó a 12 minutos: una mejora respecto del equipo local, pero aún claramente insuficiente.
 
 Se probó entonces con una sesión de Google Colaboratory, esta vez aprovechando una GPU NVIDIA T4. El promedio bajó drásticamente a 1 minuto por consulta, confirmando que la variable relevante era el uso de GPU y no las mejoras incrementales de CPU.
 
@@ -102,15 +102,15 @@ Finalmente, al tener acceso a \textit{albert} y su GPU NVIDIA A40, el promedio s
     \caption{\label{table:entornosinferencia} Comparación de los entornos de inferencia probados.} Fuente: Elaboración propia, promedio de 5 ejecuciones de la misma consulta por entorno.
     \begin{tabular}{|p{2.6cm}|p{2.3cm}|p{4.8cm}|p{1.8cm}|p{2cm}|}
         \hline
-        \textbf{Entorno} & \textbf{Hardware de ejecución} & \textbf{Especificaciones} & \textbf{RAM} & \textbf{Tiempo promedio (s)} \\
+        \textbf{Entorno} & \textbf{Hardware de ejecución} & \textbf{Especificaciones} & \textbf{RAM [GB]} & \textbf{Tiempo promedio [s]} \\
         \hline
-        Equipo de desarrollo local & CPU & AMD Ryzen 5 2600 (6 núcleos / 12 hilos, 3,4--3,9 GHz, arquitectura Zen+) & 16 GB & 1827 \\
+        Equipo de desarrollo local & CPU & AMD Ryzen 5 2600 (6 núcleos / 12 hilos, 3,4--3,9 GHz, arquitectura Zen+) & 16 & 1827 \\
         \hline
-        AWS EC2 g4dn.xlarge & CPU & Intel Xeon Platinum 8259CL ``Cascade Lake'' (4 vCPU, 2,5 GHz) & 16 GiB & 729 \\
+        AWS EC2 g4dn.xlarge & CPU & Intel Xeon Platinum 8259CL ``Cascade Lake'' (4 vCPU, 2,5 GHz) & 16  & 729 \\
         \hline
-        Google Colaboratory & GPU & NVIDIA T4, 16 GB VRAM & \textasciitilde{}12 GB (asignada dinámicamente, nivel gratuito) & 57 \\
+        Google Colaboratory & GPU & NVIDIA T4, 16 GB VRAM & \textasciitilde{}12 GB & 57 \\
         \hline
-        \textit{albert} (laboratorio de \textit{data science}, DI) & GPU & NVIDIA A40, 48 GB VRAM & 62 GiB & 10 s \\
+        \textit{albert} (laboratorio de \textit{data science}, DI) & GPU & NVIDIA A40, 48 GB VRAM & 62 & 10 s \\
         \hline
     \end{tabular}
 \end{table}
@@ -120,7 +120,7 @@ El resultado de \textit{albert} (\textasciitilde{}10 s) cumple el objetivo de la
 \subsection{\textit{BENCHMARK} DE MODELOS VLM}
 \label{sec:benchmark}
 
-Se realizó un procedimiento de \textit{benchmarking} para seleccionar el VLM más adecuado para la tarea de analizar sitios web con perspectiva de accesibilidad, evaluando sobre sitios reales.
+Se realizó un procedimiento de \textit{benchmarking} para seleccionar el VLM más adecuado para la tarea de analizar sitios web con perspectiva de accesibilidad, evaluando del punto de vista de sitios reales.
 
 \subsubsection{Sitios y preguntas}
 
@@ -138,7 +138,7 @@ Para cada categoría se escribieron 3 preguntas generales, aplicables a todos lo
 
 \subsubsection{Rúbrica de evaluación}
 
-Se escribieron rúbricas con puntajes del 0 al 3 según qué tanto se acerca la respuesta a la de un ser humano. La rúbrica prioriza que el dato, elemento o texto puntual solicitado sea correcto y preciso, más que la redacción con la que se presente el resto de la respuesta: si la pregunta exige extraer un texto específico del sitio (por ejemplo, el rótulo exacto de un botón), ese texto debe reproducirse tal cual aparece; para el resto de los casos, basta con que el valor o elemento identificado sea el correcto, aunque se describa con palabras distintas. Un lenguaje condicional o ambiguo sobre la información principal solicitada —por ejemplo, señalar que algo ``probablemente'' se encuentra en cierto lugar— se penaliza como si no se hubiera identificado en absoluto. La no verbosidad es otro criterio aplicado: no se mejora el puntaje de una respuesta solo por ser extensa. Los cuatro niveles son:
+Se escribieron rúbricas con puntajes del 0 al 3 según qué tanto se acerca la respuesta a la de un ser humano. La rúbrica prioriza que el dato, elemento o texto puntual solicitado sea correcto y preciso, más que la redacción con la que se presente el resto de la respuesta: si la pregunta exige extraer un texto específico del sitio (por ejemplo, el rótulo exacto de un botón), ese texto debe reproducirse tal cual aparece; para el resto de los casos, basta con que el valor o elemento identificado sea el correcto, aunque se describa con palabras distintas. Un lenguaje condicional o ambiguo sobre la información principal solicitada —por ejemplo, señalar que algo ``probablemente'' se encuentra en cierto lugar— se penaliza como si no se hubiera identificado en absoluto. La verbosidad es otro criterio aplicado: no se mejora el puntaje de una respuesta solo por ser extensa. Los cuatro niveles son:
 
 \begin{itemize}
     \item \textbf{0 -- Alucinación o falsedad.} Se selecciona cuando la respuesta alucina contenido que no existe en ningún lugar de la captura, entrega información falsa respecto de lo que esta efectivamente muestra, o se limita a responder a partir del conocimiento previo o general del modelo en lugar de referirse a lo que la imagen realmente contiene, sin importar cuán coherente o segura suene. Por ejemplo, describir un elemento, un precio o una sección típica de ese tipo de sitio sin que la imagen lo confirme en absoluto.
