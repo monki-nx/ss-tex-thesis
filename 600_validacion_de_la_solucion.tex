@@ -10,9 +10,9 @@ Estas métricas se calculan directamente por el autor sobre el funcionamiento de
 
 \subsubsection{Exactitud del reconocimiento de voz (STT)}
 
-Se mide sobre un conjunto de N palabras habladas, contabilizando cuántas de ellas fueron transcritas incorrectamente por el motor de STT utilizado por la extensión (Web Speech API, español). La prueba se realizó con una copia aislada de ese mismo motor de reconocimiento, sobre 10 frases representativas de las preguntas generales del \textit{benchmark} (ver Capítulo 3), leídas en voz alta por el autor con un tono natural, sin exagerar la pronunciación ni hacer pausas prolongadas, tal como se hablaría en una conversación cotidiana; el registro completo de cada frase y su transcripción se presenta en el Anexo \ref{anexo:stt}.
+Se mide sobre un conjunto de N palabras habladas, contabilizando cuántas de ellas fueron transcritas incorrectamente por el motor de STT utilizado por la extensión (Web Speech API, español). La prueba se realizó sobre 10 frases representativas de las preguntas generales del \textit{benchmark} (ver Capítulo 3), leídas en voz alta por 5 personas distintas, cada una con un tono natural, sin exagerar la pronunciación ni hacer pausas prolongadas, tal como se hablaría en una conversación cotidiana; el registro completo de cada frase y su transcripción, por persona, se presenta en el Anexo \ref{anexo:stt}.
 
-Sobre un total de N=171 palabras, 16 fueron transcritas incorrectamente, lo que da una tasa de error de 9,36\%. Las palabras erróneas se concentran en cuatro tipos de falla:
+Sobre un total de N=855 palabras (171 palabras por cada una de las 5 personas), 42 fueron transcritas incorrectamente, lo que da una tasa de error de 4,91\%. Las palabras erróneas se concentran en cuatro tipos de falla:
 
 \begin{itemize}
     \item \textbf{Concordancia gramatical (número o persona).} La palabra reconocida es correcta en significado general pero cambia de número o persona respecto de la original -- por ejemplo, ``debo'' transcrito como ``debe'', ``tienen'' como ``tiene'', o ``las herramientas'' como ``la herramienta''.
@@ -21,7 +21,7 @@ Sobre un total de N=171 palabras, 16 fueron transcritas incorrectamente, lo que 
     \item \textbf{Fusión fonética de palabras.} Dos palabras contiguas de sonido parecido se fusionan en una sola -- por ejemplo, ``bloques o'' como ``bloqueos''.
 \end{itemize}
 
-Ninguna de las 10 frases quedó sin reconocer ni requirió reintentarse por falta de detección de voz. En ningún caso el error cambia el sentido general de la pregunta al punto de hacerla ininteligible; los errores observados son consistentes con limitaciones conocidas de los motores de STT comerciales frente a vocabulario técnico o poco frecuente, más que con una falla del mecanismo en sí.
+Ninguna de las 50 lecturas (10 frases por cada una de las 5 personas) quedó sin reconocer ni requirió reintentarse por falta de detección de voz. En ningún caso el error cambia el sentido general de la pregunta al punto de hacerla ininteligible; los errores observados son consistentes con limitaciones conocidas de los motores de STT comerciales frente a vocabulario técnico o poco frecuente, más que con una falla del mecanismo en sí.
 
 \subsubsection{Latencia de captura}
 
@@ -30,32 +30,34 @@ Se observa los tiempos que toma la extensión en capturar el \textit{viewport} v
 \begin{table}[h]
     \centering
     \caption{\label{table:latenciacaptura} Latencia de captura de \textit{viewport} vs. página completa (\textit{scroll \& stitch}), por sitio.} Fuente: Elaboración propia.
-    \begin{tabular}{|p{3.3cm}|p{2.6cm}|p{3cm}|p{2cm}|}
+    \begin{tabular}{|p{2.8cm}|p{1.9cm}|p{2.3cm}|p{1.4cm}|p{2.2cm}|}
         \hline
-        \textbf{Sitio} & \textbf{Viewport} & \textbf{Página completa} & \textbf{Tramos} \\
+        \textbf{Sitio} & \textbf{Viewport} & \textbf{Página completa} & \textbf{Tramos} & \textbf{Página completa / tramo} \\
         \hline
-        Falabella & 0,32 s & 11,20 s & 14 \\
+        Falabella & 0,32 s & 11,20 s & 14 & 0,80 s \\
         \hline
-        Mercado Libre & 0,11 s & 5,07 s & 5 \\
+        Mercado Libre & 0,11 s & 5,07 s & 5 & 1,01 s \\
         \hline
-        Reddit & 0,06 s & 1,97 s & 1 \\
+        Reddit & 0,06 s & 1,97 s & 1 & 1,97 s \\
         \hline
-        SENADIS & 0,04 s & 2,79 s & 3 \\
+        SENADIS & 0,04 s & 2,79 s & 3 & 0,93 s \\
         \hline
-        SII & 0,06 s & 2,82 s & 3 \\
+        SII & 0,06 s & 2,82 s & 3 & 0,94 s \\
         \hline
-        Ticketmaster & 0,10 s & 5,76 s & 7 \\
+        Ticketmaster & 0,10 s & 5,76 s & 7 & 0,82 s \\
         \hline
-        Ticketplus & 0,51 s & 5,85 s & 7 \\
+        Ticketplus & 0,51 s & 5,85 s & 7 & 0,84 s \\
         \hline
-        UCH & 0,27 s & 4,22 s & 5 \\
+        UCH & 0,27 s & 4,22 s & 5 & 0,84 s \\
         \hline
-        USM & 0,07 s & 5,94 s & 7 \\
+        USM & 0,07 s & 5,94 s & 7 & 0,85 s \\
         \hline
     \end{tabular}
 \end{table}
 
-Sobre los 9 sitios en que la captura se completó correctamente, el promedio de la captura de \textit{viewport} fue de 0,17 s (mínimo 0,04 s, máximo 0,51 s), frente a un promedio de 5,07 s para la captura de página completa (mínimo 1,97 s, máximo 11,20 s) -diferencia explicada por el número de tramos que cada página requiere recorrer y unir-.
+Sobre los 9 sitios en que la captura se completó correctamente, el promedio de la captura de \textit{viewport} fue de 0,17 s (mínimo 0,04 s, máximo 0,51 s). Esta variación resulta llamativa tratándose siempre de una única captura del área visible, del mismo tamaño en todos los casos; una hipótesis para explicarla es la densidad visual del contenido cargado dentro del \textit{viewport} en el momento de la captura: los sitios con los tiempos más altos (Ticketplus, 0,51 s; Falabella, 0,32 s; UCH, 0,27 s) corresponden a portales con más elementos gráficos visibles de entrada —banners, carruseles, imágenes de producto—, mientras que los de tiempos más bajos (SENADIS, 0,04 s; SII y Reddit, 0,06 s) muestran un \textit{viewport} inicial predominantemente textual. Bajo esta hipótesis, el tiempo de captura del \textit{viewport} dependería más de cuánto debe renderizar y componer el navegador en ese instante que del tamaño total de la página.
+
+Para la captura de página completa, el promedio fue de 5,07 s (mínimo 1,97 s, máximo 11,20 s), diferencia explicada en gran parte por el número de tramos que cada página requiere recorrer y unir. Como cada tramo corresponde a una captura de \textit{viewport} del mismo tamaño, normalizar el tiempo total por la cantidad de tramos permite comparar el costo real del mecanismo entre sitios de largo distinto, en lugar de comparar tiempos absolutos de páginas de tamaños dispares. Ese tiempo normalizado se mantiene relativamente estable, entre 0,80 s y 1,01 s por tramo, en los 8 sitios con 3 o más tramos (promedio 0,88 s/tramo), muy por debajo de los 1,97 s/tramo que toma Reddit, el único sitio capturado en un solo tramo. Esto sugiere que buena parte del tiempo de captura de página completa corresponde a un costo fijo por captura —congelar los elementos dinámicos del sitio, iniciar el desplazamiento y preparar el proceso de unión de imágenes— que se diluye a medida que hay más tramos sobre los cuales repartirlo: en términos prácticos, capturar una página larga resulta proporcionalmente más eficiente por tramo que capturar una página corta.
 
 \subsubsection{Latencia del \textit{backend}}
 
@@ -91,7 +93,7 @@ Se mide el tiempo transcurrido entre que la extensión envía una consulta (capt
     \end{tabular}
 \end{table}
 
-Sobre las 50 consultas realizadas, el promedio general fue de 9,58 s (desviación estándar 2,66 s; mínimo 4,26 s, máximo 11,58 s). Los propios registros del servidor de inferencia muestran que esta variación no se debe al servidor de gestión ni a la red, sino al tamaño de la captura de cada sitio: SII y SENADIS son capturas notablemente más livianas (justo por debajo de los 5.200 \textit{tokens} de entrada) que el resto de los sitios (entre 11.700 y 12.900 \textit{tokens} de entrada), lo que reduce a menos de la mitad su tiempo de inferencia.
+Sobre las 50 consultas realizadas, el promedio general fue de 9,58 s (desviación estándar 2,66 s; mínimo 4,26 s, máximo 11,58 s). Los propios registros del servidor de inferencia muestran que esta variación no se debe al servidor de gestión ni a la red, sino al tamaño de la captura de cada sitio: SII y SENADIS son capturas notablemente más livianas que el resto de los sitios, lo que reduce a menos de la mitad su tiempo de inferencia.
 
 \subsubsection{Pertinencia de las respuestas}
 
@@ -142,14 +144,18 @@ El detalle de las tareas por sesión se presenta en una tabla en el Anexo (ver T
 Al terminar cada tarea se le pregunta al usuario su nivel de satisfacción con la respuesta obtenida, en un número entero entre 1 y 5, denominado puntaje de satisfacción (PS):
 \begin{itemize}
     \item 1 corresponde a insatisfacción total (el relator de pantalla alucinó información o su respuesta fue de nula ayuda para completar la tarea)
+    \item 2 a insatisfacción parcial (la respuesta aportó algo de información, pero fue insuficiente para avanzar en la tarea)
     \item 3 a satisfacción parcial (el relator de pantalla cumplió con lo mínimo solicitado, pero hay espacio de mejora)
+    \item 4 a satisfacción alta (la respuesta ayudó a avanzar en la tarea, con solo detalles menores por mejorar)
     \item 5 a satisfacción total (la respuesta fue la esperada y ayudó a completar la tarea sin problemas).
 \end{itemize}
 \subsubsection{Participantes}
 
-La validación se realizó con 3 participantes, identificados como Usuario 0, Usuario 1 y Usuario 2. Los tres presentan ceguera total y usan JAWS como lector de pantalla.
+La validación se realizó con 3 participantes, identificados como Usuario 0, Usuario 1 y Usuario 2. Los tres presentan ceguera total adquirida y usan JAWS como lector de pantalla.
 
 Sobre estos 3 participantes se realizaron 4 sesiones en total, ya que el Usuario 2 realizó dos sesiones. De ellas, en 3 la pregunta se formuló por escrito y en 1 por voz. El perfil de cada usuario y los detalles de cada sesión se pueden ver en el Anexo.
+
+A modo de resumen de las 19 tareas intentadas a lo largo de las 4 sesiones, la mayoría fue evaluada como completada o al menos parcialmente lograda, por sobre las tareas no completadas. Ese único hecho se interpreta como una impresión general positiva de las entrevistas, sin que esto implique un análisis estadístico de los resultados.
 
 \subsubsection{Usuario 0}
 
@@ -194,8 +200,6 @@ Dos sesiones: la primera con la pregunta formulada por escrito, y la segunda -la
 
 La sesión de voz mostró un caso particular: pese a no completarse la tarea, el usuario le asignó un puntaje de satisfacción más alto que a tareas equivalentes resueltas por texto, lo que sugiere que la interacción por voz tiene un valor intrínseco para el usuario, más allá del éxito o fracaso de la tarea en sí.
 
-A modo de resumen de las 19 tareas intentadas a lo largo de las 4 sesiones, la mayoría fue evaluada como completada o al menos parcialmente lograda, por sobre las tareas no completadas. Ese único hecho se interpreta como una impresión general positiva de las entrevistas, sin que esto implique un análisis estadístico de los resultados.
-
 \subsection{RETROALIMENTACIÓN DE LOS USUARIOS}
 
 Los participantes aportaron las siguientes sugerencias de mejora durante las sesiones:
@@ -212,7 +216,7 @@ Los participantes aportaron las siguientes sugerencias de mejora durante las ses
 Las métricas técnicas y las entrevistas reunidas en este capítulo, desde dos ángulos complementarios, entregan una opinión suficientemente fundada sobre la utilidad práctica del relator de pantalla.
 
 \begin{itemize}
-    \item \textbf{Exactitud del reconocimiento de voz (STT):} tasa de error de palabra de 9,36\% sobre las 171 palabras evaluadas.
+    \item \textbf{Exactitud del reconocimiento de voz (STT):} tasa de error de palabra de 4,91\% sobre las 855 palabras evaluadas (171 palabras por cada una de las 5 personas).
     \item \textbf{Latencia de captura:} en promedio 0,17 segundos para el \textit{viewport} y 5,07 segundos para la página completa.
     \item \textbf{Latencia del \textit{backend}:} promedio de 9,58 segundos, con un rango de 4,26 a 11,58 segundos sobre 50 consultas.
     \item \textbf{Pertinencia de las respuestas:} puntaje máximo de la rúbrica en las 10 consultas del set independiente de pertinencia.
@@ -220,27 +224,3 @@ Las métricas técnicas y las entrevistas reunidas en este capítulo, desde dos 
 \end{itemize}
 
 Los patrones de falla identificados durante las entrevistas -alucinaciones cuando el elemento consultado no es visible en la captura, descripciones superficiales, desempeño débil en tareas procedimentales y en sitios que requieren autenticación, y fallas del mecanismo de \textit{scroll \& stitch} sobre ventanas emergentes- y las sugerencias reportadas por los propios participantes se abordan como trabajo futuro.
-
-La Tabla \ref{table:resumenvalidacion} resume los resultados de todas las pruebas y métricas reunidas en este capítulo.
-
-\begin{table}[h]
-    \centering
-    \caption{\label{table:resumenvalidacion} Resumen de las pruebas y métricas de validación obtenidas.} Fuente: Elaboración propia.
-    \begin{tabular}{|p{5.5cm}|p{7.5cm}|}
-        \hline
-        \textbf{Prueba / métrica} & \textbf{Resultado} \\
-        \hline
-        Exactitud del reconocimiento de voz (STT) & Tasa de error de 9,36\% (16 de 171 palabras) \\
-        \hline
-        Latencia de captura -- \textit{viewport} & Promedio 0,17 s (mín. 0,04 s, máx. 0,51 s) \\
-        \hline
-        Latencia de captura -- página completa & Promedio 5,07 s (mín. 1,97 s, máx. 11,20 s) \\
-        \hline
-        Latencia del servidor de gestión & Promedio 9,58 s (desv. est. 2,66 s; rango 4,26--11,58 s) \\
-        \hline
-        Pertinencia de las respuestas & 30 de 30 puntos posibles (100\%) sobre 10 consultas independientes \\
-        \hline
-        Entrevistas con usuarios & 19 tareas en 4 sesiones con 3 participantes; mayoría evaluada como completada o parcialmente lograda, con puntaje de satisfacción (PS) narrado por tarea, entre 1 y 5 \\
-        \hline
-    \end{tabular}
-\end{table}

@@ -1,12 +1,12 @@
 \secnumbersection{PROPUESTA DE SOLUCIÓN}
 
-Se plantea desarrollar un sistema que, mediante un atajo de teclado, permita al usuario indicar qué necesita saber de la vista del navegador y reciba de vuelta una respuesta. Ese atajo lo captura una extensión de navegador, que envía una captura de la pantalla junto con la pregunta a un servidor de inferencia; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario.
+Se plantea desarrollar un sistema que, mediante un atajo de teclado, permita al usuario indicar qué necesita saber de la vista del navegador y reciba de vuelta una respuesta. Ese atajo lo captura una extensión de navegador, que envía una captura de la pantalla junto con la pregunta al backend del sistema; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario.
 
-Las secciones siguientes describen, en ese orden, la arquitectura general del sistema, la extensión de navegador, el servidor de gestión que procesa las consultas, la infraestructura sobre la que corre el modelo, y el proceso de selección del modelo VLM utilizado.
+Las secciones siguientes describen la arquitectura general del sistema, la extensión de navegador, el backend que procesa las consultas, la infraestructura sobre la que corre el modelo, y el proceso de selección del modelo VLM utilizado.
 
 \subsection{ARQUITECTURA GENERAL DEL RELATOR DE PANTALLA}
 
-La arquitectura implementada se compone de tres partes: la extensión de navegador, un servidor de gestión, y un servidor de inferencia. La extensión captura la pantalla y recoge la pregunta del usuario; el servidor de gestión recibe esa solicitud y la reenvía al servidor de inferencia; el servidor de inferencia aloja el modelo VLM y devuelve el texto generado, que el servidor de gestión reenvía de vuelta a la extensión. Esa respuesta se apoya en la misma vía por la que el lector de pantalla ya comunica cualquier otro contenido de una página, es decir, en el DOM y en el árbol de accesibilidad que el navegador expone a través de la API de accesibilidad del sistema operativo.
+La arquitectura implementada se compone de dos partes: la extensión de navegador, del lado del cliente, y el backend del sistema, que a su vez se compone de un servidor de gestión y un servidor de inferencia. La extensión captura la pantalla y recoge la pregunta del usuario; el servidor de gestión recibe esa solicitud y la reenvía al servidor de inferencia; el servidor de inferencia aloja el modelo VLM y devuelve el texto generado, que el servidor de gestión reenvía de vuelta a la extensión. Esa respuesta se apoya en la misma vía por la que el lector de pantalla ya comunica cualquier otro contenido de una página, es decir, en el DOM y en el árbol de accesibilidad que el navegador expone a través de la API de accesibilidad del sistema operativo.
 
 El flujo inicia en la extensión de navegador, instalada en el navegador del propio usuario. Al presionar el atajo de teclado instalado, la extensión captura la pantalla —el \textit{viewport} visible o la página completa, según lo requiera el usuario— y recoge la pregunta del usuario, ya sea escrita o dictada por voz. Con ambos datos arma una solicitud HTTP hacia el servidor de gestión.
 
@@ -49,8 +49,9 @@ Finalmente, es el propio lector de pantalla del usuario —externo al sistema, s
 
     % Contenedores
     \node[container={Equipo del usuario (cliente)}, fit=(extension)(dom)(arbol)(so)(lector)] {};
-    \node[container={Servidor de gestión}, fit=(gestion)] {};
-    \node[container={Servidor de inferencia (\textit{albert}, GPU)}, fit=(inferencia)] {};
+    \node[container={Servidor de gestión}, fit=(gestion), inner sep=8pt] (contgestion) {};
+    \node[container={Servidor de inferencia (\textit{albert}, GPU)}, fit=(inferencia), inner sep=8pt] (continferencia) {};
+    \node[container={Backend}, fit=(contgestion)(continferencia), inner sep=16pt] {};
 
     % Flujo cliente <-> gestión (horizontal, arriba)
     \draw[arr] ([yshift=2mm]extension.east) -- node[above]{captura + pregunta} ([yshift=2mm]gestion.west);
@@ -104,13 +105,13 @@ En su forma más básica, la extensión muestra un cuadro de texto donde el usua
 
 \subsubsection{Interacción con síntesis de voz}
 
-En su forma completa, la extensión incorpora reconocimiento de voz para la pregunta --mediante la Web Speech API de Google, que procesa el audio localmente--, y la respuesta se comunica mediante audio a través del lector de pantalla del usuario. El usuario puede, sin embargo, optar por escribir la pregunta en lugar de decirla en voz alta y aun así recibir la respuesta hablada; esta flexibilidad importa para quienes prefieren escribir sus consultas, ya que dejar de escribir para hablarle al computador a mitad de una sesión puede romper el flujo habitual de trabajo del usuario.
+En su forma completa, la extensión incorpora reconocimiento de voz para la pregunta ―mediante la Web Speech API de Google, que procesa el audio localmente―, y la respuesta se comunica mediante audio a través del lector de pantalla del usuario. El usuario puede, sin embargo, optar por escribir la pregunta en lugar de decirla en voz alta y aun así recibir la respuesta hablada; esta flexibilidad importa para quienes prefieren escribir sus consultas, ya que dejar de escribir para hablarle al computador a mitad de una sesión puede romper el flujo habitual de trabajo del usuario.
 
 \subsection{SERVIDOR DE GESTIÓN}
 
 El servidor de gestión está implementado en Python con FastAPI y se ejecuta en infraestructura propia, separada tanto del equipo del usuario como del servidor de inferencia. Su responsabilidad se limita a orquestar la comunicación entre la extensión y el servidor de inferencia.
 
-Esta separación en tres partes —extensión, servidor de gestión y servidor de inferencia— establece al sistema como una arquitectura distribuida, donde a cada componente se le entrega únicamente el acceso que necesita para cumplir su función. Al cliente (la extensión) no se le entrega ningún acceso directo al servidor de inferencia: la llave de autenticación (\texttt{api\_key}) que da acceso a dicho servidor se mantiene únicamente en el servidor de gestión, un entorno que el usuario no puede inspeccionar. Si esa llave se incluyera en el código de la extensión, cualquier persona con acceso al navegador podría extraerla y utilizarla sin autorización, dado que el código de una extensión es, en la práctica, público para quien la instala.
+Esta separación —extensión del lado del cliente, y servidor de gestión y servidor de inferencia dentro del backend— establece al sistema como una arquitectura distribuida, donde a cada componente se le entrega únicamente el acceso que necesita para cumplir su función. Para el cliente, sin embargo, el backend se percibe y opera como una única unidad: la extensión no necesita conocer ni distinguir sus partes internas para obtener una respuesta. Al cliente (la extensión) no se le entrega ningún acceso directo al servidor de inferencia: la llave de autenticación (\texttt{api\_key}) que da acceso a dicho servidor se mantiene únicamente en el servidor de gestión, un entorno que el usuario no puede inspeccionar. Si esa llave se incluyera en el código de la extensión, cualquier persona con acceso al navegador podría extraerla y utilizarla sin autorización, dado que el código de una extensión es, en la práctica, público para quien la instala.
 
 Esa misma separación desacopla, además, a la extensión de los detalles concretos del servidor de inferencia —su dirección, su disponibilidad, o el modelo VLM que corre en un momento dado—, de modo que ese servidor puede reemplazarse, reconfigurarse o escalar sin requerir cambios en la extensión ya distribuida a los usuarios.
 
@@ -126,7 +127,7 @@ Para la inferencia se utilizó ``\textit{albert}'', una máquina del laboratorio
 
 Al determinar la arquitectura de inferencia se analizaron tres formas de resolverla: usar una API o una IA ya empaquetada de un tercero, levantar un servidor en terceros (en la nube), o utilizar un servidor institucional. Se optó por un servidor institucional, ya que permite controlar tanto el modelo utilizado como la infraestructura sobre la que corre, sin depender de las condiciones de un tercero ni de los costos por consulta de un servicio en línea.
 
-Antes de llegar al servidor local dedicado, se evaluaron progresivamente otras tres alternativas para ejecutar un modelo VLM acotado. Las cuatro pruebas en total --local, nube propia, nube colab y institucional-- se ejecutaron sobre la misma consulta ya validada anteriormente como factible para el modelo de prueba, repetida 5 veces sobre cada entorno, para promediar el tiempo de respuesta (ver Tabla \ref{table:entornosinferencia}).
+Antes de llegar al servidor local dedicado, se evaluaron progresivamente otras tres alternativas para ejecutar un modelo VLM acotado. Las cuatro pruebas en total ―local, nube propia, nube colab y institucional― se ejecutaron sobre la misma consulta ya validada anteriormente como factible para el modelo de prueba, repetida 5 veces sobre cada entorno, para promediar el tiempo de respuesta (ver Tabla \ref{table:entornosinferencia}).
 
 El tiempo de respuesta deseado para estas pruebas se fijó en no más de 10 segundos por consulta: ese es, según la literatura de interacción humano-computador, el límite bajo el cual un usuario se mantiene atento al diálogo con el sistema sin distraerse con otra tarea, en particular cuando percibe que la información solicitada es valiosa \cite{nielsen1993responsetimes}. Este es el concepto de latencia (tiempo de espera por consulta) introducido en el Capítulo 2, aplicado aquí como requisito operativo concreto del sistema.
 
@@ -145,7 +146,7 @@ Finalmente, al tener acceso a \textit{albert} y su GPU NVIDIA A40, el promedio s
         \hline
         \textbf{Entorno} & \textbf{Hardware de ejecución} & \textbf{Especificaciones} & \textbf{RAM [GB]} & \textbf{Tiempo promedio [s]} \\
         \hline
-        Equipo de desarrollo local & CPU & AMD Ryzen 5 2600 (6 núcleos / 12 hilos, 3,4--3,9 GHz, arquitectura Zen+) & 16 & 1827 \\
+        Equipo de desarrollo local & CPU & AMD Ryzen 5 2600 (6 núcleos / 12 hilos, 3,4―3,9 GHz, arquitectura Zen+) & 16 & 1827 \\
         \hline
         AWS EC2 g4dn.xlarge & CPU & Intel Xeon Platinum 8259CL ``Cascade Lake'' (4 vCPU, 2,5 GHz) & 16  & 729 \\
         \hline
@@ -168,11 +169,11 @@ Se realizó un procedimiento de \textit{benchmarking} para seleccionar el VLM m�
 Se seleccionó un conjunto de 10 sitios web en 5 categorías:
 
 \begin{itemize}
-    \item Instituciones educacionales: USM, UCH.
-    \item Organizaciones estatales: SII, SENADIS.
-    \item Sitios de \textit{e-commerce}: Falabella, Mercado Libre.
-    \item Venta de entradas a eventos: Ticketmaster, Ticketplus.
-    \item Foros y comunidades: Reddit, 9gag.
+    \item Instituciones educacionales: \href{https://www.usm.cl}{USM}, \href{https://www.uchile.cl}{UCH}.
+    \item Organizaciones estatales: \href{https://www.sii.cl}{SII}, \href{https://www.senadis.gob.cl}{SENADIS}.
+    \item Sitios de \textit{e-commerce}: \href{https://www.falabella.com/falabella-cl}{Falabella}, \href{https://www.mercadolibre.cl}{Mercado Libre}.
+    \item Venta de entradas a eventos: \href{https://www.ticketmaster.cl}{Ticketmaster}, \href{https://www.ticketplus.cl}{Ticketplus}.
+    \item Foros y comunidades: \href{https://www.reddit.com}{Reddit}, \href{https://9gag.com}{9gag}.
 \end{itemize}
 
 Para cada categoría se escribieron 3 preguntas generales, aplicables a todos los sitios que la componen, y para cada sitio se escribieron además 3 preguntas específicas, sumando un total de 6 preguntas por sitio. Considerando los 10 sitios del conjunto, esto da como resultado 60 preguntas evaluadas por cada modelo.
@@ -182,15 +183,19 @@ Para cada categoría se escribieron 3 preguntas generales, aplicables a todos lo
 Se escribieron rúbricas con puntajes del 0 al 3 según qué tanto se acerca la respuesta a la de un ser humano. La rúbrica prioriza que el dato, elemento o texto puntual solicitado sea correcto y preciso, más que la redacción con la que se presente el resto de la respuesta: si la pregunta exige extraer un texto específico del sitio (por ejemplo, el rótulo exacto de un botón), ese texto debe reproducirse tal cual aparece; para el resto de los casos, basta con que el valor o elemento identificado sea el correcto, aunque se describa con palabras distintas. Un lenguaje condicional o ambiguo sobre la información principal solicitada —por ejemplo, señalar que algo ``probablemente'' se encuentra en cierto lugar— se penaliza como si no se hubiera identificado en absoluto. La verbosidad es otro criterio aplicado: no se mejora el puntaje de una respuesta solo por ser extensa. Los cuatro niveles son:
 
 \begin{itemize}
-    \item \textbf{0 -- Alucinación o falsedad.} Se selecciona cuando la respuesta alucina contenido que no existe en ningún lugar de la captura, entrega información falsa respecto de lo que esta efectivamente muestra, o se limita a responder a partir del conocimiento previo o general del modelo en lugar de referirse a lo que la imagen realmente contiene, sin importar cuán coherente o segura suene. Por ejemplo, describir un elemento, un precio o una sección típica de ese tipo de sitio sin que la imagen lo confirme en absoluto.
-    \item \textbf{1 -- Parcial.} Se selecciona cuando la respuesta sí ubica correctamente, dentro de la propia captura, el elemento o la sección donde se encuentra la información solicitada, pero no logra extraer el texto o el detalle exacto que contiene. Por ejemplo, señalar acertadamente en qué parte de la página se ubica un botón o un bloque de texto, sin poder transcribir su contenido literal.
-    \item \textbf{2 -- Correcta pero incompleta.} Se selecciona cuando la respuesta identifica correctamente la información pedida, pero omite parte de ella o la generaliza en lugar de extraerla en su totalidad. Por ejemplo, mencionar que existe un listado de opciones u elementos relevantes sin enumerarlos todos.
-    \item \textbf{3 -- Exacta.} Se selecciona cuando la respuesta extrae la información pedida de forma literal y completa, sin agregar ni omitir contenido. Por ejemplo, citar textualmente una cifra o un texto exactamente como aparece en el sitio, sin parafrasear ni omitir parte de él.
+    \item \textbf{0 ― Alucinación o falsedad.} Se selecciona cuando la respuesta alucina contenido que no existe en ningún lugar de la captura, entrega información falsa respecto de lo que esta efectivamente muestra, o se limita a responder a partir del conocimiento previo o general del modelo en lugar de referirse a lo que la imagen realmente contiene, sin importar cuán coherente o segura suene. Por ejemplo, describir un elemento, un precio o una sección típica de ese tipo de sitio sin que la imagen lo confirme en absoluto.
+    \item \textbf{1 ― Parcial.} Se selecciona cuando la respuesta sí ubica correctamente, dentro de la propia captura, el elemento o la sección donde se encuentra la información solicitada, pero no logra extraer el texto o el detalle exacto que contiene. Por ejemplo, señalar acertadamente en qué parte de la página se ubica un botón o un bloque de texto, sin poder transcribir su contenido literal.
+    \item \textbf{2 ― Correcta pero incompleta.} Se selecciona cuando la respuesta identifica correctamente la información pedida, pero omite parte de ella o la generaliza en lugar de extraerla en su totalidad. Por ejemplo, mencionar que existe un listado de opciones u elementos relevantes sin enumerarlos todos.
+    \item \textbf{3 ― Exacta.} Se selecciona cuando la respuesta extrae la información pedida de forma literal y completa, sin agregar ni omitir contenido. Por ejemplo, citar textualmente una cifra o un texto exactamente como aparece en el sitio, sin parafrasear ni omitir parte de él.
 \end{itemize}
 
 \subsubsection{Selección del juez}
 
-Antes de definir los candidatos finales a juez, se probaron preliminarmente otros seis modelos —Llama 3.1 8B, Ministral 8B, Phi-4-mini, Qwen3-14B (con y sin razonamiento) y Qwen3-32B— contra el mismo \textit{set} de 40 respuestas evaluadas por un humano, con una versión temprana y no iterada del \textit{prompt}. Su \textit{exact match} fue consistentemente bajo, entre 30\% y 47,5\% (ver Tabla \ref{table:juecescandidatos}), por lo que se descartaron en esta etapa temprana sin continuar su calibración.
+Antes de seguir avanzando en la selección del VLM del sistema, es necesario dar un paso intermedio: seleccionar y calibrar el LLM que actuará como juez automatizado de las respuestas de esos VLM candidatos, siguiendo el esquema de \textit{LLM-as-a-judge-evaluation} descrito en el Capítulo 2. Este paso trabaja únicamente con LLM de texto, no con VLM: el juez nunca ve las capturas de pantalla, solo evalúa por escrito qué tan bien responde cada candidato a VLM frente a la pregunta y la rúbrica.
+
+Para calibrar y comparar los candidatos a juez fue necesario, primero, contar con un conjunto de respuestas de referencia evaluadas por un criterio humano, contra el cual medir qué tan bien cada candidato reproducía ese criterio. Con ese fin se construyó un \textit{set} de 40 respuestas de VLM —ya generadas previamente durante el descarte preliminar de modelos candidatos—, evaluadas manualmente por el propio autor y compuesto deliberadamente por 10 respuestas para cada uno de los 4 niveles de la rúbrica (0 a 3) definida en la sección anterior. Este balance por nivel busca que el set de referencia no favorezca a un candidato que acierte mejor en un nivel particular —por ejemplo, si predominaran las respuestas de nivel 3—, permitiendo medir la capacidad de cada candidato para distinguir los 4 niveles de la rúbrica de forma pareja. Sobre este mismo \textit{set} de 40 respuestas se evaluó tanto el descarte preliminar como la calibración final de los candidatos a juez, descritos a continuación.
+
+Antes de definir los candidatos finales a juez, se probaron preliminarmente otros seis modelos —Llama 3.1 8B, Ministral 8B, Phi-4-mini, Qwen3-14B (con y sin razonamiento) y Qwen3-32B— contra ese mismo \textit{set} de 40 respuestas, con una versión temprana y no iterada del \textit{prompt}. Su \textit{exact match} fue consistentemente bajo, entre 30\% y 47,5\% (ver Tabla \ref{table:juecescandidatos}), por lo que se descartaron en esta etapa temprana sin continuar su calibración.
 
 Antes de comparar el desempeño de los candidatos restantes, era necesario asegurar que cada uno evaluara de la mejor forma posible las respuestas de los modelos VLM. Para eso se decidió someter el \textit{prompt} de cada candidato a un proceso de mejora continua, orientado a maximizar su \textit{exact match}: es decir, a sacarle el mejor provecho posible a las capacidades de los modelos que ya mostraban buenos resultados, antes de comparar entre ellos cuál sería el juez definitivo.
 
@@ -199,7 +204,7 @@ Este proceso se automatizó de la siguiente forma:
 \begin{itemize}
     \item Se ejecutaba una prueba con la versión vigente del \textit{prompt} sobre todos los modelos candidatos a juez.
     \item Se revisaban los resultados para identificar los mejores modelos y las preguntas concretas en las que el juez fallaba al evaluarlos.
-    \item En base a esas fallas, se agregaban reglas específicas al \textit{prompt} para corregirlas. Por ejemplo, si se detectaba que el juez fallaba al validar la extracción de datos exactos, se añadía una regla puntual para evitar ese tipo de error desde la siguiente versión del \textit{prompt}.
+    \item En base a esas fallas, se agregaban reglas específicas al \textit{prompt} para corregirlas. Por ejemplo, si se detectaba que el juez fallaba al validar la extracción de datos exactos, se añadía una regla puntual para evitar ese tipo de error desde la siguiente versión del \textit{prompt}. Entre estas mejoras se estableció también una estructura explícita de actor, tarea, formato de salida y restricciones para el \textit{prompt}, en lugar de instrucciones sueltas.
     \item Este ciclo se repetía de forma iterativa, generando una nueva versión del \textit{prompt} en cada pasada.
 \end{itemize}
 
@@ -209,7 +214,7 @@ Este proceso de mejora continua se aplicó en paralelo sobre los tres candidatos
 
 La versión 9 fue la mejor para gemma3-27b, alcanzando un 72,5\% de \textit{exact match} gracias a una regla que distingue si el lenguaje condicional de una respuesta (``probablemente...'') afecta la información principal solicitada o solo un detalle secundario.
 
-Aplicando a cada candidato su mejor versión de \textit{prompt} alcanzada mediante este proceso, se comparó su desempeño contra el mismo \textit{set} de 40 respuestas previamente evaluadas por un humano (10 por cada nivel de la rúbrica), siguiendo el esquema de \textit{LLM-as-a-judge-evaluation} descrito en el Capítulo 2: el porcentaje de \textit{exact match} (que el LLM asigne exactamente el mismo puntaje que el humano) y el error absoluto medio (MAE) --métrica que calcula la distancia promedio entre los valores reales y las predicciones de un modelo-- de esos puntajes respecto de los del humano. Gracias a ese proceso de mejora continua, gemma3-27b obtuvo el mejor resultado del grupo y fue elegido como juez definitivo (ver Tabla \ref{table:juecescandidatos}).
+Aplicando a cada candidato su mejor versión de \textit{prompt} alcanzada mediante este proceso, se comparó su desempeño contra el mismo \textit{set} de 40 respuestas de referencia: el porcentaje de \textit{exact match} (que el LLM asigne exactamente el mismo puntaje que el humano) y el error absoluto medio (MAE) ―métrica que calcula la distancia promedio entre los valores reales y las predicciones de un modelo― de esos puntajes respecto de los del humano. Gracias a ese proceso de mejora continua, gemma3-27b obtuvo el mejor resultado del grupo y fue elegido como juez definitivo (ver Tabla \ref{table:juecescandidatos}).
 
 \begin{table}[h]
     \centering
@@ -234,7 +239,7 @@ Aplicando a cada candidato su mejor versión de \textit{prompt} alcanzada median
         \hline
         gemma-3-12b & Candidato final & 62,5\% (25/40) & 0,575 \\
         \hline
-        gemma3-27b & Candidato final & \textbf{72,5\% (29/40) -- seleccionado} & 0,450 \\
+        gemma3-27b & Candidato final & \textbf{72,5\% (29/40) ― seleccionado} & 0,450 \\
         \hline
     \end{tabular}
 \end{table}
@@ -247,7 +252,7 @@ A lo largo de las 23 versiones de \textit{prompt} probadas, el \textit{exact mat
 
 \subsubsection{Modelos evaluados}
 
-Ya con gemma3-27b seleccionado y calibrado como juez, se evaluaron 5 modelos VLM candidatos sobre el conjunto completo de 60 preguntas, en orden creciente de parámetros y de uso de GPU (ver Tabla \ref{table:modelosvlm}).
+Ya con gemma3-27b seleccionado y calibrado como juez, se evaluó un universo de 20 modelos VLM candidatos sobre el conjunto completo de 60 preguntas, en orden creciente de parámetros y de uso de GPU (ver Tabla \ref{table:modelosvlm}).
 
 \begin{table}[h]
     \centering
@@ -264,7 +269,7 @@ Ya con gemma3-27b seleccionado y calibrado como juez, se evaluaron 5 modelos VLM
         \hline
         Qwen2.5-VL-7B & \textasciitilde{}14 GB & 144/180 (80\%) \\
         \hline
-        Qwen3-VL-8B & \textasciitilde{}18 GB & \textbf{150/180 (83\%) -- seleccionado} \\
+        Qwen3-VL-8B & \textasciitilde{}18 GB & \textbf{150/180 (83\%) ― seleccionado} \\
         \hline
     \end{tabular}
 \end{table}
@@ -273,4 +278,6 @@ Qwen3-VL-8B obtuvo el mejor resultado del grupo y fue el modelo seleccionado par
 
 \subsubsection{Resultado de la selección}
 
-Con gemma3-27b como juez, se aplicó el \textit{benchmark} sobre el universo completo de modelos candidatos. Dado que esta implementación del juez no superó un 72,5\% de \textit{exact match}, se concluye que, tal como fue desarrollado en este trabajo, el instrumento de \textit{benchmark} automatizado no resulta lo bastante confiable para elegir de forma autónoma un único mejor modelo -sin que esto implique que el paradigma de \textit{LLM-as-a-judge} no pueda, con más trabajo de calibración, acercarse más a ese objetivo-. Sin embargo, sí resulta útil para acotar el universo de modelos posibles. A modo ilustrativo, el filtro por la etiqueta \textit{image-text-to-text} en Hugging Face —la clasificación estándar para modelos VLM— arroja más de 30.000 modelos disponibles públicamente \cite{huggingface2026imagetexttotext}; el \textit{benchmark} automatizado permitiría reducir ese universo al orden de los N mejores modelos candidatos --N depende del trabajo manual que se esté dispuesto a realizar--, antes de pasar a un análisis manual sobre ese conjunto acotado. Ese filtrado reduce drásticamente el trabajo de revisión manual, que de otra forma sería inviable sobre el universo completo; lo que se realiza de forma manual sobre ese conjunto acotado es, en esencia, lo mismo que hace el juez LLM de forma automatizada, con la diferencia de que en ese instrumento —el criterio humano— sí se puede confiar. Sobre el conjunto de los modelos preseleccionados de esta forma se eligió finalmente Qwen3-VL-8B.
+El filtro por la etiqueta \textit{image-text-to-text} en Hugging Face —la clasificación estándar para modelos VLM— arroja más de 30.000 modelos disponibles públicamente \cite{huggingface2026imagetexttotext}, un universo sobre el cual una revisión manual completa sería inviable. Frente a eso, el universo de modelos candidatos considerado en este trabajo se acotó a 20 modelos VLM, evaluados con gemma3-27b como juez sobre el conjunto completo de preguntas del \textit{benchmark} (ver Tabla \ref{table:modelosvlm}).
+
+Dado que esta implementación del juez no superó un 72,5\% de \textit{exact match}, se concluye que, tal como fue desarrollado en este trabajo, el instrumento de \textit{benchmark} automatizado no resulta lo bastante confiable para elegir de forma autónoma un único mejor modelo -sin que esto implique que el paradigma de \textit{LLM-as-a-judge} no pueda, con más trabajo de calibración, acercarse más a ese objetivo-. Sin embargo, sí resulta útil para acotar el universo de modelos posibles: sobre el 20\% superior de los 20 modelos según el puntaje del juez se realizó además una evaluación manual, para contrastar ese criterio automatizado con uno humano antes de la selección final. Ese filtrado reduce drásticamente el trabajo de revisión manual, que de otra forma sería inviable sobre el universo completo de Hugging Face; lo que se realiza de forma manual sobre ese conjunto acotado es, en esencia, lo mismo que hace el juez LLM de forma automatizada, con la diferencia de que en ese instrumento —el criterio humano— sí se puede confiar. Sobre el conjunto de modelos acotado de esta forma, se eligió finalmente Qwen3-VL-8B.

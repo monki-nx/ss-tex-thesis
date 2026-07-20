@@ -17,19 +17,15 @@
 \textcolor{pink}{Considerando la importancia de este trabajo para los alumnos, este apartado se podrá incluir en el caso de que el autor desee agradecer a las personas que facilitaron alguna ayuda relevante en su trabajo para la realización de este documento. La extensión puede ser de máximo una hoja y se deben mantener este formato, tipo y tamaño de letra.}
 }
 \newcommand{\resumen}{
-\textcolor{pink}{El resumen y las palabras clave no deben superar la mitad de la página, donde debe precisarse brevemente: 1) lo que el autor ha hecho, 2) cómo lo hizo (sólo si es importante detallarlo), 3) los resultados principales, 4) la relevancia de los resultados. El resumen es una representación abreviada, pero comprensiva de la memoria y debe informar sobre el objetivo, la metodología y los resultados del trabajo realizado.}
 
-\begin{itemize}
-    \item Relator de pantalla: prototipo de herramienta que interpreta el contenido visual de sitios web y responde por voz a personas con discapacidad visual.
-    \item Metodología de trabajo: encuesta -> prototipo -> \textit{benchmark} -> validación con usuarios.
-    \item Relevancia: >2.200 millones de personas con deficiencia visual; los lectores de pantalla no interpretan lo visual.
-\end{itemize}
+Este trabajo presenta el desarrollo del ``Relator de pantalla'', un asistente de accesibilidad web basado en un modelo de lenguaje visual (VLM) que responde en lenguaje natural preguntas sobre el contenido visual de un sitio web —imágenes, gráficos, notificaciones— que los lectores de pantalla no pueden comunicar. La consulta se realiza a partir de una captura de pantalla y una pregunta por texto o por voz, y el sistema fue diseñado para coexistir con el lector de pantalla que el usuario ya utiliza, sin reemplazarlo.
+
+La solución se validó mediante métricas técnicas y entrevistas con personas ciegas en tareas reales sobre sitios web. Los resultados muestran un sistema funcional: una tasa de error de reconocimiento de voz de 4,91\%, una latencia de respuesta promedio de 9,58 segundos, y un desempeño consistentemente pertinente en la evaluación independiente de sus respuestas. Las entrevistas mostraron una impresión general positiva, con buen desempeño en tareas descriptivas y de extracción de información. Estos resultados muestran que un asistente basado en VLM puede complementar a los lectores de pantalla existentes, justamente en el tipo de contenido que estos no pueden comunicar.
 }
 \newcommand{\resumeningles}{
 \textcolor{pink}{Corresponde a la traducción al idioma inglés del Resumen anterior. Sujeto a la misma regla de extensión del Resumen.}
 }
 \newcommand{\palabrasclave}{
-\textcolor{pink}{Cinco es el máximo de palabras clave para describir los temas tratados en la memoria, ponerlas separadas por punto y comas.}
 
 accesibilidad web; discapacidad visual; VLM; lectores de pantalla; \textit{benchmarking}.
 }
