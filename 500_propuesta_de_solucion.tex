@@ -1,18 +1,18 @@
 \secnumbersection{PROPUESTA DE SOLUCIÓN}
 
-Se plantea desarrollar un programa que, mediante un atajo de teclado, permita al usuario indicar qué necesita saber de la pantalla y reciba de vuelta una respuesta generada por el sistema. Ese comando lo recibe una extensión de navegador, que envía una captura de la pantalla junto con la pregunta a un servidor de inferencia; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario.
+Se plantea desarrollar un sistema que, mediante un atajo de teclado, permita al usuario indicar qué necesita saber de la pantalla y reciba de vuelta una respuesta. Ese comando lo recibe una extensión de navegador, que envía una captura de la pantalla junto con la pregunta a un servidor de inferencia; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario.
 
 Las secciones siguientes describen, en ese orden, la arquitectura general del sistema, la extensión de navegador, el \textit{backend} que procesa las consultas, la infraestructura sobre la que corre el modelo, y el proceso de selección del modelo VLM utilizado.
 
 \subsection{ARQUITECTURA GENERAL DEL RELATOR DE PANTALLA}
 
-La arquitectura propuesta se compone de una extensión de navegador y un \textit{backend} que coordinan la captura de la pantalla, el envío de la consulta al modelo, y la entrega de la respuesta. Esa respuesta, sin embargo, no llega al usuario mediante un mecanismo de audio propio del sistema: se apoya en la misma vía por la que el lector de pantalla ya comunica cualquier otro contenido de una página, es decir, en el DOM y en el árbol de accesibilidad que el navegador expone a través de la API de accesibilidad del sistema operativo.
+La arquitectura implementada se compone de una extensión de navegador y un \textit{backend} que coordinan la captura de la pantalla, el envío de la consulta al modelo, y la entrega de la respuesta. Esa respuesta, sin embargo, no llega al usuario mediante un mecanismo de audio propio del sistema: se apoya en la misma vía por la que el lector de pantalla ya comunica cualquier otro contenido de una página, es decir, en el DOM y en el árbol de accesibilidad que el navegador expone a través de la API de accesibilidad del sistema operativo.
 
-El flujo inicia en la extensión de navegador, instalada sobre el navegador del propio usuario. Al presionar el atajo de teclado configurado, la extensión captura la pantalla —el \textit{viewport} visible o la página completa, según el atajo ejecutado— y recoge la pregunta del usuario, ya sea escrita o dictada por voz. Con ambos datos arma una solicitud HTTP (\texttt{POST /api/ask}) hacia el \textit{backend}.
+El flujo inicia en la extensión de navegador, instalada en el navegador del propio usuario. Al presionar el atajo de teclado configurado, la extensión captura la pantalla —el \textit{viewport} visible o la página completa, según el atajo ejecutado— y recoge la pregunta del usuario, ya sea escrita o dictada por voz. Con ambos datos arma una solicitud HTTP hacia el \textit{backend}.
 
-El \textit{backend}, o capa controladora, recibe esa solicitud y actúa como intermediario hacia el servidor de inferencia: reenvía la imagen y la pregunta mediante otra solicitud HTTP (\texttt{POST /generate}), agregando una llave de autenticación (\texttt{api\_key}) para acceder a dicho servidor.
+El \textit{backend} recibe esa solicitud y actúa como intermediario hacia el VLM: reenvía la imagen y la pregunta mediante otra solicitud HTTP, agregando una llave de autenticación (\texttt{api\_key}) para acceder a dicho servidor.
 
-El servidor de inferencia aloja el modelo VLM y es, en la práctica, el único punto del sistema donde ocurre cómputo pesado sobre GPU. Procesa la imagen y la pregunta recibidas, y devuelve un JSON con el texto generado y algunas métricas de la ejecución.
+El servidor de inferencia aloja el modelo VLM y es el único punto del sistema donde ocurre cómputo sobre la GPU. Procesa la imagen y la pregunta recibidas, y devuelve un JSON con el texto generado y algunas métricas de la ejecución.
 
 Esa respuesta vuelve entonces al \textit{backend}, que la reenvía a la extensión como un JSON con el estado de la solicitud y el texto de respuesta (\texttt{response\_text}).
 
@@ -47,11 +47,11 @@ Se desarrolló una extensión diseñada para navegadores basados en Chromium, qu
 
 \subsubsection{\textit{Scroll \& stitch}}
 
-Para la captura de página completa se aplica una lógica de \textit{scroll \& stitch}: se congelan los elementos dinámicos del sitio y se aplica un desplazamiento (\textit{scroll}) continuo a lo largo de la página, tomando una captura parcial en cada tramo recorrido y uniéndolas luego (\textit{stitch}) en una sola imagen. Esto entrega la perspectiva completa y actual del sitio, según lo que requiera la consulta del usuario.
+Para la captura de página completa se aplica una lógica de \textit{scroll \& stitch}: se congelan los elementos dinámicos del sitio y se aplica un desplazamiento (\textit{scroll}) continuo a lo largo de la página, tomando una captura parcial en cada tramo recorrido y uniéndolas luego (\textit{stitch}) en una sola imagen. Esto entrega la perspectiva completa y actual del sitio, según lo que requiera la consulta del usuario. El tiempo de espera al sacar una captura mediante esta lógica aumenta proporcionalmente al largo (vertical) del sitio.
 
 \subsubsection{Formato de salida de la imagen}
 
-El output de las imágenes puede entregarse directamente en un formato de imagen (por ejemplo .jpg o .png) o convertirse a base64 para enviarlo más fácilmente por HTTP al \textit{backend}. En cualquiera de los dos casos, el \textit{backend} la recibe como parte de una solicitud \texttt{multipart/form-data} enviada mediante \texttt{HTTP POST}, junto con la pregunta, el identificador de sesión y la llave de autenticación (ver Figura \ref{fig:arquitectura}).
+El output de las imágenes es convertido a formato de cadena de texto /textit{(base64)} para enviarlo más fácilmente por HTTP al \textit{backend}. En cualquiera de los dos casos, el \textit{backend} la recibe como parte de una solicitud \texttt{multipart/form-data} enviada mediante \texttt{HTTP POST}, junto con la pregunta, el identificador de sesión y la llave de autenticación (ver Figura \ref{fig:arquitectura}).
 
 \subsection{INTERACCIÓN CON EL USUARIO}
 
@@ -59,33 +59,17 @@ Además de capturar la pantalla, la extensión es responsable de la modalidad de
 
 \subsubsection{Interacción sin síntesis de voz}
 
-En su forma más esencial, la extensión muestra un cuadro de texto donde el usuario escribe la pregunta, la envía al \textit{backend}, y recibe la respuesta también como texto, mostrada en un \textit{pop-up}. No hay reconocimiento ni síntesis de voz involucrados en ningún punto de esta interacción: tanto la pregunta como la respuesta quedan sobre la pantalla en forma de texto. Al no depender de ningún servicio externo de voz, es también la modalidad más simple de mantener y depurar.
+En su forma más básica, la extensión muestra un cuadro de texto donde el usuario escribe la pregunta, la envía al \textit{backend}, y recibe la respuesta también como texto, mostrada en un \textit{pop-up}. No hay reconocimiento ni síntesis de voz involucrados en ningún punto de esta interacción: tanto la pregunta como la respuesta quedan sobre la pantalla en forma de texto. Al no depender de ningún servicio externo de voz, es también la modalidad más simple de mantener y depurar para el proceso de desarrollo o mantenimiento, pues no otorga valor alguno a una persona ciega.
 
 \subsubsection{Interacción con síntesis de voz}
 
-En su forma completa, la extensión incorpora reconocimiento de voz para la pregunta —mediante la Web Speech API de Google, que procesa el audio localmente o en la nube—, y la respuesta se comunica en voz alta a través del lector de pantalla del usuario. El usuario puede, sin embargo, optar por escribir la pregunta en lugar de decirla en voz alta y aun así recibir la respuesta hablada; esta flexibilidad importa para quienes prefieren escribir sus consultas, ya que dejar de escribir para hablarle al computador a mitad de una sesión puede romper el flujo habitual de trabajo del usuario.
-
-\begin{table}[h]
-    \centering
-    \caption{\label{table:modalidadesinteraccion} Comparación de las modalidades de interacción con el usuario.} Fuente: Elaboración propia.
-    \begin{tabular}{|p{4cm}|p{5cm}|p{5cm}|}
-        \hline
-        \textbf{Modalidad} & \textbf{Entrada} & \textbf{Salida} \\
-        \hline
-        Sin síntesis de voz & Texto escrito & Texto, mostrado en un \textit{pop-up} \\
-        \hline
-        Con síntesis de voz & Voz (reconocimiento por STT) o texto escrito, a elección del usuario & Voz, mediante el lector de pantalla del usuario \\
-        \hline
-    \end{tabular}
-\end{table}
-
-% Nota: enlazar con el objetivo específico (b) -- las instrucciones de navegación que orientan al modelo se materializan en el diseño de prompts del sistema y del benchmark (ver \ref{sec:benchmark} / 3.5).
+En su forma completa, la extensión incorpora reconocimiento de voz para la pregunta --mediante la Web Speech API de Google, que procesa el audio localmente--, y la respuesta se comunica mediante audio a través del lector de pantalla del usuario. El usuario puede, sin embargo, optar por escribir la pregunta en lugar de decirla en voz alta y aun así recibir la respuesta hablada; esta flexibilidad importa para quienes prefieren escribir sus consultas, ya que dejar de escribir para hablarle al computador a mitad de una sesión puede romper el flujo habitual de trabajo del usuario.
 
 \subsection{\textit{BACKEND} DEL SISTEMA}
 
-El \textit{backend} está implementado en Python con FastAPI. Su responsabilidad se limita a orquestar la comunicación entre la extensión y el servidor de inferencia, sin ejecutar cómputo de IA por sí mismo.
+El \textit{backend} está implementado en Python con FastAPI y se ejecuta en el equipo del usuario. Su responsabilidad se limita a orquestar la comunicación entre la extensión y el servidor de inferencia, sin ejecutar cómputo de IA por sí mismo.
 
-Esta separación en dos componentes —en lugar de que la extensión llame directamente al servidor de inferencia— responde ante todo a una razón de seguridad: la llave de autenticación (\texttt{api\_key}) que da acceso a dicho servidor se mantiene únicamente en el \textit{backend}, un entorno que el usuario no puede inspeccionar. Si esa llave se incluyera en el código de la extensión, cualquier persona con acceso al navegador podría extraerla y utilizarla sin autorización, dado que el código de una extensión es, en la práctica, público para quien la instala.
+Esta separación en dos componentes —en lugar de que la extensión llame directamente al servidor de inferencia— responde ante todo a una razón de seguridad: la llave de autenticación (\texttt{api\_key}) que da acceso a dicho servidor se mantiene únicamente en el \textit{backend}, un entorno que el navegador no puede inspeccionar. Si esa llave se incluyera en el código de la extensión, cualquier persona con acceso al navegador podría extraerla y utilizarla sin autorización, dado que el código de una extensión es, en la práctica, público para quien la instala.
 
 Esa misma separación desacopla, además, a la extensión de los detalles concretos del servidor de inferencia —su dirección, su disponibilidad, o el modelo VLM que corre en un momento dado—, de modo que ese servidor puede reemplazarse, reconfigurarse o escalar sin requerir cambios en la extensión ya distribuida a los usuarios.
 
@@ -99,9 +83,9 @@ Para la inferencia se utilizó ``\textit{albert}'', una máquina del laboratorio
 
 \subsubsection{Decisión de infraestructura}
 
-Al determinar la arquitectura de inferencia existían tres formas de resolverla: usar una API o una IA ya empaquetada de un tercero, levantar un servidor propio remoto (en la nube), o utilizar un servidor propio local. Se optó por un servidor propio, ya que permite controlar tanto el modelo utilizado como la infraestructura sobre la que corre, sin depender de las condiciones de un tercero ni de los costos por consulta de un servicio en línea.
+Al determinar la arquitectura de inferencia existían tres formas de resolverla: usar una API o una IA ya empaquetada de un tercero, levantar un servidor de terceros (en la nube), o utilizar un servidor institucional. Se optó por un servidor institucional, ya que permite controlar tanto el modelo utilizado como la infraestructura sobre la que corre, sin depender de las condiciones de un tercero ni de los costos por consulta de un servicio en línea.
 
-Antes de llegar al servidor local dedicado, se evaluaron progresivamente otras tres alternativas para ejecutar un modelo VLM acotado. Las cuatro pruebas se ejecutaron sobre la misma consulta —preguntar por el contenido y la estructura de la página principal de la UTFSM— repetida 5 veces sobre cada entorno, para promediar el tiempo de respuesta (ver Tabla \ref{table:entornosinferencia}).
+Antes de llegar al servidor local dedicado, se evaluaron progresivamente otras tres alternativas para ejecutar un modelo VLM acotado. Las cuatro pruebas se ejecutaron sobre la misma consulta ya validada anteriormente como factible para el modelo de prueba, repetida 5 veces sobre cada entorno, para promediar el tiempo de respuesta (ver Tabla \ref{table:entornosinferencia}).
 
 El tiempo de respuesta deseado para estas pruebas se fijó en no más de 10 segundos por consulta: ese es, según la literatura de interacción humano-computador, el límite bajo el cual un usuario se mantiene atento al diálogo con el sistema sin distraerse con otra tarea, en particular cuando percibe que la información solicitada es valiosa \cite{nielsen1993responsetimes}. Este es el concepto de latencia (tiempo de espera por consulta) introducido en el Capítulo 2, aplicado aquí como requisito operativo concreto del sistema.
 
@@ -118,15 +102,15 @@ Finalmente, al tener acceso a \textit{albert} y su GPU NVIDIA A40, el promedio s
     \caption{\label{table:entornosinferencia} Comparación de los entornos de inferencia probados.} Fuente: Elaboración propia, promedio de 5 ejecuciones de la misma consulta por entorno.
     \begin{tabular}{|p{2.6cm}|p{2.3cm}|p{4.8cm}|p{1.8cm}|p{2cm}|}
         \hline
-        \textbf{Entorno} & \textbf{Hardware de ejecución} & \textbf{Especificaciones} & \textbf{RAM} & \textbf{Tiempo promedio} \\
+        \textbf{Entorno} & \textbf{Hardware de ejecución} & \textbf{Especificaciones} & \textbf{RAM} & \textbf{Tiempo promedio (s)} \\
         \hline
-        Equipo de desarrollo local & CPU & AMD Ryzen 5 2600 (6 núcleos / 12 hilos, 3,4--3,9 GHz, arquitectura Zen+) & 16 GB & 34 min \\
+        Equipo de desarrollo local & CPU & AMD Ryzen 5 2600 (6 núcleos / 12 hilos, 3,4--3,9 GHz, arquitectura Zen+) & 16 GB & 1827 \\
         \hline
-        AWS EC2 g4dn.xlarge & CPU & Intel Xeon Platinum 8259CL ``Cascade Lake'' (4 vCPU, 2,5 GHz) & 16 GiB & 12 min \\
+        AWS EC2 g4dn.xlarge & CPU & Intel Xeon Platinum 8259CL ``Cascade Lake'' (4 vCPU, 2,5 GHz) & 16 GiB & 729 \\
         \hline
-        Google Colaboratory & GPU & NVIDIA T4, 16 GB VRAM & \textasciitilde{}12 GB (asignada dinámicamente, nivel gratuito) & 1 min \\
+        Google Colaboratory & GPU & NVIDIA T4, 16 GB VRAM & \textasciitilde{}12 GB (asignada dinámicamente, nivel gratuito) & 57 \\
         \hline
-        \textit{albert} (laboratorio de \textit{data science}, DI) & GPU & NVIDIA A40, 48 GB VRAM & Por confirmar & 10 s \\
+        \textit{albert} (laboratorio de \textit{data science}, DI) & GPU & NVIDIA A40, 48 GB VRAM & 62 GiB & 10 s \\
         \hline
     \end{tabular}
 \end{table}
@@ -214,7 +198,7 @@ Este proceso de mejora continua se aplicó en paralelo sobre los tres candidatos
 
 La versión 9 fue la mejor para gemma3-27b, alcanzando un 72,5\% de \textit{exact match} gracias a una regla que distingue si el lenguaje condicional de una respuesta (``probablemente...'') afecta la información principal solicitada o solo un detalle secundario.
 
-Aplicando a cada candidato su mejor versión de \textit{prompt} alcanzada mediante este proceso, se comparó su desempeño contra el mismo \textit{set} de 40 respuestas previamente evaluadas por un humano (10 por cada nivel de la rúbrica), siguiendo el esquema de \textit{LLM-as-a-judge-evaluation} descrito en el Capítulo 2: el porcentaje de \textit{exact match} (que el LLM asigne exactamente el mismo puntaje que el humano) y el error absoluto medio (MAE) de esos puntajes respecto de los del humano. Gracias a ese proceso de mejora continua, gemma3-27b obtuvo el mejor resultado del grupo y fue elegido como juez definitivo (ver Tabla \ref{table:juecescandidatos}).
+Aplicando a cada candidato su mejor versión de \textit{prompt} alcanzada mediante este proceso, se comparó su desempeño contra el mismo \textit{set} de 40 respuestas previamente evaluadas por un humano (10 por cada nivel de la rúbrica), siguiendo el esquema de \textit{LLM-as-a-judge-evaluation} descrito en el Capítulo 2: el porcentaje de \textit{exact match} (que el LLM asigne exactamente el mismo puntaje que el humano) y el error absoluto medio (MAE) --métrica que calcula la distancia promedio entre los valores reales y las predicciones de un modelo-- de esos puntajes respecto de los del humano. Gracias a ese proceso de mejora continua, gemma3-27b obtuvo el mejor resultado del grupo y fue elegido como juez definitivo (ver Tabla \ref{table:juecescandidatos}).
 
 \begin{table}[h]
     \centering
@@ -252,4 +236,4 @@ El objetivo inicial era alcanzar un 75\% de \textit{exact match}; no se logró s
 
 \subsubsection{Resultado de la selección}
 
-Elegido gemma3-27b como juez, se corrió nuevamente el \textit{benchmark} con él sobre el universo completo de modelos candidatos. Dado que no se logró un \textit{exact match} de 80\% o superior, se concluye que el instrumento de \textit{benchmark} automatizado no es lo bastante confiable para elegir de forma autónoma un único mejor modelo. Sin embargo, sí resulta útil para acotar el universo de modelos posibles. A modo ilustrativo, el filtro por la etiqueta \textit{image-text-to-text} en Hugging Face —la clasificación estándar para modelos VLM— arroja más de 30.000 modelos disponibles públicamente \cite{huggingface2026imagetexttotext}; el \textit{benchmark} automatizado permitiría reducir ese universo al orden de los ~10 mejores modelos candidatos, antes de pasar a un análisis manual sobre ese conjunto acotado. Ese filtrado reduce drásticamente el trabajo de revisión manual, que de otra forma sería inviable sobre el universo completo; lo que se realiza de forma manual sobre ese conjunto acotado es, en esencia, lo mismo que hace el juez LLM de forma automatizada, con la diferencia de que en ese instrumento —el criterio humano— sí se puede confiar. Sobre el conjunto de 10 modelos preseleccionados de esta forma se eligió finalmente Qwen3-VL-8B.
+Elegido gemma3-27b como juez, se corrió nuevamente el \textit{benchmark} con él sobre el universo completo de modelos candidatos. Dado que no se logró un \textit{exact match} de 80\% o superior, se concluye que el instrumento de \textit{benchmark} automatizado no es lo bastante confiable para elegir de forma autónoma un único mejor modelo. Sin embargo, sí resulta útil para acotar el universo de modelos posibles. A modo ilustrativo, el filtro por la etiqueta \textit{image-text-to-text} en Hugging Face —la clasificación estándar para modelos VLM— arroja más de 30.000 modelos disponibles públicamente \cite{huggingface2026imagetexttotext}; el \textit{benchmark} automatizado permitiría reducir ese universo al orden de los N mejores modelos candidatos --N depende del trabajo manual que se esté dispuesto a realizar--, antes de pasar a un análisis manual sobre ese conjunto acotado. Ese filtrado reduce drásticamente el trabajo de revisión manual, que de otra forma sería inviable sobre el universo completo; lo que se realiza de forma manual sobre ese conjunto acotado es, en esencia, lo mismo que hace el juez LLM de forma automatizada, con la diferencia de que en ese instrumento —el criterio humano— sí se puede confiar. Sobre el conjunto de los modelos preseleccionados de esta forma se eligió finalmente Qwen3-VL-8B.
