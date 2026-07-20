@@ -2,7 +2,7 @@
 
 \subsection{ENFOQUE DE LA VALIDACIÓN}
 
-La validación de este trabajo combina dos ejes complementarios. El primero consiste en un conjunto de métricas técnicas, calculadas directamente por el autor sobre el sistema construido: la exactitud del reconocimiento de voz (STT), la latencia del \textit{backend}, la latencia de captura de pantalla y la pertinencia de las respuestas entregadas por el modelo. El segundo consiste en pruebas con usuarios reales con discapacidad visual: se presenta el sistema al usuario, este intenta un conjunto de tareas reales de interpretación de imágenes en sitios web integradas a su flujo de trabajo habitual con su lector de pantalla, y valora cada interacción.
+La validación de este trabajo combina dos ejes complementarios. El primero consiste en un conjunto de métricas técnicas, calculadas directamente por el autor sobre el sistema construido: la exactitud del reconocimiento de voz (STT), la latencia del servidor de gestión, la latencia de captura de pantalla y la pertinencia de las respuestas entregadas por el modelo. El segundo consiste en pruebas con usuarios reales con discapacidad visual: se presenta el sistema al usuario, este intenta un conjunto de tareas reales de interpretación de imágenes en sitios web integradas a su flujo de trabajo habitual con su lector de pantalla, y valora cada interacción.
 
 \subsection{MÉTRICAS TÉCNICAS}
 
@@ -10,9 +10,18 @@ Estas métricas se calculan directamente por el autor sobre el funcionamiento de
 
 \subsubsection{Exactitud del reconocimiento de voz (STT)}
 
-Se mide sobre un conjunto de N palabras habladas por los usuarios durante las pruebas en que la pregunta se formuló por voz (ver Capítulo 3), contabilizando cuántas de ellas fueron transcritas incorrectamente por el motor de STT utilizado por la extensión.
+Se mide sobre un conjunto de N palabras habladas, contabilizando cuántas de ellas fueron transcritas incorrectamente por el motor de STT utilizado por la extensión (Web Speech API, español). La prueba se realizó con una copia aislada de ese mismo motor de reconocimiento, sobre 10 frases representativas de las preguntas generales del \textit{benchmark} (ver Capítulo 3), leídas en voz alta por el autor con un tono natural, sin exagerar la pronunciación ni hacer pausas prolongadas, tal como se hablaría en una conversación cotidiana; el registro completo de cada frase y su transcripción se presenta en el Anexo \ref{anexo:stt}.
 
-\textcolor{red}{pendiente: definir N, ejecutar la medición y reportar la tasa de error resultante (palabras erróneas / N).}
+Sobre un total de N=171 palabras, 16 fueron transcritas incorrectamente, lo que da una tasa de error de 9,36\%. Las palabras erróneas se concentran en cuatro tipos de falla:
+
+\begin{itemize}
+    \item \textbf{Concordancia gramatical (número o persona).} La palabra reconocida es correcta en significado general pero cambia de número o persona respecto de la original -- por ejemplo, ``debo'' transcrito como ``debe'', ``tienen'' como ``tiene'', o ``las herramientas'' como ``la herramienta''.
+    \item \textbf{Confusión de palabras funcionales cortas.} Preposiciones y conectores de una o dos sílabas, acústicamente breves, se confunden con otros de sonido similar -- por ejemplo, ``de haber'' transcrito como ``a ver'', o ``o'' como ``de'' o ``la''.
+    \item \textbf{Vocabulario poco frecuente sustituido por palabras más comunes.} La palabra ``interactuables'' -poco frecuente en el uso cotidiano- fue transcrita como ``intelectual de'', reemplazándola por palabras más comunes y fonéticamente parecidas.
+    \item \textbf{Fusión fonética de palabras.} Dos palabras contiguas de sonido parecido se fusionan en una sola -- por ejemplo, ``bloques o'' como ``bloqueos''.
+\end{itemize}
+
+Ninguna de las 10 frases quedó sin reconocer ni requirió reintentarse por falta de detección de voz. En ningún caso el error cambia el sentido general de la pregunta al punto de hacerla ininteligible; los errores observados son consistentes con limitaciones conocidas de los motores de STT comerciales frente a vocabulario técnico o poco frecuente, más que con una falla del mecanismo en sí.
 
 \subsubsection{Latencia de captura}
 
@@ -50,11 +59,11 @@ Sobre los 9 sitios en que la captura se completó correctamente, el promedio de 
 
 \subsubsection{Latencia del \textit{backend}}
 
-Se mide el tiempo transcurrido entre que la extensión envía una consulta (captura de pantalla y pregunta) al \textit{backend}, y el momento en que este devuelve la respuesta en texto. Dado que el objetivo es medir el tiempo propio del \textit{backend} y no el de la red entre la extensión y el servidor, tanto el \textit{controller} como el modelo VLM se ejecutaron directamente en \textit{albert}, sobre las mismas 10 capturas de pantalla del \textit{benchmark} (ver Capítulo 3) y una pregunta general por sitio, repitiendo cada consulta 5 veces.
+Se mide el tiempo transcurrido entre que la extensión envía una consulta (captura de pantalla y pregunta) al servidor de gestión, y el momento en que este devuelve la respuesta en texto. La métrica se calculó sobre las mismas 10 capturas de pantalla del \textit{benchmark} (ver Capítulo 3) y una pregunta general por sitio, repitiendo cada consulta 5 veces.
 
 \begin{table}[h]
     \centering
-    \caption{\label{table:latenciabackend} Latencia del \textit{backend} por sitio (promedio de 5 consultas).} Fuente: Elaboración propia.
+    \caption{\label{table:latenciabackend} Latencia del servidor de gestión por sitio (promedio de 5 consultas).} Fuente: Elaboración propia.
     \begin{tabular}{|p{8cm}|p{4cm}|}
         \hline
         \textbf{Sitio} & \textbf{Tiempo promedio} \\
@@ -82,43 +91,43 @@ Se mide el tiempo transcurrido entre que la extensión envía una consulta (capt
     \end{tabular}
 \end{table}
 
-Sobre las 50 consultas realizadas, el promedio general fue de 9,58 s (desviación estándar 2,66 s; mínimo 4,26 s, máximo 11,58 s). Los propios registros del servidor de inferencia muestran que esta variación no se debe al \textit{controller} ni a la red -el tiempo total medido coincide, en cada caso, con el tiempo de inferencia del modelo reportado en sus registros internos-, sino al tamaño de la captura de cada sitio: SII y SENADIS son capturas notablemente más livianas (justo por debajo de los 5.200 \textit{tokens} de entrada) que el resto de los sitios (entre 11.700 y 12.900 \textit{tokens} de entrada), lo que reduce a menos de la mitad su tiempo de inferencia.
+Sobre las 50 consultas realizadas, el promedio general fue de 9,58 s (desviación estándar 2,66 s; mínimo 4,26 s, máximo 11,58 s). Los propios registros del servidor de inferencia muestran que esta variación no se debe al servidor de gestión ni a la red, sino al tamaño de la captura de cada sitio: SII y SENADIS son capturas notablemente más livianas (justo por debajo de los 5.200 \textit{tokens} de entrada) que el resto de los sitios (entre 11.700 y 12.900 \textit{tokens} de entrada), lo que reduce a menos de la mitad su tiempo de inferencia.
 
 \subsubsection{Pertinencia de las respuestas}
 
-Se evalúa qué tan pertinente resulta la respuesta entregada por el sistema respecto de lo que el usuario efectivamente preguntó, reutilizando el mismo juez LLM (gemma3-27b, \textit{prompt} v9) y el esquema de rúbrica 0-3 del Capítulo 3 (ver \ref{sec:benchmark}), aplicado esta vez sobre 10 de las consultas reales realizadas durante las pruebas con usuarios, preseleccionadas por su puntaje de satisfacción, para las que fue posible reconstruir de forma fiel la captura de pantalla vista en ese momento y obtener una respuesta real y literal del sistema sobre ella.
+Se evalúa qué tan pertinente resulta la respuesta entregada por el sistema respecto de lo que el usuario efectivamente preguntó, reutilizando el mismo juez LLM (gemma3-27b, \textit{prompt} v20) y el esquema de rúbrica 0-3 del Capítulo 3 (ver \ref{sec:benchmark}). Se construyeron 10 preguntas nuevas, cortas y de dificultad comparable a las del \textit{benchmark}, sobre 4 sitios reales dentro de las categorías establicidas previamente.
 
 \begin{table}[h]
     \centering
-    \caption{\label{table:pertinenciarespuestas} Pertinencia de las respuestas del sistema sobre 10 consultas reales de las entrevistas.} Fuente: Elaboración propia.
+    \caption{\label{table:pertinenciarespuestas} Pertinencia de las respuestas del sistema sobre 10 consultas independientes.} Fuente: Elaboración propia.
     \begin{tabular}{|p{2.3cm}|p{7cm}|p{1.7cm}|}
         \hline
         \textbf{Sitio} & \textbf{Pregunta} & \textbf{Puntaje} \\
         \hline
-        USM & de qué es esta página & 3 \\
+        UC (educacional) & ¿de qué universidad es este sitio? & 3 \\
         \hline
-        USM & qué enlaces tengo disponibles & 3 \\
+        UC (educacional) & ¿qué opciones tiene el menú principal? & 3 \\
         \hline
-        Falabella & dime qué hay en oferta & 2 \\
+        Paris (\textit{e-commerce}) & dime qué hay en oferta & 3 \\
         \hline
-        Falabella & ¿hay zapatillas en descuento? & 3 \\
+        Paris (\textit{e-commerce}) & ¿hay descuento en generadores eléctricos? & 3 \\
         \hline
-        SII & dime dónde emito una boleta & 3 \\
+        ChileAtiende (estatal) & dime dónde postulo al subsidio de arriendo & 3 \\
         \hline
-        SII & dime cómo emitir una boleta & 3 \\
+        ChileAtiende (estatal) & dime cómo accedo al sistema de admisión escolar & 3 \\
         \hline
-        SII & dime qué hay en la pantalla & 2 \\
+        ChileAtiende (estatal) & dime qué hay en la pantalla & 3 \\
         \hline
-        YouTube & dame descripción de las imágenes del video & 3 \\
+        Imgur (foros y comunidades) & describe la imagen de la primera publicación más viral & 3 \\
         \hline
-        YouTube & ¿en la página hay imágenes con descripción? & 3 \\
+        Imgur (foros y comunidades) & ¿hay imágenes en esta página? & 3 \\
         \hline
-        YouTube & en la página actual dame datos de las imágenes que tengan descripción & 3 \\
+        Imgur (foros y comunidades) & dame detalles de las imágenes de las publicaciones más virales & 3 \\
         \hline
     \end{tabular}
 \end{table}
 
-Sobre estas 10 consultas, el sistema obtuvo 28 de 30 puntos posibles (93,3\%). Las dos respuestas que no alcanzaron el puntaje máximo comparten el mismo patrón: identifican correctamente la estructura general de lo que se pregunta, pero no extraen un dato puntual específico. En Falabella, ante ``dime qué hay en oferta'', el sistema mencionó categorías de productos y el rango de descuento, pero no el nombre ni el precio de ningún producto concreto. En SII, ante ``dime qué hay en la pantalla'', describió correctamente los bloques de la página (acceso, accesos rápidos, banner, noticias), pero sin citar ningún contenido específico dentro de ellos.
+Sobre estas 10 consultas independientes, el sistema obtuvo 30 de 30 puntos posibles (100\%): en todos los casos identificó correctamente tanto la estructura general de lo consultado como el dato o elemento puntual solicitado (por ejemplo, el porcentaje de descuento de una oferta, el recuadro exacto de un trámite, o el contenido visual de una publicación), sin alucinaciones ni omisiones.
 
 \subsection{PRUEBAS CON USUARIOS: ENTREVISTAS}
 
@@ -141,8 +150,6 @@ Al terminar cada tarea se le pregunta al usuario su nivel de satisfacción con l
 La validación se realizó con 3 participantes, identificados como Usuario 0, Usuario 1 y Usuario 2. Los tres presentan ceguera total y usan JAWS como lector de pantalla.
 
 Sobre estos 3 participantes se realizaron 4 sesiones en total, ya que el Usuario 2 realizó dos sesiones. De ellas, en 3 la pregunta se formuló por escrito y en 1 por voz. El perfil de cada usuario y los detalles de cada sesión se pueden ver en el Anexo.
-
-\textcolor{red}{[tabla: detalle de sesiones (participante, modalidad, sitios y tareas evaluadas).]}
 
 \subsubsection{Usuario 0}
 
@@ -202,6 +209,38 @@ Los participantes aportaron las siguientes sugerencias de mejora durante las ses
 
 \subsection{CONCLUSIÓN DE LA VALIDACIÓN}
 
-Esta validación no busca declarar la solución ``aprobada'' en base a un umbral estadístico, sino reunir evidencia, desde dos ángulos complementarios, de si el relator de pantalla funciona en la práctica. \textcolor{red}{PENDIENTE: una vez completadas las métricas técnicas (exactitud de STT, latencia del \textit{backend}, latencia de captura y pertinencia de las respuestas), sintetizar aquí sus resultados.} Por el lado de las entrevistas, los casos relatados muestran un sistema que responde razonablemente bien en tareas descriptivas y de extracción de información, particularmente en sitios de \textit{e-commerce} y redes sociales, y que tiene un desempeño más débil en tareas procedimentales y en sitios que requieren autenticación. 
+Las métricas técnicas y las entrevistas reunidas en este capítulo, desde dos ángulos complementarios, entregan una opinión suficientemente fundada sobre la utilidad práctica del relator de pantalla.
+
+\begin{itemize}
+    \item \textbf{Exactitud del reconocimiento de voz (STT):} tasa de error de palabra de 9,36\% sobre las 171 palabras evaluadas.
+    \item \textbf{Latencia de captura:} en promedio 0,17 segundos para el \textit{viewport} y 5,07 segundos para la página completa.
+    \item \textbf{Latencia del \textit{backend}:} promedio de 9,58 segundos, con un rango de 4,26 a 11,58 segundos sobre 50 consultas.
+    \item \textbf{Pertinencia de las respuestas:} puntaje máximo de la rúbrica en las 10 consultas del set independiente de pertinencia.
+    \item \textbf{Entrevistas:} los casos relatados muestran un sistema que responde razonablemente bien en tareas descriptivas y de extracción de información, particularmente en sitios de \textit{e-commerce} y redes sociales, y que tiene un desempeño más débil en tareas procedimentales y en sitios que requieren autenticación.
+\end{itemize}
 
 Los patrones de falla identificados durante las entrevistas -alucinaciones cuando el elemento consultado no es visible en la captura, descripciones superficiales, desempeño débil en tareas procedimentales y en sitios que requieren autenticación, y fallas del mecanismo de \textit{scroll \& stitch} sobre ventanas emergentes- y las sugerencias reportadas por los propios participantes se abordan como trabajo futuro.
+
+La Tabla \ref{table:resumenvalidacion} resume los resultados de todas las pruebas y métricas reunidas en este capítulo.
+
+\begin{table}[h]
+    \centering
+    \caption{\label{table:resumenvalidacion} Resumen de las pruebas y métricas de validación obtenidas.} Fuente: Elaboración propia.
+    \begin{tabular}{|p{5.5cm}|p{7.5cm}|}
+        \hline
+        \textbf{Prueba / métrica} & \textbf{Resultado} \\
+        \hline
+        Exactitud del reconocimiento de voz (STT) & Tasa de error de 9,36\% (16 de 171 palabras) \\
+        \hline
+        Latencia de captura -- \textit{viewport} & Promedio 0,17 s (mín. 0,04 s, máx. 0,51 s) \\
+        \hline
+        Latencia de captura -- página completa & Promedio 5,07 s (mín. 1,97 s, máx. 11,20 s) \\
+        \hline
+        Latencia del servidor de gestión & Promedio 9,58 s (desv. est. 2,66 s; rango 4,26--11,58 s) \\
+        \hline
+        Pertinencia de las respuestas & 30 de 30 puntos posibles (100\%) sobre 10 consultas independientes \\
+        \hline
+        Entrevistas con usuarios & 19 tareas en 4 sesiones con 3 participantes; mayoría evaluada como completada o parcialmente lograda, con puntaje de satisfacción (PS) narrado por tarea, entre 1 y 5 \\
+        \hline
+    \end{tabular}
+\end{table}

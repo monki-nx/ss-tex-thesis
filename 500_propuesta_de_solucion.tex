@@ -1,20 +1,20 @@
 \secnumbersection{PROPUESTA DE SOLUCIÓN}
 
-Se plantea desarrollar un sistema que, mediante un atajo de teclado, permita al usuario indicar qué necesita saber de la pantalla y reciba de vuelta una respuesta. Ese comando lo recibe una extensión de navegador, que envía una captura de la pantalla junto con la pregunta a un servidor de inferencia; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario.
+Se plantea desarrollar un sistema que, mediante un atajo de teclado, permita al usuario indicar qué necesita saber de la vista del navegador y reciba de vuelta una respuesta. Ese atajo lo captura una extensión de navegador, que envía una captura de la pantalla junto con la pregunta a un servidor de inferencia; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario.
 
-Las secciones siguientes describen, en ese orden, la arquitectura general del sistema, la extensión de navegador, el \textit{backend} que procesa las consultas, la infraestructura sobre la que corre el modelo, y el proceso de selección del modelo VLM utilizado.
+Las secciones siguientes describen, en ese orden, la arquitectura general del sistema, la extensión de navegador, el servidor de gestión que procesa las consultas, la infraestructura sobre la que corre el modelo, y el proceso de selección del modelo VLM utilizado.
 
 \subsection{ARQUITECTURA GENERAL DEL RELATOR DE PANTALLA}
 
-La arquitectura implementada se compone de una extensión de navegador y un \textit{backend} que coordinan la captura de la pantalla, el envío de la consulta al modelo, y la entrega de la respuesta. Esa respuesta se apoya en la misma vía por la que el lector de pantalla ya comunica cualquier otro contenido de una página, es decir, en el DOM y en el árbol de accesibilidad que el navegador expone a través de la API de accesibilidad del sistema operativo.
+La arquitectura implementada se compone de tres partes: la extensión de navegador, un servidor de gestión, y un servidor de inferencia. La extensión captura la pantalla y recoge la pregunta del usuario; el servidor de gestión recibe esa solicitud y la reenvía al servidor de inferencia; el servidor de inferencia aloja el modelo VLM y devuelve el texto generado, que el servidor de gestión reenvía de vuelta a la extensión. Esa respuesta se apoya en la misma vía por la que el lector de pantalla ya comunica cualquier otro contenido de una página, es decir, en el DOM y en el árbol de accesibilidad que el navegador expone a través de la API de accesibilidad del sistema operativo.
 
-El flujo inicia en la extensión de navegador, instalada en el navegador del propio usuario. Al presionar el atajo de teclado configurado, la extensión captura la pantalla —el \textit{viewport} visible o la página completa, según el atajo ejecutado— y recoge la pregunta del usuario, ya sea escrita o dictada por voz. Con ambos datos arma una solicitud HTTP hacia el \textit{backend}.
+El flujo inicia en la extensión de navegador, instalada en el navegador del propio usuario. Al presionar el atajo de teclado instalado, la extensión captura la pantalla —el \textit{viewport} visible o la página completa, según lo requiera el usuario— y recoge la pregunta del usuario, ya sea escrita o dictada por voz. Con ambos datos arma una solicitud HTTP hacia el servidor de gestión.
 
-El \textit{backend} recibe esa solicitud y actúa como intermediario hacia el VLM: reenvía la imagen y la pregunta mediante otra solicitud HTTP, agregando una llave de autenticación (\texttt{api\_key}) para acceder a dicho servidor.
+El servidor de gestión recibe esa solicitud y actúa como intermediario hacia el servidor de inferencia: reenvía la imagen y la pregunta mediante otra solicitud HTTP, agregando una llave de autenticación (\texttt{api\_key}) para acceder a dicho servidor.
 
-El servidor de inferencia aloja el modelo VLM y es el único punto del sistema donde ocurre cómputo sobre la GPU. Procesa la imagen y la pregunta recibidas, y devuelve un JSON con el texto generado y algunas métricas de la ejecución.
+El servidor de inferencia aloja el modelo VLM y es el punto del sistema donde ocurre el cómputo sobre la GPU. Procesa la imagen y la pregunta recibidas, y devuelve un JSON con el texto generado y algunas métricas de la ejecución.
 
-Esa respuesta vuelve entonces al \textit{backend}, que la reenvía a la extensión como un JSON con el estado de la solicitud y el texto de respuesta (\texttt{response\_text}).
+Esa respuesta vuelve entonces al servidor de gestión, que la reenvía a la extensión como un JSON con el estado de la solicitud y el texto de respuesta (\texttt{response\_text}).
 
 Al recibir ese texto la extensión lo inserta en el DOM de la página como una región viva (\texttt{aria-live}), tal como lo haría cualquier notificación dinámica del propio sitio.
 
@@ -24,7 +24,48 @@ Finalmente, es el propio lector de pantalla del usuario —externo al sistema, s
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.85\textwidth]{arquitectura_general}
+\begin{tikzpicture}[
+    font=\footnotesize,
+    box/.style={draw, rounded corners, align=center, minimum height=0.9cm, text width=3.1cm, fill=blue!8},
+    ext/.style={draw, rounded corners, align=center, minimum height=0.9cm, text width=3.1cm, fill=yellow!15},
+    dom/.style={draw, rounded corners, align=center, minimum height=0.8cm, text width=3.1cm, fill=green!10},
+    lector/.style={draw, dashed, rounded corners, align=center, minimum height=0.8cm, text width=3.1cm, fill=gray!8},
+    container/.style={draw, dashed, inner sep=10pt, label={above:\textbf{#1}}},
+    arr/.style={-{Stealth[length=2mm]}, thin},
+    node distance=6mm and 12mm
+]
+    % --- Equipo del usuario ---
+    \node[ext] (extension) {Extensión de navegador\\(captura + pregunta)};
+    \node[dom, below=of extension] (dom) {Navegador\\(DOM, región \textit{aria-live})};
+    \node[dom, below=of dom] (arbol) {Árbol de accesibilidad};
+    \node[dom, below=of arbol] (so) {Sistema operativo\\(API de accesibilidad)};
+    \node[lector, below=of so] (lector) {Lector de pantalla\\\footnotesize(externo, del usuario)};
+
+    % --- Servidor de gestión (a la derecha, misma altura que la extensión) ---
+    \node[box, right=of extension, xshift=2.4cm] (gestion) {Servidor de gestión\\(Python, FastAPI)};
+
+    % --- Servidor de inferencia (debajo del servidor de gestión) ---
+    \node[box, below=of gestion, yshift=-2.3cm, fill=orange!12] (inferencia) {Servidor de inferencia\\(modelo VLM, GPU)};
+
+    % Contenedores
+    \node[container={Equipo del usuario (cliente)}, fit=(extension)(dom)(arbol)(so)(lector)] {};
+    \node[container={Servidor de gestión}, fit=(gestion)] {};
+    \node[container={Servidor de inferencia (\textit{albert}, GPU)}, fit=(inferencia)] {};
+
+    % Flujo cliente <-> gestión (horizontal, arriba)
+    \draw[arr] ([yshift=2mm]extension.east) -- node[above]{captura + pregunta} ([yshift=2mm]gestion.west);
+    \draw[arr] ([yshift=-6mm]gestion.west) -- node[below]{\texttt{response\_text}} ([yshift=-6mm]extension.east);
+
+    % Flujo gestión <-> inferencia (vertical, con espacio a los lados para las etiquetas)
+    \draw[arr] ([xshift=-8mm]gestion.south) -- node[left]{+ \texttt{api\_key}} ([xshift=-8mm]inferencia.north);
+    \draw[arr] ([xshift=8mm]inferencia.north) -- node[right]{texto generado} ([xshift=8mm]gestion.south);
+
+    % Flujo dentro del cliente
+    \draw[arr] (extension) -- (dom);
+    \draw[arr] (dom) -- (arbol);
+    \draw[arr] (arbol) -- (so);
+    \draw[arr] (so) -- (lector);
+\end{tikzpicture}
 \caption{\label{fig:arquitectura} Arquitectura general del relator de pantalla.} Fuente: Elaboración propia.
 \end{figure}
 
@@ -32,10 +73,10 @@ El flujo completo, desde que se inicia la solicitud hasta que se obtiene la resp
 
 \begin{enumerate}
     \item El usuario presiona el atajo de teclado y formula su pregunta —por texto o por voz— a la extensión de navegador.
-    \item La extensión captura la pantalla y envía la captura junto con la pregunta al \textit{backend} (\texttt{HTTP POST /api/ask}).
-    \item El \textit{backend} reenvía la captura y la pregunta al servidor de inferencia VLM (\texttt{HTTP POST /generate}).
-    \item El servidor de inferencia procesa la consulta y devuelve el texto generado al \textit{backend}.
-    \item El \textit{backend} devuelve ese texto a la extensión.
+    \item La extensión captura la pantalla y envía la captura junto con la pregunta al servidor de gestión.
+    \item El servidor de gestión reenvía la captura y la pregunta al servidor de inferencia.
+    \item El servidor de inferencia procesa la consulta y devuelve el texto generado al servidor de gestión.
+    \item El servidor de gestión devuelve ese texto a la extensión.
     \item La extensión inserta el texto de respuesta en el DOM de la página, como una región viva (\texttt{aria-live}).
     \item El navegador deriva del DOM actualizado un árbol de accesibilidad y lo expone a través de la API de accesibilidad del sistema operativo.
     \item El lector de pantalla del usuario consulta esa API, detecta la región viva y la anuncia, completando así el ciclo iniciado por la pregunta.
@@ -43,57 +84,57 @@ El flujo completo, desde que se inicia la solicitud hasta que se obtiene la resp
 
 \subsection{EXTENSIÓN DE NAVEGADOR}
 
-Se desarrolló una extensión diseñada para navegadores basados en Chromium, que captura el \textit{viewport} visible o la página completa mediante atajos de teclado configurables por el usuario.
+Se desarrolló una extensión diseñada para el navegador basado en Chromium Google Chrome, que captura el \textit{viewport} visible o la página completa mediante atajos de teclado configurables por el usuario.
 
 \subsubsection{\textit{Scroll \& stitch}}
 
-Para la captura de página completa se aplica una lógica de \textit{scroll \& stitch}: se congelan los elementos dinámicos del sitio y se aplica un desplazamiento (\textit{scroll}) continuo a lo largo de la página, tomando una captura parcial en cada tramo recorrido y uniéndolas luego (\textit{stitch}) en una sola imagen. Esto entrega la perspectiva completa y actual del sitio, según lo que requiera la consulta del usuario. El tiempo de espera al sacar una captura mediante esta lógica aumenta proporcionalmente al largo (vertical) del sitio.
+Para la captura de página completa se aplica una lógica de \textit{scroll \& stitch}: se congelan los elementos dinámicos del sitio y se aplica un desplazamiento (\textit{scroll}) continuo a lo largo de la página, tomando una captura parcial en cada tramo recorrido y uniéndolas luego (\textit{stitch}) en una sola imagen. Esto entrega la perspectiva actual del sitio. El tiempo de espera al sacar una captura mediante esta lógica aumenta proporcionalmente al largo (vertical) del sitio.
 
 \subsubsection{Formato de salida de la imagen}
 
-El output de las imágenes es convertido a formato de cadena de texto /textit{(base64)} para enviarlo por HTTP al \textit{backend}. Por tanto, el \textit{backend} la recibe como parte de una solicitud \texttt{multipart/form-data} enviada mediante \texttt{HTTP POST}, junto con la pregunta, el identificador de sesión y la llave de autenticación (ver Figura \ref{fig:arquitectura}).
+El \textit{output} de las imágenes es convertido a formato de cadena de texto \textit{(base64)} para enviarlo por HTTP al servidor de gestión. Por tanto, el servidor de gestión la recibe como parte de una solicitud \texttt{multipart/form-data} enviada mediante \texttt{HTTP POST}, junto con la pregunta, el identificador de sesión y la llave de autenticación (ver Figura \ref{fig:arquitectura}).
 
 \subsection{INTERACCIÓN CON EL USUARIO}
 
-Además de capturar la pantalla, la extensión es responsable de la modalidad de interacción con el usuario, es decir, de si la consulta se hace por texto o por voz. Esta responsabilidad es exclusiva de la extensión: es irrelevante para el \textit{backend} si el origen de la pregunta es escrita o hablada, dado que en ambos casos recibe únicamente texto.
+Además de capturar la pantalla, la extensión es responsable de la modalidad de interacción con el usuario, es decir, de si la consulta se hace por texto o por voz. Esta responsabilidad es exclusiva de la extensión: es irrelevante para el servidor de gestión si el origen de la pregunta es escrita o hablada, dado que en ambos casos recibe únicamente texto.
 
 \subsubsection{Interacción sin síntesis de voz}
 
-En su forma más básica, la extensión muestra un cuadro de texto donde el usuario escribe la pregunta, la envía al \textit{backend}, y recibe la respuesta también como texto, mostrada en un \textit{pop-up}. No hay reconocimiento ni síntesis de voz involucrados en ningún punto de esta interacción: tanto la pregunta como la respuesta quedan sobre la pantalla en forma de texto. Al no depender de ningún servicio externo de voz, es también la modalidad más simple de mantener y depurar para el proceso de desarrollo o mantenimiento, pues no otorga valor alguno a una persona ciega.
+En su forma más básica, la extensión muestra un cuadro de texto donde el usuario escribe la pregunta, la envía al servidor de gestión, y recibe la respuesta también como texto, mostrada en un \textit{pop-up}. No hay reconocimiento ni síntesis de voz involucrados en ningún punto de esta interacción: tanto la pregunta como la respuesta quedan sobre la pantalla en forma de texto. Esta es la modalidad más simple de mantener y depurar para los procesos de desarrollo o mantenimiento, pues no otorga valor alguno a una persona ciega.
 
 \subsubsection{Interacción con síntesis de voz}
 
 En su forma completa, la extensión incorpora reconocimiento de voz para la pregunta --mediante la Web Speech API de Google, que procesa el audio localmente--, y la respuesta se comunica mediante audio a través del lector de pantalla del usuario. El usuario puede, sin embargo, optar por escribir la pregunta en lugar de decirla en voz alta y aun así recibir la respuesta hablada; esta flexibilidad importa para quienes prefieren escribir sus consultas, ya que dejar de escribir para hablarle al computador a mitad de una sesión puede romper el flujo habitual de trabajo del usuario.
 
-\subsection{\textit{BACKEND} DEL SISTEMA}
+\subsection{SERVIDOR DE GESTIÓN}
 
-El \textit{backend} está implementado en Python con FastAPI y se ejecuta en el equipo del usuario. Su responsabilidad se limita a orquestar la comunicación entre la extensión y el servidor de inferencia.
+El servidor de gestión está implementado en Python con FastAPI y se ejecuta en infraestructura propia, separada tanto del equipo del usuario como del servidor de inferencia. Su responsabilidad se limita a orquestar la comunicación entre la extensión y el servidor de inferencia.
 
-Esta separación en dos componentes —en lugar de que la extensión llame directamente al servidor de inferencia— responde ante todo a una razón de seguridad: la llave de autenticación (\texttt{api\_key}) que da acceso a dicho servidor se mantiene únicamente en el \textit{backend}, un entorno que el navegador no puede inspeccionar. Si esa llave se incluyera en el código de la extensión, cualquier persona con acceso al navegador podría extraerla y utilizarla sin autorización, dado que el código de una extensión es, en la práctica, público para quien la instala.
+Esta separación en tres partes —extensión, servidor de gestión y servidor de inferencia— establece al sistema como una arquitectura distribuida, donde a cada componente se le entrega únicamente el acceso que necesita para cumplir su función. Al cliente (la extensión) no se le entrega ningún acceso directo al servidor de inferencia: la llave de autenticación (\texttt{api\_key}) que da acceso a dicho servidor se mantiene únicamente en el servidor de gestión, un entorno que el usuario no puede inspeccionar. Si esa llave se incluyera en el código de la extensión, cualquier persona con acceso al navegador podría extraerla y utilizarla sin autorización, dado que el código de una extensión es, en la práctica, público para quien la instala.
 
 Esa misma separación desacopla, además, a la extensión de los detalles concretos del servidor de inferencia —su dirección, su disponibilidad, o el modelo VLM que corre en un momento dado—, de modo que ese servidor puede reemplazarse, reconfigurarse o escalar sin requerir cambios en la extensión ya distribuida a los usuarios.
 
 \subsection{INFRAESTRUCTURA Y SERVIDOR \textit{ALBERT}}
 
-La infraestructura de ejecución del proyecto contempla dos partes: los equipos de los usuarios y el servidor de inferencia con GPU.
+La infraestructura de ejecución del proyecto contempla tres partes: los equipos de los usuarios, el servidor de gestión, y el servidor de inferencia con GPU.
 
 Del lado del usuario, basta un equipo con un navegador basado en Chromium; el sistema operativo puede ser Windows, macOS, Linux o cualquiera compatible con dichos navegadores.
 
-Para la inferencia se utilizó ``\textit{albert}'', una máquina del laboratorio de \textit{data science} que cuenta con una tarjeta gráfica NVIDIA A40 con 48 GB de VRAM, capaz de correr modelos VLM de alta cantidad de parámetros. Se accede a \textit{albert} vía \textit{jump host} desde el \textit{backend} para enviar las consultas mediante conexión SSH, proceso que se automatiza a través de un túnel SSH.
+Para la inferencia se utilizó ``\textit{albert}'', una máquina del laboratorio de \textit{data science} de la UTFSM que cuenta con una tarjeta gráfica NVIDIA A40 con 48 GB de VRAM, capaz de correr modelos VLM de alta cantidad de parámetros. Se accede a \textit{albert} vía \textit{jump host} desde el servidor de gestión para enviar las consultas mediante conexión SSH, proceso que se automatiza a través de un túnel SSH.
 
 \subsubsection{Decisión de infraestructura}
 
 Al determinar la arquitectura de inferencia se analizaron tres formas de resolverla: usar una API o una IA ya empaquetada de un tercero, levantar un servidor en terceros (en la nube), o utilizar un servidor institucional. Se optó por un servidor institucional, ya que permite controlar tanto el modelo utilizado como la infraestructura sobre la que corre, sin depender de las condiciones de un tercero ni de los costos por consulta de un servicio en línea.
 
-Antes de llegar al servidor local dedicado, se evaluaron progresivamente otras tres alternativas para ejecutar un modelo VLM acotado. Las cuatro pruebas en total --local, nube, nube y institucional-- se ejecutaron sobre la misma consulta ya validada anteriormente como factible para el modelo de prueba, repetida 5 veces sobre cada entorno, para promediar el tiempo de respuesta (ver Tabla \ref{table:entornosinferencia}).
+Antes de llegar al servidor local dedicado, se evaluaron progresivamente otras tres alternativas para ejecutar un modelo VLM acotado. Las cuatro pruebas en total --local, nube propia, nube colab y institucional-- se ejecutaron sobre la misma consulta ya validada anteriormente como factible para el modelo de prueba, repetida 5 veces sobre cada entorno, para promediar el tiempo de respuesta (ver Tabla \ref{table:entornosinferencia}).
 
 El tiempo de respuesta deseado para estas pruebas se fijó en no más de 10 segundos por consulta: ese es, según la literatura de interacción humano-computador, el límite bajo el cual un usuario se mantiene atento al diálogo con el sistema sin distraerse con otra tarea, en particular cuando percibe que la información solicitada es valiosa \cite{nielsen1993responsetimes}. Este es el concepto de latencia (tiempo de espera por consulta) introducido en el Capítulo 2, aplicado aquí como requisito operativo concreto del sistema.
 
-La primera prueba se realizó en el equipo de desarrollo local, apoyándose únicamente en su CPU, ya que esta no contaba con una GPU compatible con los modelos evaluados. El promedio resultante fue de 34 minutos por consulta, un tiempo muy por sobre lo aceptable para una interacción en tiempo real.
+La primera prueba se realizó en el equipo de desarrollo local, apoyándose únicamente en su CPU, ya que esta no contaba con una GPU compatible con los modelos evaluados. El promedio resultante fue de aproximadamente 34 minutos por consulta, un tiempo muy por sobre lo aceptable para una interacción en tiempo real.
 
-A fin de disminuir el tiempo de respuesta se se repitió la misma prueba en una instancia en la nube con una CPU más potente. El promedio de tiempo empleado por consulta bajó a 12 minutos: una mejora respecto del equipo local, pero aún claramente insuficiente.
+A fin de disminuir el tiempo de respuesta se repitió la misma prueba en una instancia en la nube con una CPU más potente. El promedio de tiempo empleado por consulta bajó a 12 minutos: una mejora respecto del equipo local, pero aún claramente insuficiente.
 
-Se probó entonces con una sesión de Google Colaboratory, esta vez aprovechando una GPU NVIDIA T4. El promedio bajó drásticamente a 1 minuto por consulta, confirmando que la variable relevante era el uso de GPU y no las mejoras incrementales de CPU.
+Se probó entonces con una sesión de Google Colaboratory, esta vez aprovechando una GPU NVIDIA T4. El promedio bajó drásticamente a aproximadamente 1 minuto por consulta, confirmando que la variable relevante era el uso de GPU y no las mejoras incrementales de CPU.
 
 Finalmente, al tener acceso a \textit{albert} y su GPU NVIDIA A40, el promedio se redujo a aproximadamente 10 segundos por consulta.
 
@@ -108,9 +149,9 @@ Finalmente, al tener acceso a \textit{albert} y su GPU NVIDIA A40, el promedio s
         \hline
         AWS EC2 g4dn.xlarge & CPU & Intel Xeon Platinum 8259CL ``Cascade Lake'' (4 vCPU, 2,5 GHz) & 16  & 729 \\
         \hline
-        Google Colaboratory & GPU & NVIDIA T4, 16 GB VRAM & \textasciitilde{}12 GB & 57 \\
+        Google Colaboratory & GPU & NVIDIA T4, 16 GB VRAM & \textasciitilde{}12 & 57 \\
         \hline
-        \textit{albert} (laboratorio de \textit{data science}, DI) & GPU & NVIDIA A40, 48 GB VRAM & 62 & 10 s \\
+        \textit{albert} (laboratorio de \textit{data science}, DI) & GPU & NVIDIA A40, 48 GB VRAM & 62 & 10 \\
         \hline
     \end{tabular}
 \end{table}
@@ -147,39 +188,9 @@ Se escribieron rúbricas con puntajes del 0 al 3 según qué tanto se acerca la 
     \item \textbf{3 -- Exacta.} Se selecciona cuando la respuesta extrae la información pedida de forma literal y completa, sin agregar ni omitir contenido. Por ejemplo, citar textualmente una cifra o un texto exactamente como aparece en el sitio, sin parafrasear ni omitir parte de él.
 \end{itemize}
 
-\subsubsection{Modelos evaluados}
-
-Antes de iniciar este proceso se probaron informalmente otros dos modelos, moondream2 e InternVL2-2B: el primero respondía con rapidez, pero de forma muy básica, y el segundo, si bien era más lento, intentaba entregar respuestas más elaboradas, aunque alucinaba con frecuencia. Al ver estos resultados, se decidió comenzar el proceso de \textit{benchmark}, evaluando 5 modelos VLM candidatos sobre el conjunto completo de 60 preguntas, en orden creciente de parámetros y de uso de GPU, usando en esta etapa temprana gemma-3-12b como juez automatizado (ver Tabla \ref{table:modelosvlm}).
-
-\begin{table}[h]
-    \centering
-    \caption{\label{table:modelosvlm} Modelos VLM candidatos evaluados sobre el conjunto completo de preguntas.} Fuente: Elaboración propia.
-    \begin{tabular}{|p{4cm}|p{3cm}|p{5cm}|}
-        \hline
-        \textbf{Modelo} & \textbf{VRAM aprox.} & \textbf{Puntaje (juez gemma-3-12b)} \\
-        \hline
-        moondream2 & \textasciitilde{}4 GB & N/A -- prueba preliminar, sin evaluación formal \\
-        \hline
-        InternVL2-2B & \textasciitilde{}5 GB & N/A -- prueba preliminar, sin evaluación formal \\
-        \hline
-        InternVL3-2B & \textasciitilde{}4 GB & 101/180 (56\%) \\
-        \hline
-        InternVL3-14B & \textasciitilde{}33 GB & 118/180 (66\%) \\
-        \hline
-        MiniCPM-V-4.5 & \textasciitilde{}17 GB & 131/180 (73\%) \\
-        \hline
-        Qwen2.5-VL-7B & \textasciitilde{}14 GB & 144/180 (80\%) \\
-        \hline
-        Qwen3-VL-8B & \textasciitilde{}18 GB & \textbf{150/180 (83\%) -- seleccionado} \\
-        \hline
-    \end{tabular}
-\end{table}
-
-Qwen3-VL-8B obtuvo el mejor resultado del grupo y fue el modelo seleccionado para el prototipo del relator de pantalla.
-
 \subsubsection{Selección del juez}
 
-Antes de definir los candidatos finales a juez, se probaron preliminarmente otros seis modelos —Llama 3.1 8B, Ministral 8B, Phi-4-mini, Qwen3-14B (con y sin razonamiento) y Qwen3-32B— haciéndolos evaluar el conjunto completo de preguntas con una versión temprana y no iterada del \textit{prompt}. Sus puntajes fueron consistentemente bajos, entre 6\% y 56\% sobre 180 (ver Tabla \ref{table:juecescandidatos}), por lo que se descartaron en esta etapa temprana sin continuar su calibración.
+Antes de definir los candidatos finales a juez, se probaron preliminarmente otros seis modelos —Llama 3.1 8B, Ministral 8B, Phi-4-mini, Qwen3-14B (con y sin razonamiento) y Qwen3-32B— contra el mismo \textit{set} de 40 respuestas evaluadas por un humano, con una versión temprana y no iterada del \textit{prompt}. Su \textit{exact match} fue consistentemente bajo, entre 30\% y 47,5\% (ver Tabla \ref{table:juecescandidatos}), por lo que se descartaron en esta etapa temprana sin continuar su calibración.
 
 Antes de comparar el desempeño de los candidatos restantes, era necesario asegurar que cada uno evaluara de la mejor forma posible las respuestas de los modelos VLM. Para eso se decidió someter el \textit{prompt} de cada candidato a un proceso de mejora continua, orientado a maximizar su \textit{exact match}: es decir, a sacarle el mejor provecho posible a las capacidades de los modelos que ya mostraban buenos resultados, antes de comparar entre ellos cuál sería el juez definitivo.
 
@@ -202,26 +213,26 @@ Aplicando a cada candidato su mejor versión de \textit{prompt} alcanzada median
 
 \begin{table}[h]
     \centering
-    \caption{\label{table:juecescandidatos} Comparación de los modelos LLM probados como candidatos a juez, incluyendo el descarte preliminar y los tres candidatos evaluados formalmente.} Fuente: Elaboración propia.
+    \caption{\label{table:juecescandidatos} Comparación de los modelos LLM probados como candidatos a juez, incluyendo el descarte preliminar y los tres candidatos evaluados formalmente. Todos los puntajes corresponden al mismo \textit{set} de 40 respuestas evaluadas por un humano.} Fuente: Elaboración propia.
     \begin{tabular}{|p{4cm}|p{3.3cm}|p{3.2cm}|p{2cm}|}
         \hline
-        \textbf{Modelo} & \textbf{Etapa} & \textbf{Puntaje} & \textbf{MAE} \\
+        \textbf{Modelo} & \textbf{Etapa} & \textbf{Exact match} & \textbf{MAE} \\
         \hline
-        Qwen3-32B & Descarte preliminar & 6,11\% (11/180) & -- \\
+        Qwen3-32B & Descarte preliminar & 30,0\% (12/40) & 1,425 \\
         \hline
-        Qwen3-14B (razonamiento) & Descarte preliminar & 27,78\% (50/180) & -- \\
+        Qwen3-14B (razonamiento) & Descarte preliminar & 35,0\% (14/40) & 1,200 \\
         \hline
-        Llama 3.1 8B & Descarte preliminar & 36,11\% (65/180) & -- \\
+        Llama 3.1 8B & Descarte preliminar & 40,0\% (16/40) & 0,900 \\
         \hline
-        Phi-4-mini & Descarte preliminar & 41,11\% (74/180) & -- \\
+        Phi-4-mini & Descarte preliminar & 40,0\% (16/40) & 1,075 \\
         \hline
-        Qwen3-14B & Descarte preliminar & 43,89\% (79/180) & -- \\
+        Qwen3-14B & Descarte preliminar & 40,0\% (16/40) & 0,725 \\
         \hline
-        Ministral 8B & Descarte preliminar & 55,56\% (100/180) & -- \\
+        Ministral 8B & Descarte preliminar & 47,5\% (19/40) & 0,775 \\
         \hline
-        MPrometheus-14B & Candidato final & 57,5\% (23/40) & -- \\
+        MPrometheus-14B & Candidato final & 57,5\% (23/40) & 0,550 \\
         \hline
-        gemma-3-12b & Candidato final & 62,5\% (25/40) & -- \\
+        gemma-3-12b & Candidato final & 62,5\% (25/40) & 0,575 \\
         \hline
         gemma3-27b & Candidato final & \textbf{72,5\% (29/40) -- seleccionado} & 0,450 \\
         \hline
@@ -232,8 +243,34 @@ Una revisión posterior, ya con gemma3-27b elegido como juez, detectó que parte
 
 Se dedicó entonces una nueva serie de versiones (v14 a v23) a reescribir todos los ejemplos hacia dominios neutros, sin ningún solapamiento con las preguntas reales; el resultado cayó primero y se fue recuperando hasta empatar el récord histórico en la versión 20 (72,5\%), esta vez mediante reglas generalizables. Al comparar el MAE de ambas versiones empatadas, la v9 resultó levemente mejor (0,450 frente a 0,475 de la v20). A pesar de esto, se eligio la versión 20 como la definitiva, ya que su desempeño es más robusto y generalizable, y no depende de un sesgo de contexto que podría no repetirse en otros conjuntos de prueba.
 
-El objetivo inicial era alcanzar un 75\% de \textit{exact match}; no se logró superar el 72,5\%, techo empírico confirmado tras las 23 versiones probadas.
+A lo largo de las 23 versiones de \textit{prompt} probadas, el \textit{exact match} nunca se acercó al 100\%, estancándose en un 72,5\%; se interpreta este resultado como el máximo potencial alcanzado por esta implementación particular del juez, sin que esto implique que un \textit{exact match} superior sea inalcanzable en términos absolutos. 
+
+\subsubsection{Modelos evaluados}
+
+Ya con gemma3-27b seleccionado y calibrado como juez, se evaluaron 5 modelos VLM candidatos sobre el conjunto completo de 60 preguntas, en orden creciente de parámetros y de uso de GPU (ver Tabla \ref{table:modelosvlm}).
+
+\begin{table}[h]
+    \centering
+    \caption{\label{table:modelosvlm} Modelos VLM candidatos evaluados sobre el conjunto completo de preguntas.} Fuente: Elaboración propia.
+    \begin{tabular}{|p{4cm}|p{3cm}|p{5cm}|}
+        \hline
+        \textbf{Modelo} & \textbf{VRAM aprox.} & \textbf{Puntaje (juez gemma3-27b)} \\
+        \hline
+        InternVL3-2B & \textasciitilde{}4 GB & 101/180 (56\%) \\
+        \hline
+        InternVL3-14B & \textasciitilde{}33 GB & 118/180 (66\%) \\
+        \hline
+        MiniCPM-V-4.5 & \textasciitilde{}17 GB & 131/180 (73\%) \\
+        \hline
+        Qwen2.5-VL-7B & \textasciitilde{}14 GB & 144/180 (80\%) \\
+        \hline
+        Qwen3-VL-8B & \textasciitilde{}18 GB & \textbf{150/180 (83\%) -- seleccionado} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+Qwen3-VL-8B obtuvo el mejor resultado del grupo y fue el modelo seleccionado para el prototipo del relator de pantalla.
 
 \subsubsection{Resultado de la selección}
 
-Elegido gemma3-27b como juez, se corrió nuevamente el \textit{benchmark} con él sobre el universo completo de modelos candidatos. Dado que no se logró un \textit{exact match} de 80\% o superior, se concluye que el instrumento de \textit{benchmark} automatizado no es lo bastante confiable para elegir de forma autónoma un único mejor modelo. Sin embargo, sí resulta útil para acotar el universo de modelos posibles. A modo ilustrativo, el filtro por la etiqueta \textit{image-text-to-text} en Hugging Face —la clasificación estándar para modelos VLM— arroja más de 30.000 modelos disponibles públicamente \cite{huggingface2026imagetexttotext}; el \textit{benchmark} automatizado permitiría reducir ese universo al orden de los N mejores modelos candidatos --N depende del trabajo manual que se esté dispuesto a realizar--, antes de pasar a un análisis manual sobre ese conjunto acotado. Ese filtrado reduce drásticamente el trabajo de revisión manual, que de otra forma sería inviable sobre el universo completo; lo que se realiza de forma manual sobre ese conjunto acotado es, en esencia, lo mismo que hace el juez LLM de forma automatizada, con la diferencia de que en ese instrumento —el criterio humano— sí se puede confiar. Sobre el conjunto de los modelos preseleccionados de esta forma se eligió finalmente Qwen3-VL-8B.
+Con gemma3-27b como juez, se aplicó el \textit{benchmark} sobre el universo completo de modelos candidatos. Dado que esta implementación del juez no superó un 72,5\% de \textit{exact match}, se concluye que, tal como fue desarrollado en este trabajo, el instrumento de \textit{benchmark} automatizado no resulta lo bastante confiable para elegir de forma autónoma un único mejor modelo -sin que esto implique que el paradigma de \textit{LLM-as-a-judge} no pueda, con más trabajo de calibración, acercarse más a ese objetivo-. Sin embargo, sí resulta útil para acotar el universo de modelos posibles. A modo ilustrativo, el filtro por la etiqueta \textit{image-text-to-text} en Hugging Face —la clasificación estándar para modelos VLM— arroja más de 30.000 modelos disponibles públicamente \cite{huggingface2026imagetexttotext}; el \textit{benchmark} automatizado permitiría reducir ese universo al orden de los N mejores modelos candidatos --N depende del trabajo manual que se esté dispuesto a realizar--, antes de pasar a un análisis manual sobre ese conjunto acotado. Ese filtrado reduce drásticamente el trabajo de revisión manual, que de otra forma sería inviable sobre el universo completo; lo que se realiza de forma manual sobre ese conjunto acotado es, en esencia, lo mismo que hace el juez LLM de forma automatizada, con la diferencia de que en ese instrumento —el criterio humano— sí se puede confiar. Sobre el conjunto de los modelos preseleccionados de esta forma se eligió finalmente Qwen3-VL-8B.
