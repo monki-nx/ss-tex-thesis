@@ -1,6 +1,6 @@
 \documentclass[letterpaper,12pt]{article}
 
-\newcommand{\titulo}{Asistente de accesibilidad en sitios web para personas con discapacidad visual mediante el uso de Inteligencia Artificial}
+\newcommand{\titulo}{Implementación de un relator de pantalla para sitios web basado en inteligencia artificial como herramienta de accesibilidad para personas con discapacidad visual}
 \newcommand{\ciudad}{Ciudad} % e.g. Valparaíso
 % TODO: Consultar el formato de los nombres:
 \newcommand{\nombrealumno}{Ignacio Benjamín Riquelme Vidal}
@@ -11,26 +11,57 @@
 \newcommand{\anioexamen}{2026}
 % Dedicatoria y agradecimientos
 \newcommand{\dedicatoria}{
-\textcolor{pink}{Considerando lo importancia de este trabajo para los alumnos, este apartado es para que el autor entregue palabras personales para dedicar este documento. La extensión puede ser de máximo una hoja y se deben mantener este formato, tipo y tamaño de letra.}
+Dedico este trabajo a quienes me acompañaron en mi proceso como estudiante de principio a fin, y quienes no pudieron llegar al final:
+
+Mi familia, por permitirme dedicarme a mis estudios sin preocupaciones externas.
+
+Mi perrita q.e.p.d., quien desde pequeño pronostiqué me acompañaria hasta el final de mi carrera, pero por injusticias de la vida no pudo ser.
+
+Mi pareja, por darme su apoyo incondicional en los momentos más difíciles.
+
+Mis amigos, por traer risas cuando la vida me obligaba a tomarla en serio.
+
+Espero tener personas —y animalitos— así de increíbles a mi lado en los próximos desafíos que la vida me depare.
 }
 \newcommand{\agradecimientos}{
-\textcolor{pink}{Considerando la importancia de este trabajo para los alumnos, este apartado se podrá incluir en el caso de que el autor desee agradecer a las personas que facilitaron alguna ayuda relevante en su trabajo para la realización de este documento. La extensión puede ser de máximo una hoja y se deben mantener este formato, tipo y tamaño de letra.}
+
+Deseo agradecer a todos quienes aportaron en la realización de este trabajo:
+
+Al profesor Pedro Toledo, por tomar mi idea y guiarme en su desarrollo semana a semana desde el primer día.
+
+Al profesor Jose Luis Martí Lara, por prestar su apoyo como correferente.
+
+Al profesor Ricardo Ñanculef, por entregar su apoyo intelectual y recursos técnicos para ejecutar el proyecto.
+
+A José Herrera, por darme acceso a las máquinas del laboratorio de computación.
+
+A William López, Pedro Correa, FUNDALURP y todos quienes respondieron la encuesta, quienes me ayudaron a entender la problemática de accesibilidad web desde la perspectiva de las personas ciegas.
+
+A Luis Ortiz, por ser el primer usuario de prueba y entregar su confianza desde el primer momento.
+
+Al doctor Alex Soto, por su apoyo para comprender la discapacidad visual desde la perspectiva de la medicina.
+
+Sin cualquiera de estas personas, este trabajo no habría sido posible.
 }
 \newcommand{\resumen}{
 
-Este trabajo presenta el desarrollo del ``Relator de pantalla'', un asistente de accesibilidad web basado en un modelo de lenguaje visual (VLM) que responde en lenguaje natural preguntas sobre el contenido visual de un sitio web —imágenes, gráficos, notificaciones— que los lectores de pantalla no pueden comunicar. La consulta se realiza a partir de una captura de pantalla y una pregunta por texto o por voz, y el sistema fue diseñado para coexistir con el lector de pantalla que el usuario ya utiliza, sin reemplazarlo.
+Este trabajo presenta el desarrollo del ``Relator de pantalla'', una herramienta de accesibilidad para páginas web basada en inteligencia artificial generativa para personas con discapacidad visual. A diferencia de un lector de pantalla, que solo puede comunicar contenido textual, esta herramienta permite acceder mediante preguntas en lenguaje natural a información visual de un sitio web —imágenes, gráficos y otros elementos que un lector de pantalla no puede interpretar—, funcionando junto a él en lugar de reemplazarlo.
 
-La solución se validó mediante métricas técnicas y entrevistas con personas ciegas en tareas reales sobre sitios web. Los resultados muestran un sistema funcional: una tasa de error de reconocimiento de voz de 4,91\%, una latencia de respuesta promedio de 9,58 segundos, y un desempeño consistentemente pertinente en la evaluación independiente de sus respuestas. Las entrevistas mostraron una impresión general positiva, con buen desempeño en tareas descriptivas y de extracción de información. Estos resultados muestran que un asistente basado en VLM puede complementar a los lectores de pantalla existentes, justamente en el tipo de contenido que estos no pueden comunicar.
+El desarrollo partió de una encuesta a personas en situación de discapacidad visual para validar empíricamente la necesidad, continuó con un proceso de evaluación y filtrado de los modelos de lenguaje-visión más adecuados para la tarea y finalmente el proceso de construcción de un prototipo funcional. La solución se validó mediante un conjunto de métricas técnicas y mediante entrevistas con personas ciegas en tareas reales sobre sitios web, confirmando que un asistente de este tipo puede complementar a los lectores de pantalla existentes mediante la interpretación del contenido visual, en el tipo de contenido que estos no pueden comunicar.
 }
 \newcommand{\resumeningles}{
-\textcolor{pink}{Corresponde a la traducción al idioma inglés del Resumen anterior. Sujeto a la misma regla de extensión del Resumen.}
+
+This work presents the development of ``Relator de pantalla'', a web accessibility tool based on generative artificial intelligence for people with visual impairment. Unlike a screen reader, which can only communicate textual content, this tool allows users to access visual information on a website through natural language questions —images, graphics, and other elements a screen reader cannot interpret—, working alongside it instead of replacing it.
+
+The development began with a survey of people with visual impairment to empirically validate this need, continued with a process of evaluating and filtering the vision-language models best suited for the task, and finally the construction of a functional prototype. The solution was validated through a set of technical metrics and through interviews with blind people performing real tasks on websites, confirming that an assistant of this kind can complement existing screen readers by interpreting visual content, precisely the kind of content these cannot communicate.
 }
 \newcommand{\palabrasclave}{
 
-accesibilidad web; discapacidad visual; VLM; lectores de pantalla; \textit{benchmarking}.
+accesibilidad web; discapacidad visual; modelos de lenguaje visual (VLM); lectores de pantalla; \textit{LLM-as-a-judge}.
 }
 \newcommand{\palabrasclaveingles}{
-\textcolor{pink}{Corresponde a la traducción al idioma inglés de Palabras Clave anteriores.}
+
+web accessibility; visual impairment; vision-language models (VLM); screen readers; \textit{LLM-as-a-judge}.
 }
 % @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@>
 

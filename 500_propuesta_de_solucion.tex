@@ -1,6 +1,6 @@
 \secnumbersection{PROPUESTA DE SOLUCIÓN}
 
-Se plantea desarrollar un sistema que, mediante un atajo de teclado, permita al usuario indicar qué necesita saber de la vista del navegador y reciba de vuelta una respuesta. Ese atajo lo captura una extensión de navegador, que envía una captura de la pantalla junto con la pregunta al backend del sistema; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario.
+Se plantea desarrollar un sistema que, mediante un atajo de teclado, permita al usuario indicar qué necesita saber de la vista del navegador y reciba de vuelta una respuesta. Ese atajo lo captura una extensión de navegador, que envía al \textit{backend} del sistema una captura de la pantalla junto con la pregunta; este la procesa y retorna una respuesta en texto que, finalmente, es transformada a audio por el lector de pantalla del propio usuario.
 
 Las secciones siguientes describen la arquitectura general del sistema, la extensión de navegador, el backend que procesa las consultas, la infraestructura sobre la que corre el modelo, y el proceso de selección del modelo VLM utilizado.
 
@@ -48,10 +48,11 @@ Finalmente, es el propio lector de pantalla del usuario —externo al sistema, s
     \node[box, below=of gestion, yshift=-2.3cm, fill=orange!12] (inferencia) {Servidor de inferencia\\(modelo VLM, GPU)};
 
     % Contenedores
-    \node[container={Equipo del usuario (cliente)}, fit=(extension)(dom)(arbol)(so)(lector)] {};
+    \node[container={Navegador del usuario}, fit=(extension)(dom)(arbol), inner sep=8pt] (contnavegador) {};
+    \node[container={Equipo del usuario (cliente)}, fit=(contnavegador)(so)(lector), inner sep=20pt] {};
     \node[container={Servidor de gestión}, fit=(gestion), inner sep=8pt] (contgestion) {};
-    \node[container={Servidor de inferencia (\textit{albert}, GPU)}, fit=(inferencia), inner sep=8pt] (continferencia) {};
-    \node[container={Backend}, fit=(contgestion)(continferencia), inner sep=16pt] {};
+    \node[container={Servidor de inferencia (\textit{albert}, GPU)}, fit=(inferencia), inner xsep=20pt, inner ysep=8pt] (continferencia) {};
+    \node[container={Backend}, fit=(contgestion)(continferencia), inner sep=20pt] {};
 
     % Flujo cliente <-> gestión (horizontal, arriba)
     \draw[arr] ([yshift=2mm]extension.east) -- node[above]{captura + pregunta} ([yshift=2mm]gestion.west);
@@ -252,32 +253,62 @@ A lo largo de las 23 versiones de \textit{prompt} probadas, el \textit{exact mat
 
 \subsubsection{Modelos evaluados}
 
-Ya con gemma3-27b seleccionado y calibrado como juez, se evaluó un universo de 20 modelos VLM candidatos sobre el conjunto completo de 60 preguntas, en orden creciente de parámetros y de uso de GPU (ver Tabla \ref{table:modelosvlm}).
+Se evaluó un universo de 20 modelos VLM candidatos mediante el \textit{benchmark} sobre el conjunto completo de 60 preguntas, en orden creciente de puntaje (ver Tabla \ref{table:modelosvlm}).
 
-\begin{table}[h]
-    \centering
-    \caption{\label{table:modelosvlm} Modelos VLM candidatos evaluados sobre el conjunto completo de preguntas.} Fuente: Elaboración propia.
-    \begin{tabular}{|p{4cm}|p{3cm}|p{5cm}|}
-        \hline
-        \textbf{Modelo} & \textbf{VRAM aprox.} & \textbf{Puntaje (juez gemma3-27b)} \\
-        \hline
-        InternVL3-2B & \textasciitilde{}4 GB & 101/180 (56\%) \\
-        \hline
-        InternVL3-14B & \textasciitilde{}33 GB & 118/180 (66\%) \\
-        \hline
-        MiniCPM-V-4.5 & \textasciitilde{}17 GB & 131/180 (73\%) \\
-        \hline
-        Qwen2.5-VL-7B & \textasciitilde{}14 GB & 144/180 (80\%) \\
-        \hline
-        Qwen3-VL-8B & \textasciitilde{}18 GB & \textbf{150/180 (83\%) ― seleccionado} \\
-        \hline
-    \end{tabular}
-\end{table}
+\begin{longtable}{|p{3.6cm}|p{2.2cm}|p{3.6cm}|p{3.2cm}|}
+    \caption{\label{table:modelosvlm}Modelos VLM candidatos evaluados sobre el conjunto completo de preguntas. Fuente: Elaboración propia.} \\
+    \hline
+    \textbf{Modelo} & \textbf{VRAM aprox.} & \textbf{Puntaje} & \textbf{Evaluación humana} \\
+    \hline
+    \endfirsthead
+    \hline
+    \textbf{Modelo} & \textbf{VRAM aprox.} & \textbf{Puntaje} & \textbf{Evaluación humana} \\
+    \hline
+    \endhead
+    InternVL3-1B & \textasciitilde{}2 GB & 92/180 (51,11\%) & N/A \\
+    \hline
+    MiniCPM-Llama3-V-2.5 & \textasciitilde{}17 GB & 94/180 (52,22\%) & N/A \\
+    \hline
+    InternVL3-2B & \textasciitilde{}4 GB & 101/180 (56\%) & N/A \\
+    \hline
+    InternVL3.5-1B & \textasciitilde{}2 GB & 101/180 (56,11\%) & N/A \\
+    \hline
+    MiniCPM-V-4.6 & \textasciitilde{}17 GB & 110/180 (61,11\%) & N/A \\
+    \hline
+    Qwen2-VL-2B & \textasciitilde{}4 GB & 113/180 (62,78\%) & N/A \\
+    \hline
+    InternVL3-14B & \textasciitilde{}33 GB & 118/180 (66\%) & N/A \\
+    \hline
+    MiniCPM-V-4 & \textasciitilde{}17 GB & 119/180 (66,11\%) & N/A \\
+    \hline
+    Qwen3-VL-2B & \textasciitilde{}4 GB & 125/180 (69,44\%) & N/A \\
+    \hline
+    InternVL3.5-2B & \textasciitilde{}4 GB & 126/180 (70,00\%) & N/A \\
+    \hline
+    InternVL3.5-4B & \textasciitilde{}8 GB & 131/180 (72,78\%) & N/A \\
+    \hline
+    MiniCPM-V-4.5 & \textasciitilde{}17 GB & 131/180 (73\%) & N/A \\
+    \hline
+    Qwen2.5-VL-3B & \textasciitilde{}6 GB & 132/180 (73,33\%) & N/A \\
+    \hline
+    InternVL3.5-14B & \textasciitilde{}28 GB & 135/180 (75,00\%) & N/A \\
+    \hline
+    InternVL3-8B & \textasciitilde{}16 GB & 137/180 (76,11\%) & N/A \\
+    \hline
+    InternVL3.5-8B & \textasciitilde{}16 GB & 139/180 (77,22\%) & 132/180 (73,33\%)\\
+    \hline
+    Qwen2.5-VL-7B & \textasciitilde{}14 GB & 144/180 (80\%) & 133/180 (73,89\%)\\
+    \hline
+    Qwen2-VL-7B & \textasciitilde{}16 GB & 144/180 (80,00\%) & 139/180 (77,22\%)\\
+    \hline
+    Qwen3-VL-4B & \textasciitilde{}8 GB & 150/180 (83\%) & 144/180 (80\%)\\
+    \hline
+    Qwen3-VL-8B & \textasciitilde{}18 GB & \textbf{166/180 (92,22\%) ― seleccionado} & \textbf{155/180 (86,11\%)}\\
+    \hline
+\end{longtable}
 
 Qwen3-VL-8B obtuvo el mejor resultado del grupo y fue el modelo seleccionado para el prototipo del relator de pantalla.
 
 \subsubsection{Resultado de la selección}
 
-El filtro por la etiqueta \textit{image-text-to-text} en Hugging Face —la clasificación estándar para modelos VLM— arroja más de 30.000 modelos disponibles públicamente \cite{huggingface2026imagetexttotext}, un universo sobre el cual una revisión manual completa sería inviable. Frente a eso, el universo de modelos candidatos considerado en este trabajo se acotó a 20 modelos VLM, evaluados con gemma3-27b como juez sobre el conjunto completo de preguntas del \textit{benchmark} (ver Tabla \ref{table:modelosvlm}).
-
-Dado que esta implementación del juez no superó un 72,5\% de \textit{exact match}, se concluye que, tal como fue desarrollado en este trabajo, el instrumento de \textit{benchmark} automatizado no resulta lo bastante confiable para elegir de forma autónoma un único mejor modelo -sin que esto implique que el paradigma de \textit{LLM-as-a-judge} no pueda, con más trabajo de calibración, acercarse más a ese objetivo-. Sin embargo, sí resulta útil para acotar el universo de modelos posibles: sobre el 20\% superior de los 20 modelos según el puntaje del juez se realizó además una evaluación manual, para contrastar ese criterio automatizado con uno humano antes de la selección final. Ese filtrado reduce drásticamente el trabajo de revisión manual, que de otra forma sería inviable sobre el universo completo de Hugging Face; lo que se realiza de forma manual sobre ese conjunto acotado es, en esencia, lo mismo que hace el juez LLM de forma automatizada, con la diferencia de que en ese instrumento —el criterio humano— sí se puede confiar. Sobre el conjunto de modelos acotado de esta forma, se eligió finalmente Qwen3-VL-8B.
+El filtro por la etiqueta \textit{image-text-to-text} en Hugging Face —la clasificación estándar para modelos VLM— arroja más de 30.000 modelos disponibles públicamente \cite{huggingface2026imagetexttotext}, un universo sobre el cual una revisión manual completa sería inviable. De ese universo se acotó a 20 modelos VLM candidatos mediante el \textit{benchmark} (ver Tabla \ref{table:modelosvlm}) y, de estos, a los 5 de mejor puntaje. Tras una revisión manual de esos 5 finalistas, se eligió Qwen3-VL-8B.

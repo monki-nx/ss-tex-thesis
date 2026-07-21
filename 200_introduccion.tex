@@ -1,13 +1,13 @@
 \secnumberlesssection{INTRODUCCIÓN}
 
-\textcolor{pink}{Debe proporcionar a un lector los antecedentes suficientes para poder contextualizar en general la situación tratada, a través de una descripción breve del área de trabajo y del tema particular abordado, siendo bueno especificar la naturaleza y alcance del problema; así como describir el tipo de propuesta de solución que se realiza, esbozar la metodología a ser empleada e introducir a la estructura del documento mismo de la memoria.}
+Las personas con discapacidad visual enfrentan una dificultad particular al relacionarse con la tecnología: buena parte de su uso está fuertemente ligado a la capacidad de ver e interactuar visualmente con lo que se muestra en una pantalla. Históricamente, esta barrera se ha resuelto de distintas formas. El braille permitió traducir el texto escrito a un formato accesible mucho antes de la era digital, junto a otras soluciones como las cintas grabadas de libros o el apoyo directo de otras personas.
 
-\textcolor{pink}{En el fondo, que el lector al leer la Introducción pueda tener una síntesis de cómo fue desarrollada la memoria, a diferencia del Resumen dónde se explicita más qué se hizo, no cómo se hizo.}
+En el contexto digital, la forma principal en que se ha vinculado lo visual con la voz ha sido la lectura de texto: un lector de pantalla puede convertir en voz el contenido textual de una interfaz, pero solo puede apoyarse en aquello que está escrito, y no en lo que es estrictamente visual.
 
-\begin{itemize}
-    \item Área: cruce de accesibilidad web e IA (visión / VLM).
-    \item Brecha: los lectores de pantalla no interpretan contenido visual; oportunidad de una capa intermediaria.
-    \item Solución: el relator de pantalla como complemento, no reemplazo del lector de pantalla.
-    \item Encuesta: punto de partida que motiva y valida el enfoque.
-    \item Hoja de ruta: encuesta -> prototipo -> \textit{benchmark} -> validación en más detalle.
-\end{itemize}
+La capacidad de los modelos de inteligencia artificial multimodal para interpretar imágenes —determinar qué contienen, qué no contienen, e incluso razonar sobre ellas— abre la posibilidad de extender esa misma tecnología a un nuevo propósito: vincular el mundo de lo escrito con el mundo de lo no escrito. Información de un sitio web que hasta ahora era exclusivamente visual —una fotografía, un gráfico, el color o el estilo de una página— puede extraerse y verbalizarse en texto, volviéndola legible mediante las mismas tecnologías que ya hacen accesible lo escrito.
+
+En este contexto se plantea la idea de un ``Relator de pantalla'': usar la inteligencia artificial para gestionar un relato de lo que se ve en una pantalla, asociado a las necesidades puntuales de cada persona, de modo que sea equivalente a contar con alguien al lado describiendo lo que está viendo.
+
+Los lectores de pantalla, sin embargo, no están diseñados para interpretar este tipo de contenido, lo que abre una brecha de accesibilidad que una capa intermediaria basada en inteligencia artificial puede ayudar a cerrar —como complemento del lector de pantalla que la persona ya utiliza, no como su reemplazo—. Esta memoria caracteriza primero esa problemática, partiendo de su dimensión social y acotándola después a sus aspectos técnicos, para luego explicar cómo la inteligencia artificial ofrece una herramienta capaz de atenderla y cómo se integran específicamente los modelos de lenguaje visual para generar esa asistencia.
+
+Para ello, el trabajo sigue una hoja de ruta que parte de una encuesta propia aplicada a personas ciegas, que motiva y valida empíricamente la problemática antes de proponer una solución; continúa con el desarrollo de un prototipo funcional y con un proceso de selección del modelo de inteligencia artificial más adecuado para la tarea; y concluye con la validación de la solución mediante métricas técnicas y pruebas con usuarios reales. El resto del documento se organiza siguiendo ese mismo recorrido: el Capítulo 1 profundiza en la problemática social y técnica que motiva este trabajo; el Capítulo 2 revisa los conceptos necesarios para comprenderlo; el Capítulo 3 describe la propuesta de solución desarrollada; el Capítulo 4 presenta su validación; y el Capítulo 5 cierra con las conclusiones y el trabajo futuro.
