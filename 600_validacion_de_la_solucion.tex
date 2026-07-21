@@ -15,10 +15,10 @@ Se mide sobre un conjunto de N palabras habladas, contabilizando cuántas de ell
 Sobre un total de N=855 palabras (171 palabras por cada una de las 5 personas), 42 fueron transcritas incorrectamente, lo que da una tasa de error de 4,91\%. Las palabras erróneas se concentran en cuatro tipos de falla:
 
 \begin{itemize}
-    \item \textbf{Concordancia gramatical (número o persona).} La palabra reconocida es correcta en significado general pero cambia de número o persona respecto de la original -- por ejemplo, ``debo'' transcrito como ``debe'', ``tienen'' como ``tiene'', o ``las herramientas'' como ``la herramienta''.
-    \item \textbf{Confusión de palabras funcionales cortas.} Preposiciones y conectores de una o dos sílabas, acústicamente breves, se confunden con otros de sonido similar -- por ejemplo, ``de haber'' transcrito como ``a ver'', o ``o'' como ``de'' o ``la''.
+    \item \textbf{Concordancia gramatical (número o persona).} La palabra reconocida es correcta en significado general pero cambia de número o persona respecto de la original — por ejemplo, ``debo'' transcrito como ``debe'', ``tienen'' como ``tiene'', o ``las herramientas'' como ``la herramienta''.
+    \item \textbf{Confusión de palabras funcionales cortas.} Preposiciones y conectores de una o dos sílabas, acústicamente breves, se confunden con otros de sonido similar — por ejemplo, ``de haber'' transcrito como ``a ver'', o ``o'' como ``de'' o ``la''.
     \item \textbf{Vocabulario poco frecuente sustituido por palabras más comunes.} La palabra ``interactuables'' -poco frecuente en el uso cotidiano- fue transcrita como ``intelectual de'', reemplazándola por palabras más comunes y fonéticamente parecidas.
-    \item \textbf{Fusión fonética de palabras.} Dos palabras contiguas de sonido parecido se fusionan en una sola -- por ejemplo, ``bloques o'' como ``bloqueos''.
+    \item \textbf{Fusión fonética de palabras.} Dos palabras contiguas de sonido parecido se fusionan en una sola — por ejemplo, ``bloques o'' como ``bloqueos''.
 \end{itemize}
 
 Ninguna de las 50 lecturas (10 frases por cada una de las 5 personas) quedó sin reconocer ni requirió reintentarse por falta de detección de voz. En ningún caso el error cambia el sentido general de la pregunta al punto de hacerla ininteligible; los errores observados son consistentes con limitaciones conocidas de los motores de STT comerciales frente a vocabulario técnico o poco frecuente, más que con una falla del mecanismo en sí.
@@ -61,39 +61,39 @@ Para la captura de página completa, el promedio fue de 5,07 s (mínimo 1,97 s, 
 
 \subsubsection{Latencia del \textit{backend}}
 
-Se mide el tiempo transcurrido entre que la extensión envía una consulta (captura de pantalla y pregunta) al servidor de gestión, y el momento en que este devuelve la respuesta en texto. La métrica se calculó sobre las mismas 10 capturas de pantalla del \textit{benchmark} (ver Capítulo 3) y una pregunta general por sitio, repitiendo cada consulta 5 veces.
+Se mide el tiempo transcurrido entre que la extensión envía una consulta (captura de pantalla y pregunta) al servidor de gestión, y el momento en que este devuelve la respuesta en texto. La métrica se calculó sobre las mismas 10 capturas de pantalla del \textit{benchmark} (ver Capítulo 3), usando en todos los casos la misma pregunta estandarizada (``Describe de qué se trata este sitio.''), para aislar el efecto del tamaño de la imagen sin la variable adicional de la complejidad o largo de la pregunta, repitiendo cada consulta 5 veces. El tiempo promedio de cada sitio se normalizó, además, por la cantidad de megapíxeles de su captura (ancho × alto), en vez de por la cantidad de tramos de \textit{scroll \& stitch}.
 
 \begin{table}[h]
     \centering
-    \caption{\label{table:latenciabackend} Latencia del servidor de gestión por sitio (promedio de 5 consultas).} Fuente: Elaboración propia.
-    \begin{tabular}{|p{8cm}|p{4cm}|}
+    \caption{\label{table:latenciabackend} Latencia del servidor de gestión por sitio (promedio de 5 consultas con la misma pregunta), normalizada por megapíxel.} Fuente: Elaboración propia.
+    \begin{tabular}{|p{3.3cm}|p{2.8cm}|p{2.8cm}|p{3.2cm}|}
         \hline
-        \textbf{Sitio} & \textbf{Tiempo promedio} \\
+        \textbf{Sitio} & \textbf{Resolución} & \textbf{Tiempo promedio} & \textbf{Tiempo/megapíxel} \\
         \hline
-        SII & 4,31 s \\
+        SII & 2560×1902 (4,87 MP) & 4,65 s & 0,954 s/MP \\
         \hline
-        SENADIS & 4,43 s \\
+        SENADIS & 1920×2594 (4,98 MP) & 4,61 s & 0,925 s/MP \\
         \hline
-        UCH & 10,14 s \\
+        UCH & 2560×4523 (11,58 MP) & 9,32 s & 0,805 s/MP \\
         \hline
-        Mercado Libre & 10,36 s \\
+        Mercado Libre & 1920×6215 (11,93 MP) & 10,02 s & 0,840 s/MP \\
         \hline
-        USM & 10,54 s \\
+        USM & 1920×6557 (12,59 MP) & 10,96 s & 0,870 s/MP \\
         \hline
-        Ticketmaster & 10,82 s \\
+        Ticketmaster & 2560×6565 (16,81 MP) & 10,74 s & 0,639 s/MP \\
         \hline
-        9gag & 11,03 s \\
+        Ticketplus & 2560×6922 (17,72 MP) & 10,56 s & 0,596 s/MP \\
         \hline
-        Reddit & 11,34 s \\
+        9gag & 2560×11511 (29,47 MP) & 12,34 s & 0,419 s/MP \\
         \hline
-        Ticketplus & 11,40 s \\
+        Falabella & 2560×11817 (30,25 MP) & 11,06 s & 0,366 s/MP \\
         \hline
-        Falabella & 11,40 s \\
+        Reddit & 1920×18107 (34,77 MP) & 11,18 s & 0,321 s/MP \\
         \hline
     \end{tabular}
 \end{table}
 
-Sobre las 50 consultas realizadas, el promedio general fue de 9,58 s (desviación estándar 2,66 s; mínimo 4,26 s, máximo 11,58 s). Los propios registros del servidor de inferencia muestran que esta variación no se debe al servidor de gestión ni a la red, sino al tamaño de la captura de cada sitio: SII y SENADIS son capturas notablemente más livianas que el resto de los sitios, lo que reduce a menos de la mitad su tiempo de inferencia.
+Sobre las 50 consultas realizadas, el promedio general fue de 9,54 s (desviación estándar 2,79 s; mínimo 4,61 s, máximo 18,74 s). Al normalizar el tiempo promedio de cada sitio por la cantidad de megapíxeles de su captura, en vez de por la cantidad de tramos, se observa la relación esperada: a mayor cantidad de píxeles, menor el tiempo por megapíxel -de 0,954 s/MP en SII, la captura más liviana, a 0,321 s/MP en Reddit, la más pesada-, lo que indica que el costo de procesar una imagen más grande no crece de forma proporcional a su tamaño.
 
 \subsubsection{Pertinencia de las respuestas}
 
@@ -162,10 +162,10 @@ A modo de resumen de las 19 tareas intentadas a lo largo de las 4 sesiones, la m
 La sesión de este participante fue la primera ejecutada, con la pregunta formulada por escrito.
 
 \begin{itemize}
-    \item En el sitio de la USM (categoría educacional), preguntó de qué se trataba la página; el sistema identificó correctamente que era el sitio de la Universidad Técnica Federico Santa María, un dato que el usuario no conocía de antemano -- tarea completada, PS 5.
-    \item En el mismo sitio, preguntó qué enlaces tenía disponibles; el sistema listó los botones de la barra de navegación principal, lo que le permitió anticipar el contenido antes de recorrer la página -- tarea completada, PS 3.
-    \item En Falabella (categoría \textit{e-commerce}), preguntó qué productos había en oferta; el sistema listó las publicaciones principales en oferta, identificando producto, precio y porcentaje de descuento, sin que el usuario tuviera que navegar para obtener el dato exacto -- tarea completada, PS 5.
-    \item En el mismo sitio, preguntó puntualmente si había zapatillas en descuento; el sistema identificó correctamente una oferta vigente de zapatillas -- tarea completada, PS 5.
+    \item En el sitio de la USM (categoría educacional), preguntó de qué se trataba la página; el sistema identificó correctamente que era el sitio de la Universidad Técnica Federico Santa María, un dato que el usuario no conocía de antemano — tarea completada, PS 5.
+    \item En el mismo sitio, preguntó qué enlaces tenía disponibles; el sistema listó los botones de la barra de navegación principal, lo que le permitió anticipar el contenido antes de recorrer la página — tarea completada, PS 3.
+    \item En Falabella (categoría \textit{e-commerce}), preguntó qué productos había en oferta; el sistema listó las publicaciones principales en oferta, identificando producto, precio y porcentaje de descuento, sin que el usuario tuviera que navegar para obtener el dato exacto — tarea completada, PS 5.
+    \item En el mismo sitio, preguntó puntualmente si había zapatillas en descuento; el sistema identificó correctamente una oferta vigente de zapatillas — tarea completada, PS 5.
 \end{itemize}
 
 Las cuatro tareas de esta sesión se completaron, con los puntajes de satisfacción más altos registrados entre las cuatro sesiones.
@@ -175,12 +175,12 @@ Las cuatro tareas de esta sesión se completaron, con los puntajes de satisfacci
 Sesión única, con la pregunta formulada por escrito.
 
 \begin{itemize}
-    \item En YouTube (categoría redes sociales), pidió una descripción de las imágenes del video que estaba viendo; el sistema describió el contenido del video, incluyendo la apariencia física del presentador -información que el usuario no podría haber obtenido de otra forma-- tarea completada, PS 5.
-    \item En el mismo sitio, preguntó si la página tenía imágenes con descripción y, en una pregunta posterior, pidió el detalle de esas imágenes; en ambos casos el sistema confirmó su existencia y nombró los videos asociados, pero sin aportar información adicional a la que ya entregaba el lector de pantalla -- tareas parciales, PS 3 en ambas.
-    \item En el portal docente de una institución educativa, preguntó cómo entrar a un sistema interno de gestión académica y, en dos preguntas de seguimiento, dónde estaba ese acceso y cómo activarlo; al no estar el elemento visible en la captura, el sistema respondió en términos generales o interpretó por error el nombre del sistema como una instrucción -- tareas no completadas, PS 2 y PS 1 respectivamente.
-    \item En el mismo portal, pidió los pasos para ingresar evaluaciones; el sistema afirmó que esa sección no existía, pese a estar disponible en la página -- tarea no completada, PS 1.
-    \item Ya dentro de la sección de gestión académica, pidió una descripción general de la página; el sistema entregó una descripción superficial de la estructura, insuficiente para orientar la navegación -- tarea no completada, PS 2.
-    \item En esa misma sección, pidió la lista completa de estudiantes; el sistema leyó correctamente el único nombre visible en pantalla en ese momento, pero no logró capturar la lista completa por una falla del mecanismo de \textit{scroll \& stitch} sobre una ventana emergente -- tarea parcial, PS 3.
+    \item En YouTube (categoría redes sociales), pidió una descripción de las imágenes del video que estaba viendo; el sistema describió el contenido del video, incluyendo la apariencia física del presentador -información que el usuario no podría haber obtenido de otra forma— tarea completada, PS 5.
+    \item En el mismo sitio, preguntó si la página tenía imágenes con descripción y, en una pregunta posterior, pidió el detalle de esas imágenes; en ambos casos el sistema confirmó su existencia y nombró los videos asociados, pero sin aportar información adicional a la que ya entregaba el lector de pantalla — tareas parciales, PS 3 en ambas.
+    \item En el portal docente de una institución educativa, preguntó cómo entrar a un sistema interno de gestión académica y, en dos preguntas de seguimiento, dónde estaba ese acceso y cómo activarlo; al no estar el elemento visible en la captura, el sistema respondió en términos generales o interpretó por error el nombre del sistema como una instrucción — tareas no completadas, PS 2 y PS 1 respectivamente.
+    \item En el mismo portal, pidió los pasos para ingresar evaluaciones; el sistema afirmó que esa sección no existía, pese a estar disponible en la página — tarea no completada, PS 1.
+    \item Ya dentro de la sección de gestión académica, pidió una descripción general de la página; el sistema entregó una descripción superficial de la estructura, insuficiente para orientar la navegación — tarea no completada, PS 2.
+    \item En esa misma sección, pidió la lista completa de estudiantes; el sistema leyó correctamente el único nombre visible en pantalla en ese momento, pero no logró capturar la lista completa por una falla del mecanismo de \textit{scroll \& stitch} sobre una ventana emergente — tarea parcial, PS 3.
 \end{itemize}
 
 De las nueve tareas de esta sesión, las relacionadas con el portal docente concentraron las respuestas más deficientes, mientras que las tareas sobre YouTube tuvieron mejor desempeño.
@@ -190,12 +190,12 @@ De las nueve tareas de esta sesión, las relacionadas con el portal docente conc
 Dos sesiones: la primera con la pregunta formulada por escrito, y la segunda -la única de las cuatro realizada así- por voz.
 
 \begin{itemize}
-    \item En la sección de gestión académica de un portal educativo, pidió instrucciones para ver la lista de estudiantes; el sistema entregó indicaciones superficiales de navegación, por debajo de lo que el usuario esperaba -- tarea no completada, PS 1.
-    \item En el mismo sitio, pidió directamente que se le mostrara la lista de estudiantes; el sistema volvió a leer solo el nombre visible en ese momento, sin acceder a la lista completa por la misma falla de \textit{scroll \& stitch} sobre la ventana emergente -- tarea parcial, PS 3.
-    \item En el portal de otra institución educativa, preguntó qué había en la pantalla; el sistema describió la estructura de la página de forma superficial, omitiendo interacciones relevantes para un usuario ciego -- tarea parcial, PS 2.
-    \item En el sitio del Servicio de Impuestos Internos (categoría estatal), preguntó dónde emitir una boleta; el sistema identificó correctamente el botón correspondiente, pero omitió el flujo de interacción necesario para completarlo -- tarea parcial, PS 3.
-    \item En el mismo sitio, preguntó qué había en la pantalla; el sistema volvió a entregar una descripción superficial que omitía interacciones clave -- tarea no completada, PS 2.
-    \item Ya en la sesión de voz, sobre el mismo sitio, preguntó cómo emitir una boleta; el sistema entregó indicaciones superficiales de navegación, pero el usuario destacó que la interacción por voz aceleró el flujo de trabajo pese a no completar la tarea -- PS 4.
+    \item En la sección de gestión académica de un portal educativo, pidió instrucciones para ver la lista de estudiantes; el sistema entregó indicaciones superficiales de navegación, por debajo de lo que el usuario esperaba — tarea no completada, PS 1.
+    \item En el mismo sitio, pidió directamente que se le mostrara la lista de estudiantes; el sistema volvió a leer solo el nombre visible en ese momento, sin acceder a la lista completa por la misma falla de \textit{scroll \& stitch} sobre la ventana emergente — tarea parcial, PS 3.
+    \item En el portal de otra institución educativa, preguntó qué había en la pantalla; el sistema describió la estructura de la página de forma superficial, omitiendo interacciones relevantes para un usuario ciego — tarea parcial, PS 2.
+    \item En el sitio del Servicio de Impuestos Internos (categoría estatal), preguntó dónde emitir una boleta; el sistema identificó correctamente el botón correspondiente, pero omitió el flujo de interacción necesario para completarlo — tarea parcial, PS 3.
+    \item En el mismo sitio, preguntó qué había en la pantalla; el sistema volvió a entregar una descripción superficial que omitía interacciones clave — tarea no completada, PS 2.
+    \item Ya en la sesión de voz, sobre el mismo sitio, preguntó cómo emitir una boleta; el sistema entregó indicaciones superficiales de navegación, pero el usuario destacó que la interacción por voz aceleró el flujo de trabajo pese a no completar la tarea — PS 4.
 \end{itemize}
 
 La sesión de voz mostró un caso particular: pese a no completarse la tarea, el usuario le asignó un puntaje de satisfacción más alto que a tareas equivalentes resueltas por texto, lo que sugiere que la interacción por voz tiene un valor intrínseco para el usuario, más allá del éxito o fracaso de la tarea en sí.
